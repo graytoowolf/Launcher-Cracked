@@ -29,6 +29,7 @@
 #include <QPainter>
 
 #include "flows/MSA.h"
+#include "flows/Bs.h"
 #include "flows/Mojang.h"
 
 MinecraftAccount::MinecraftAccount(QObject* parent) : QObject(parent) {
@@ -39,6 +40,14 @@ MinecraftAccount::MinecraftAccount(QObject* parent) : QObject(parent) {
 MinecraftAccountPtr MinecraftAccount::loadFromJsonV2(const QJsonObject& json) {
     MinecraftAccountPtr account(new MinecraftAccount());
     if(account->data.resumeStateFromV2(json)) {
+        return account;
+    }
+    return nullptr;
+}
+MinecraftAccountPtr MinecraftAccount::loadFromJsonV4(const QJsonObject &json)
+{
+    MinecraftAccountPtr account(new MinecraftAccount());
+    if (account->data.resumeStateFromV4(json)) {
         return account;
     }
     return nullptr;
@@ -56,6 +65,14 @@ MinecraftAccountPtr MinecraftAccount::createFromUsername(const QString &username
 {
     MinecraftAccountPtr account = new MinecraftAccount();
     account->data.type = AccountType::Mojang;
+    account->data.yggdrasilToken.extra["userName"] = username;
+    account->data.yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegExp("[{}-]"));
+    return account;
+}
+MinecraftAccountPtr MinecraftAccount::createBlessings(const QString &username)
+{
+    MinecraftAccountPtr account = new MinecraftAccount();
+    account->data.type = AccountType::Bs;
     account->data.yggdrasilToken.extra["userName"] = username;
     account->data.yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegExp("[{}-]"));
     return account;
@@ -100,6 +117,16 @@ shared_qobject_ptr<AccountTask> MinecraftAccount::login(QString password) {
     emit activityChanged(true);
     return m_currentTask;
 }
+shared_qobject_ptr<AccountTask> MinecraftAccount::bslogin(QString password)
+{
+    Q_ASSERT(m_currentTask.get() == nullptr);
+
+    m_currentTask.reset(new BsLogin(&data, password));
+    connect(m_currentTask.get(), SIGNAL(succeeded()), SLOT(authSucceeded()));
+    connect(m_currentTask.get(), SIGNAL(failed(QString)), SLOT(authFailed(QString)));
+    emit activityChanged(true);
+    return m_currentTask;
+}
 
 shared_qobject_ptr<AccountTask> MinecraftAccount::loginMSA() {
     Q_ASSERT(m_currentTask.get() == nullptr);
@@ -119,8 +146,13 @@ shared_qobject_ptr<AccountTask> MinecraftAccount::refresh() {
     if(data.type == AccountType::MSA) {
         m_currentTask.reset(new MSASilent(&data));
     }
-    else {
+    else if (data.type == AccountType::Mojang) {
+
         m_currentTask.reset(new MojangRefresh(&data));
+    }
+    else
+    {
+        m_currentTask.reset(new BsRefresh(&data));
     }
 
     connect(m_currentTask.get(), SIGNAL(succeeded()), SLOT(authSucceeded()));
@@ -148,33 +180,33 @@ void MinecraftAccount::authFailed(QString reason)
         case AccountTaskState::STATE_FAILED_MUST_MIGRATE:
         case AccountTaskState::STATE_FAILED_SOFT: {
             // NOTE: this doesn't do much. There was an error of some sort.
-        }
-        break;
-        case AccountTaskState::STATE_FAILED_HARD: {
-            if(isMSA()) {
-                data.msaToken.token = QString();
-                data.msaToken.refresh_token = QString();
-                data.msaToken.validity = Katabasis::Validity::None;
-                data.validity_ = Katabasis::Validity::None;
-            }
-            else {
-                data.yggdrasilToken.token = QString();
-                data.yggdrasilToken.validity = Katabasis::Validity::None;
-                data.validity_ = Katabasis::Validity::None;
-            }
-            emit changed();
-        }
-        break;
-        case AccountTaskState::STATE_FAILED_GONE: {
+    }
+    break;
+    case AccountTaskState::STATE_FAILED_HARD: {
+        if(isMSA()) {
+            data.msaToken.token = QString();
+            data.msaToken.refresh_token = QString();
+            data.msaToken.validity = Katabasis::Validity::None;
             data.validity_ = Katabasis::Validity::None;
-            emit changed();
         }
-        break;
-        case AccountTaskState::STATE_CREATED:
-        case AccountTaskState::STATE_WORKING:
-        case AccountTaskState::STATE_SUCCEEDED: {
-            // Not reachable here, as they are not failures.
+        else {
+            data.yggdrasilToken.token = QString();
+            data.yggdrasilToken.validity = Katabasis::Validity::None;
+            data.validity_ = Katabasis::Validity::None;
         }
+        emit changed();
+    }
+    break;
+    case AccountTaskState::STATE_FAILED_GONE: {
+        data.validity_ = Katabasis::Validity::None;
+        emit changed();
+    }
+    break;
+    case AccountTaskState::STATE_CREATED:
+    case AccountTaskState::STATE_WORKING:
+    case AccountTaskState::STATE_SUCCEEDED: {
+        // Not reachable here, as they are not failures.
+    }
     }
     m_currentTask.reset();
     emit activityChanged(false);
@@ -195,15 +227,15 @@ bool MinecraftAccount::shouldRefresh() const {
         return false;
     }
     switch(data.validity_) {
-        case Katabasis::Validity::Certain: {
-            break;
-        }
-        case Katabasis::Validity::None: {
-            return false;
-        }
-        case Katabasis::Validity::Assumed: {
-            return true;
-        }
+    case Katabasis::Validity::Certain: {
+        break;
+    }
+    case Katabasis::Validity::None: {
+        return false;
+    }
+    case Katabasis::Validity::Assumed: {
+        return true;
+    }
     }
     auto now = QDateTime::currentDateTimeUtc();
     auto issuedTimestamp = data.yggdrasilToken.issueInstant;

@@ -63,7 +63,7 @@ public:
 
     void addAccount(const MinecraftAccountPtr account);
     void removeAccount(QModelIndex index);
-    int findAccountByProfileId(const QString &profileId) const;
+    int findAccountByProfileId(const QString &profileId,QString &profiletype) const;
     MinecraftAccountPtr getAccountByProfileName(const QString &profileName) const;
     QStringList profileNames() const;
 
@@ -84,6 +84,7 @@ public:
     bool loadList();
     bool loadV2(QJsonObject &root);
     bool loadV3(QJsonObject &root);
+    bool loadV4(QJsonObject &root);
     bool saveList();
 
     MinecraftAccountPtr defaultAccount() const;

@@ -9,6 +9,7 @@
 #include <QUrl>
 #include <updater/GoUpdate.h>
 
+#include "net/NetJob.h"
 #include <BaseInstance.h>
 
 #include "minecraft/launch/MinecraftServerTarget.h"
@@ -126,6 +127,12 @@ public:
 
     QString getJarsPath();
 
+    QString getCurseKey();
+
+    QString getCfWorkersurl();
+
+    QString getsource(QString ID);
+
     /// this is the root of the 'installation'. Used for automatic updates
     const QString &root() {
         return m_rootPath;
@@ -162,6 +169,8 @@ public slots:
     bool kill(InstancePtr instance);
 
 private slots:
+    void requestFinished();
+    bool FileHash(QString srcDir, QString hash256);
     void on_windowClose();
     void messageReceived(const QByteArray & message);
     void controllerSucceeded();
@@ -182,6 +191,8 @@ private:
     bool shouldExitNow() const;
 
 private:
+    NetJob::Ptr m_filesNetJob;
+    QByteArray response;
     QDateTime startTime;
 
     shared_qobject_ptr<QNetworkAccessManager> m_network;

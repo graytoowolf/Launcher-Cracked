@@ -57,9 +57,8 @@ struct AccountProfile
  * Said information may include things such as that account's username, client token, and access
  * token if the user chose to stay logged in.
  */
-class MinecraftAccount :
-    public QObject,
-    public Usable
+class MinecraftAccount : public QObject,
+                         public Usable
 {
     Q_OBJECT
 public: /* construction */
@@ -71,21 +70,25 @@ public: /* construction */
 
     static MinecraftAccountPtr createFromUsername(const QString &username);
 
+    static MinecraftAccountPtr createBlessings(const QString &username);
+
     static MinecraftAccountPtr createBlankMSA();
 
     static MinecraftAccountPtr loadFromJsonV2(const QJsonObject &json);
     static MinecraftAccountPtr loadFromJsonV3(const QJsonObject &json);
+    static MinecraftAccountPtr loadFromJsonV4(const QJsonObject &json);
 
     //! Saves a MinecraftAccount to a JSON object and returns it.
     QJsonObject saveToJson() const;
 
 public: /* manipulation */
-
     /**
      * Attempt to login. Empty password means we use the token.
      * If the attempt fails because we already are performing some task, it returns false.
      */
     shared_qobject_ptr<AccountTask> login(QString password);
+
+    shared_qobject_ptr<AccountTask> bslogin(QString password);
 
     shared_qobject_ptr<AccountTask> loginMSA();
 
@@ -94,64 +97,89 @@ public: /* manipulation */
     shared_qobject_ptr<AccountTask> currentTask();
 
 public: /* queries */
-    QString internalId() const {
+    QString internalId() const
+    {
         return data.internalId;
     }
 
-    QString accountDisplayString() const {
+    QString accountDisplayString() const
+    {
         return data.accountDisplayString();
     }
 
-    QString mojangUserName() const {
+    QString mojangUserName() const
+    {
         return data.userName();
     }
 
-    QString accessToken() const {
+    QString accessToken() const
+    {
         return data.accessToken();
     }
 
-    QString profileId() const {
+    QString profileId() const
+    {
         return data.profileId();
     }
 
-    QString profileName() const {
+    QString profileName() const
+    {
         return data.profileName();
     }
 
     bool isActive() const;
 
-    bool canMigrate() const {
+    bool canMigrate() const
+    {
         return data.canMigrateToMSA;
     }
 
-    bool isMSA() const {
+    bool isMSA() const
+    {
         return data.type == AccountType::MSA;
     }
 
-    bool ownsMinecraft() const {
+    bool ownsMinecraft() const
+    {
         return data.minecraftEntitlement.ownsMinecraft;
     }
 
-    bool hasProfile() const {
+    bool hasProfile() const
+    {
         return data.profileId().size() != 0;
     }
 
-    QString typeString() const {
-        switch(data.type) {
-            case AccountType::Mojang: {
-                if(data.legacy) {
-                    return "legacy";
-                }
-                return "mojang";
+    QString typeString() const
+    {
+        switch (data.type)
+        {
+        case AccountType::Mojang:
+        {
+            if (data.legacy)
+            {
+                return "legacy";
             }
-            break;
-            case AccountType::MSA: {
-                return "msa";
+            return "mojang";
+        }
+        break;
+        case AccountType::Bs:
+        {
+            if (data.legacy)
+            {
+                return "legacy";
             }
-            break;
-            default: {
-                return "unknown";
-            }
+            return "bs";
+        }
+        break;
+        case AccountType::MSA:
+        {
+            return "msa";
+        }
+        break;
+        default:
+        {
+            return "unknown";
+        }
         }
     }
 
@@ -160,7 +188,8 @@ public: /* queries */
     //! Returns the current state of the account
     AccountState accountState() const;
 
-    AccountData * accountData() {
+    AccountData *accountData()
+    {
         return &data;
     }
 
@@ -168,7 +197,8 @@ public: /* queries */
 
     void fillSession(AuthSessionPtr session);
 
-    QString lastError() const {
+    QString lastError() const
+    {
         return data.lastError();
     }
 
@@ -189,12 +219,10 @@ protected: /* variables */
     shared_qobject_ptr<AccountTask> m_currentTask;
 
 protected: /* methods */
-
     void incrementUses() override;
     void decrementUses() override;
 
-private
-slots:
+private slots:
     void authSucceeded();
     void authFailed(QString reason);
 };

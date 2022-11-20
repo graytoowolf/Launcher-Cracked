@@ -54,6 +54,7 @@
    </attribute>
    <addaction name="actionAddMicrosoft"/>
    <addaction name="actionAddMojang"/>
+   <addaction name="actionAddBs"/>
    <addaction name="actionRefresh"/>
    <addaction name="actionRemove"/>
    <addaction name="actionSetDefault"/>
@@ -109,6 +110,17 @@
    </property>
    <property name="toolTip">
     <string>Refresh the account tokens</string>
+   </property>
+  </action>
+  <action name="actionAddBs">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>添加皮肤站账号</string>
+   </property>
+   <property name="toolTip">
+    <string>添加皮肤站账号</string>
    </property>
   </action>
  </widget>

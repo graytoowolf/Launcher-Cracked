@@ -36,7 +36,8 @@
 
 enum AccountListVersion {
     MojangOnly = 2,
-    MojangMSA = 3
+    MojangMSA = 3,
+    MojangBs = 4
 };
 
 AccountList::AccountList(QObject *parent) : QAbstractListModel(parent) {
@@ -50,10 +51,10 @@ AccountList::AccountList(QObject *parent) : QAbstractListModel(parent) {
 
 AccountList::~AccountList() noexcept {}
 
-int AccountList::findAccountByProfileId(const QString& profileId) const {
+int AccountList::findAccountByProfileId(const QString& profileId,QString& profiletype) const {
     for (int i = 0; i < count(); i++) {
         MinecraftAccountPtr account = at(i);
-        if (account->profileId() == profileId) {
+        if (account->profileId() == profileId && account->typeString() == profiletype) {
             return i;
         }
     }
@@ -100,8 +101,9 @@ void AccountList::addAccount(const MinecraftAccountPtr account)
 
     // override/replace existing account with the same profileId
     auto profileId = account->profileId();
+    auto profiletype = account->typeString();
     if(profileId.size()) {
-        auto existingAccount = findAccountByProfileId(profileId);
+        auto existingAccount = findAccountByProfileId(profileId,profiletype);
         if(existingAccount != -1) {
             MinecraftAccountPtr existingAccountPtr = m_accounts[existingAccount];
             m_accounts[existingAccount] = account;
@@ -476,6 +478,10 @@ bool AccountList::loadList()
             return loadV3(root);
         }
         break;
+        case AccountListVersion::MojangBs: {        
+            return loadV4(root);
+        }
+        break;
         default: {
             QString newName = "accounts-old.json";
             qWarning() << "Unknown format version when loading account list. Existing one will be renamed to" << newName;
@@ -497,10 +503,11 @@ bool AccountList::loadV2(QJsonObject& root) {
         if (account.get() != nullptr)
         {
             auto profileId = account->profileId();
+            auto profiletype = account->typeString();
             if(!profileId.size()) {
                 continue;
             }
-            if(findAccountByProfileId(profileId) != -1) {
+            if(findAccountByProfileId(profileId, profiletype) != -1) {
                 continue;
             }
             connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
@@ -518,7 +525,39 @@ bool AccountList::loadV2(QJsonObject& root) {
     endResetModel();
     return true;
 }
-
+bool AccountList::loadV4(QJsonObject& root) {
+    beginResetModel();
+    auto defaultUserName = root.value("activeAccount").toString("");
+    QJsonArray accounts = root.value("accounts").toArray();
+    for (QJsonValue accountVal : accounts)
+    {
+        QJsonObject accountObj = accountVal.toObject();
+        MinecraftAccountPtr account = MinecraftAccount::loadFromJsonV4(accountObj);
+        if (account.get() != nullptr)
+        {
+            auto profileId = account->profileId();
+            auto profiletype = account->typeString();
+            if(!profileId.size()) {
+                continue;
+            }
+            if(findAccountByProfileId(profileId, profiletype) != -1) {
+                continue;
+            }
+            connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
+            connect(account.get(), &MinecraftAccount::activityChanged, this, &AccountList::accountActivityChanged);
+            m_accounts.append(account);
+            if (defaultUserName.size() && account->mojangUserName() == defaultUserName) {
+                m_defaultAccount = account;
+            }
+        }
+        else
+        {
+            qWarning() << "Failed to load an account.";
+        }
+    }
+    endResetModel();
+    return true;
+}
 bool AccountList::loadV3(QJsonObject& root) {
     beginResetModel();
     QJsonArray accounts = root.value("accounts").toArray();
@@ -529,8 +568,9 @@ bool AccountList::loadV3(QJsonObject& root) {
         if (account.get() != nullptr)
         {
             auto profileId = account->profileId();
+            auto profiletype = account->typeString();
             if(profileId.size()) {
-                if(findAccountByProfileId(profileId) != -1) {
+                if(findAccountByProfileId(profileId,profiletype) != -1) {
                     continue;
                 }
             }

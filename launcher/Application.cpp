@@ -95,33 +95,33 @@ static const QLatin1String liveCheckFile("live.check");
 using namespace Commandline;
 
 #define MACOS_HINT "If you are on macOS Sierra, you might have to move the app to your /Applications or ~/Applications folder. "\
-    "This usually fixes the problem and you can move the application elsewhere afterwards.\n"\
-    "\n"
+                   "This usually fixes the problem and you can move the application elsewhere afterwards.\n"\
+                   "\n"
 
 namespace {
-void appDebugOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-{
-    const char *levels = "DWCFIS";
-    const QString format("%1 %2 %3\n");
+    void appDebugOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+    {
+        const char *levels = "DWCFIS";
+        const QString format("%1 %2 %3\n");
 
-    qint64 msecstotal = APPLICATION->timeSinceStart();
-    qint64 seconds = msecstotal / 1000;
-    qint64 msecs = msecstotal % 1000;
-    QString foo;
-    char buf[1025] = {0};
-    ::snprintf(buf, 1024, "%5lld.%03lld", seconds, msecs);
+        qint64 msecstotal = APPLICATION->timeSinceStart();
+        qint64 seconds = msecstotal / 1000;
+        qint64 msecs = msecstotal % 1000;
+        QString foo;
+        char buf[1025] = {0};
+        ::snprintf(buf, 1024, "%5lld.%03lld", seconds, msecs);
 
-    QString out = format.arg(buf).arg(levels[type]).arg(msg);
+        QString out = format.arg(buf).arg(levels[type]).arg(msg);
 
-    APPLICATION->logFile->write(out.toUtf8());
-    APPLICATION->logFile->flush();
-    QTextStream(stderr) << out.toLocal8Bit();
-    fflush(stderr);
-}
+        APPLICATION->logFile->write(out.toUtf8());
+        APPLICATION->logFile->flush();
+        QTextStream(stderr) << out.toLocal8Bit();
+        fflush(stderr);
+    }
 
-QString getIdealPlatform(QString currentPlatform) {
-    auto info = Sys::getKernelInfo();
-    switch(info.kernelType) {
+    QString getIdealPlatform(QString currentPlatform) {
+        auto info = Sys::getKernelInfo();
+        switch(info.kernelType) {
         case Sys::KernelType::Darwin: {
             if(info.kernelMajor >= 17) {
                 // macOS 10.13 or newer
@@ -135,28 +135,28 @@ QString getIdealPlatform(QString currentPlatform) {
         case Sys::KernelType::Windows: {
             // FIXME: 5.15.2 is not stable on Windows, due to a large number of completely unpredictable and hard to reproduce issues
             break;
-/*
-            if(info.kernelMajor == 6 && info.kernelMinor >= 1) {
-                // Windows 7
-                return "win32-5.15.2";
-            }
-            else if (info.kernelMajor > 6) {
-                // Above Windows 7
-                return "win32-5.15.2";
-            }
-            else {
-                // Below Windows 7
-                return "win32";
-            }
-*/
+            /*
+                        if(info.kernelMajor == 6 && info.kernelMinor >= 1) {
+                            // Windows 7
+                            return "win32-5.15.2";
+                        }
+                        else if (info.kernelMajor > 6) {
+                            // Above Windows 7
+                            return "win32-5.15.2";
+                        }
+                        else {
+                            // Below Windows 7
+                            return "win32";
+                        }
+            */
         }
         case Sys::KernelType::Undetermined:
         case Sys::KernelType::Linux: {
             break;
         }
+        }
+        return currentPlatform;
     }
-    return currentPlatform;
-}
 
 }
 
@@ -442,6 +442,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
                     "mods",
                     BuildConfig.LAUNCHER_CONFIGFILE,
                     "themes",
+                    "jars",
                     "translations"
                 };
                 QDirIterator files(originalData, dataFiles);
@@ -545,9 +546,9 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
                 QString(
                     "The launcher couldn't create a log file - the data folder is not writable.\n"
                     "\n"
-    #if defined(Q_OS_MAC)
+#if defined(Q_OS_MAC)
                     MACOS_HINT
-    #endif
+#endif
                     "Make sure you have write permissions to the data folder.\n"
                     "(%1)\n"
                     "\n"
@@ -660,7 +661,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         QString resolvedDefaultMonospace = consoleFontInfo.family();
         QFont resolvedFont(resolvedDefaultMonospace);
         qDebug() << "Detected default console font:" << resolvedDefaultMonospace
-            << ", substitutions:" << resolvedFont.substitutions().join(',');
+                 << ", substitutions:" << resolvedFont.substitutions().join(',');
 
         m_settings->registerSetting("ConsoleFont", resolvedDefaultMonospace);
         m_settings->registerSetting("ConsoleFontSize", defaultSize);
@@ -677,6 +678,15 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
 
         // Language
         m_settings->registerSetting("Language", QString());
+
+        // curseforgekey
+        m_settings->registerSetting("CFKeyOverride", "");
+        //cloudflareWorkersurl
+        m_settings->registerSetting("CfWorkersurl", "");
+
+        m_settings->registerSetting("Downloadsource", "Mojang");
+
+        m_settings->registerSetting("Threads", 8);
 
         // Console
         m_settings->registerSetting("ShowConsole", false);
@@ -718,7 +728,6 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         m_settings->registerSetting("ShowGameTime", true);
         m_settings->registerSetting("ShowGlobalGameTime", true);
         m_settings->registerSetting("RecordGameTime", true);
-        m_settings->registerSetting("ShowGameTimeHours", false);
 
         // Minecraft launch method
         m_settings->registerSetting("MCLaunchMethod", "LauncherPart");
@@ -811,26 +820,40 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
     {
         auto platform = getIdealPlatform(BuildConfig.BUILD_PLATFORM);
         auto channelUrl = BuildConfig.UPDATER_BASE + platform + "/channels.json";
-        qDebug() << "Initializing updater with platform: " << platform << " -- " << channelUrl;
+        //qDebug() << "Initializing updater with platform: " << platform << " -- " << channelUrl;
         m_updateChecker.reset(new UpdateChecker(m_network, channelUrl, BuildConfig.VERSION_CHANNEL, BuildConfig.VERSION_BUILD));
         qDebug() << "<> Updater started.";
+    }
+
+    // authlib-injector
+    {
+
+        auto *netJob = new NetJob("authlib-injector", network());
+        netJob->addNetAction(Net::Download::makeByteArray(QUrl(BuildConfig.authlib_injector), &response));
+        m_filesNetJob = netJob;
+        m_filesNetJob->start();
+        QObject::connect(netJob, &NetJob::succeeded, this, &Application::requestFinished);
+
+        //           m_filesNetJob = new NetJob(tr("Mod download"), APPLICATION->network());
+        //           auto dl = Net::Download::makeFile(QUrl("https://authlib-injector.yushi.moe/artifact/40/authlib-injector-1.1.40.jar"),"jars/authlib-injector-1.1.40.jar");
+        //           m_filesNetJob->addNetAction(dl);
     }
 
     // Instance icons
     {
         auto setting = APPLICATION->settings()->getSetting("IconsDir");
         QStringList instFolders =
-        {
-            ":/icons/multimc/32x32/instances/",
-            ":/icons/multimc/50x50/instances/",
-            ":/icons/multimc/128x128/instances/",
-            ":/icons/multimc/scalable/instances/"
-        };
+            {
+                ":/icons/multimc/32x32/instances/",
+                ":/icons/multimc/50x50/instances/",
+                ":/icons/multimc/128x128/instances/",
+                ":/icons/multimc/scalable/instances/"
+            };
         m_icons.reset(new IconList(instFolders, setting->get().toString()));
         connect(setting.get(), &Setting::SettingChanged,[&](const Setting &, QVariant value)
-        {
-            m_icons->directoryChanged(value.toString());
-        });
+                {
+                    m_icons->directoryChanged(value.toString());
+                });
         qDebug() << "<> Instance icons intialized.";
     }
 
@@ -902,9 +925,11 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         m_metacache->addBase("ModpacksCHPacks", QDir("cache/ModpacksCHPacks").absolutePath());
         m_metacache->addBase("TechnicPacks", QDir("cache/TechnicPacks").absolutePath());
         m_metacache->addBase("CurseForgePacks", QDir("cache/CurseForgePacks").absolutePath());
+        m_metacache->addBase("FlamePacks", QDir("cache/FlamePacks").absolutePath());
         m_metacache->addBase("ModrinthPacks", QDir("cache/ModrinthPacks").absolutePath());
         m_metacache->addBase("root", QDir::currentPath());
         m_metacache->addBase("translations", QDir("translations").absolutePath());
+        m_metacache->addBase("jars", QDir("jars").absolutePath());
         m_metacache->addBase("icons", QDir("cache/icons").absolutePath());
         m_metacache->addBase("meta", QDir("meta").absolutePath());
         m_metacache->Load();
@@ -1707,3 +1732,75 @@ QString Application::getJarsPath()
     }
     return m_jarsPath;
 }
+
+void Application::requestFinished()
+{
+    // m_filesNetJob.reset();
+    QJsonParseError parse_error;
+    QJsonDocument doc = QJsonDocument::fromJson(response, &parse_error);
+    if (parse_error.error != QJsonParseError::NoError)
+    {
+
+        qWarning() << "Error while parsing JSON response from ATL at " << parse_error.offset << " reason: " << parse_error.errorString();
+        qWarning() << response;
+        return;
+    }
+    QJsonObject object = doc.object();
+    QString version = object["version"].toString();
+    QString download_url = object["download_url"].toString();
+    QJsonObject checksums = object["checksums"].toObject();
+    QString hash256 = checksums["sha256"].toString();
+    MetaEntryPtr entry = APPLICATION->metacache()->resolveEntry("jars", "authlib-injector.jar");
+    QFile file(entry->getFullPath());
+
+    if (!file.exists() || !Application::FileHash(entry->getFullPath(), hash256))
+    {
+        qDebug()<<"开始下载authlib-injector.";
+        QFile::remove(entry->getFullPath());
+        entry->setStale(true);
+        auto dl = Net::Download::makeCached(QUrl(download_url), entry);
+        m_filesNetJob->addNetAction(dl);
+        m_filesNetJob->start();
+    }
+}
+//判断 authlib hash256s是否一致
+bool Application::FileHash(QString srcDir, QString hash256)
+{
+    QFile file(srcDir);
+    QCryptographicHash Hash(QCryptographicHash::Sha256);
+    if(file.open(QIODevice::ReadOnly)){
+        Hash.addData(file.readAll());
+        QByteArray HASH256 = Hash.result();
+        if(HASH256.toHex() == hash256)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+QString Application::getCurseKey()
+{
+    QString keyOverride = m_settings->get("CFKeyOverride").toString();
+    if (!keyOverride.isEmpty()) {
+        return keyOverride;
+    }
+
+    return BuildConfig.CURSEFORGE_API_KEY;
+}
+QString Application::getCfWorkersurl()
+{
+    return m_settings->get("CfWorkersurl").toString();
+}
+
+QString Application::getsource(QString ID)
+{
+    QFileInfo file(BuildConfig.LAUNCHER_CONFIGFILE);
+    if(file.exists()){
+        auto source = m_settings->get(ID).toString();
+        if(!source.isEmpty()){
+            return source;
+        }
+    }
+    return "6";
+}
+

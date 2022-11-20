@@ -214,11 +214,15 @@ set(MINECRAFT_SOURCES
     minecraft/auth/Parsers.h
     minecraft/auth/Yggdrasil.cpp
     minecraft/auth/Yggdrasil.h
+    minecraft/auth/BsYggdrasil.cpp
+    minecraft/auth/BsYggdrasil.h
 
     minecraft/auth/flows/AuthFlow.cpp
     minecraft/auth/flows/AuthFlow.h
     minecraft/auth/flows/Mojang.cpp
     minecraft/auth/flows/Mojang.h
+    minecraft/auth/flows/Bs.cpp
+    minecraft/auth/flows/Bs.h
     minecraft/auth/flows/MSA.cpp
     minecraft/auth/flows/MSA.h
 
@@ -234,6 +238,8 @@ set(MINECRAFT_SOURCES
     minecraft/auth/steps/MigrationEligibilityStep.h
     minecraft/auth/steps/MinecraftProfileStep.cpp
     minecraft/auth/steps/MinecraftProfileStep.h
+    minecraft/auth/steps/BsMinecraftProfileStep.cpp
+    minecraft/auth/steps/BsMinecraftProfileStep.h
     minecraft/auth/steps/MSAStep.cpp
     minecraft/auth/steps/MSAStep.h
     minecraft/auth/steps/XboxAuthorizationStep.cpp
@@ -244,6 +250,8 @@ set(MINECRAFT_SOURCES
     minecraft/auth/steps/XboxUserStep.h
     minecraft/auth/steps/YggdrasilStep.cpp
     minecraft/auth/steps/YggdrasilStep.h
+    minecraft/auth/steps/BsYggdrasilStep.cpp
+    minecraft/auth/steps/BsYggdrasilStep.h
 
     minecraft/gameoptions/GameOptions.h
     minecraft/gameoptions/GameOptions.cpp
@@ -780,6 +788,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/IconPickerDialog.h
     ui/dialogs/LoginDialog.cpp
     ui/dialogs/LoginDialog.h
+    ui/dialogs/BsLoginDialog.cpp
+    ui/dialogs/BsLoginDialog.h
     ui/dialogs/MSALoginDialog.cpp
     ui/dialogs/MSALoginDialog.h
     ui/dialogs/NewComponentDialog.cpp
@@ -897,6 +907,7 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/dialogs/MSALoginDialog.ui
     ui/dialogs/AboutDialog.ui
     ui/dialogs/LoginDialog.ui
+    ui/dialogs/BsLoginDialog.ui
     ui/dialogs/EditAccountDialog.ui
     ui/dialogs/CreateShortcutDialog.ui
 )

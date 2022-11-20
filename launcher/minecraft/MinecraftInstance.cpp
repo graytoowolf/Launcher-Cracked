@@ -48,6 +48,7 @@
 #include "MinecraftLoadAndCheck.h"
 #include "minecraft/gameoptions/GameOptions.h"
 #include "minecraft/update/FoldersTask.h"
+#include "BuildConfig.h"
 
 #define IBUS "@im=ibus"
 
@@ -58,7 +59,7 @@ class OrSetting : public Setting
     Q_OBJECT
 public:
     OrSetting(QString id, std::shared_ptr<Setting> a, std::shared_ptr<Setting> b)
-    :Setting({id}, false), m_a(a), m_b(b)
+        :Setting({id}, false), m_a(a), m_b(b)
     {
     }
     virtual QVariant get() const
@@ -309,6 +310,12 @@ QStringList MinecraftInstance::extraArguments() const
 QStringList MinecraftInstance::javaArguments() const
 {
     QStringList args;
+    if(m_user_type == "bs")
+    {
+        MetaEntryPtr authlib_path = APPLICATION->metacache()->resolveEntry("jars", "authlib-injector.jar");
+        args << "-javaagent:"+ authlib_path->getFullPath() +"=" + BuildConfig.Bs_AUTH_BASE;
+    }
+
 
     // custom args go first. we want to override them if we have our own here.
     args.append(extraArguments());
@@ -445,7 +452,7 @@ QStringList MinecraftInstance::processMinecraftArgs(
     }
 
     token_mapping["profile_name"] = name();
-    token_mapping["version_name"] = profile->getMinecraftVersion();
+    token_mapping["version_name"] = BuildConfig.LAUNCHER_DISPLAYNAME;
     token_mapping["version_type"] = profile->getMinecraftVersionType();
 
     QString absRootDir = QDir(gameRoot()).absolutePath();
@@ -470,6 +477,7 @@ QString MinecraftInstance::createLaunchScript(AuthSessionPtr session, MinecraftS
 {
     QString launchScript;
 
+    m_user_type = session->user_type;
     if (!m_components)
         return QString();
     auto profile = m_components->getProfile();
@@ -495,9 +503,9 @@ QString MinecraftInstance::createLaunchScript(AuthSessionPtr session, MinecraftS
 
     // generic minecraft params
     for (auto param : processMinecraftArgs(
-            session,
-            nullptr /* When using a launch script, the server parameters are handled by it*/
-    ))
+             session,
+             nullptr /* When using a launch script, the server parameters are handled by it*/
+             ))
     {
         launchScript += "param " + param + "\n";
     }
@@ -509,8 +517,8 @@ QString MinecraftInstance::createLaunchScript(AuthSessionPtr session, MinecraftS
             windowParams = "max";
         else
             windowParams = QString("%1x%2")
-                               .arg(settings()->get("MinecraftWinWidth").toInt())
-                               .arg(settings()->get("MinecraftWinHeight").toInt());
+                    .arg(settings()->get("MinecraftWinWidth").toInt())
+                    .arg(settings()->get("MinecraftWinHeight").toInt());
         launchScript += "windowTitle " + windowTitle() + "\n";
         launchScript += "windowParams " + windowParams + "\n";
     }
@@ -734,7 +742,7 @@ MessageLevel::Enum MinecraftInstance::guessLevel(const QString &line, MessageLev
     {
         // Old style forge logs
         if (line.contains("[INFO]") || line.contains("[CONFIG]") || line.contains("[FINE]") ||
-            line.contains("[FINER]") || line.contains("[FINEST]"))
+                line.contains("[FINER]") || line.contains("[FINEST]"))
             level = MessageLevel::Message;
         if (line.contains("[SEVERE]") || line.contains("[STDERR]"))
             level = MessageLevel::Error;
@@ -785,19 +793,13 @@ QString MinecraftInstance::getStatusbarDescription()
     if(m_settings->get("ShowGameTime").toBool())
     {
         if (lastTimePlayed() > 0) {
-            if (APPLICATION->settings()->get("ShowGameTimeHours").toBool()) {
-                description.append(tr(", last played for %1 hours").arg(Time::prettifyDurationHours(lastTimePlayed())));
-            } else {
-                description.append(tr(", last played for %1").arg(Time::prettifyDuration(lastTimePlayed())));
-            }
+            description.append(tr(", last played for %1").arg(Time::prettifyDuration(lastTimePlayed())));
         }
 
-        if (totalTimePlayed() > 0) {
-            if (APPLICATION->settings()->get("ShowGameTimeHours").toBool()) {
-                description.append(tr(", total played for %1 hours").arg(Time::prettifyDurationHours(totalTimePlayed())));
-            } else {
-                description.append(tr(", total played for %1").arg(Time::prettifyDuration(totalTimePlayed())));
-            }
+        if (totalTimePlayed() > 0)
+        {
+            description.append(tr(", total played for %1").arg(Time::prettifyDuration(totalTimePlayed())));
+
         }
     }
     if(hasCrashed())
@@ -811,14 +813,14 @@ Task::Ptr MinecraftInstance::createUpdateTask(Net::Mode mode)
 {
     switch (mode)
     {
-        case Net::Mode::Offline:
-        {
-            return Task::Ptr(new MinecraftLoadAndCheck(this));
-        }
-        case Net::Mode::Online:
-        {
-            return Task::Ptr(new MinecraftUpdate(this));
-        }
+    case Net::Mode::Offline:
+    {
+        return Task::Ptr(new MinecraftLoadAndCheck(this));
+    }
+    case Net::Mode::Online:
+    {
+        return Task::Ptr(new MinecraftUpdate(this));
+    }
     }
     return nullptr;
 }

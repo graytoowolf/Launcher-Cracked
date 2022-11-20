@@ -38,7 +38,8 @@ struct MinecraftProfile {
 
 enum class AccountType {
     MSA,
-    Mojang
+    Mojang,
+    Bs
 };
 
 enum class AccountState {
@@ -56,6 +57,7 @@ struct AccountData {
     QJsonObject saveState() const;
     bool resumeStateFromV2(QJsonObject data);
     bool resumeStateFromV3(QJsonObject data);
+    bool resumeStateFromV4(QJsonObject data);
 
     //! userName for Mojang accounts, gamertag for MSA
     QString accountDisplayString() const;

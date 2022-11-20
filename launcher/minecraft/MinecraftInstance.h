@@ -34,7 +34,7 @@ public:
     {
         return true;
     }
-
+    QString m_user_type;
     ////// Directories and files //////
     QString jarModsDir() const;
     QString resourcePacksDir() const;

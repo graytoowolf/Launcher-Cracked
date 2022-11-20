@@ -38,13 +38,11 @@ public:
     /// URL for the updater's channel
     QString UPDATER_BASE;
 
-
     /// User-Agent to use.
     QString USER_AGENT;
 
     /// User-Agent to use for uncached requests.
     QString USER_AGENT_UNCACHED;
-
 
     /// Google analytics ID
     QString ANALYTICS_ID;
@@ -85,6 +83,11 @@ public:
      */
     QString META_URL;
 
+    /**
+     * Client API key for CurseForge
+     */
+    QString CURSEFORGE_API_KEY;
+
     QString BUG_TRACKER_URL;
     QString DISCORD_URL;
     QString SUBREDDIT_URL;
@@ -95,6 +98,9 @@ public:
     QString IMGUR_BASE_URL = "https://api.imgur.com/3/";
     QString FMLLIBS_BASE_URL = "https://files.multimc.org/fmllibs/";
     QString TRANSLATIONS_BASE_URL = "https://files.multimc.org/translations/";
+
+    QString Bs_AUTH_BASE = "https://www.mcpeau.com/api/yggdrasil/";
+    QString authlib_injector = "https://authlib-injector.yushi.moe/artifact/latest.json";
 
     QString MODPACKSCH_API_BASE_URL = "https://api.modpacks.ch/";
 

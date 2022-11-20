@@ -25,6 +25,7 @@
 
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui/dialogs/LoginDialog.h"
+#include "ui/dialogs/BsLoginDialog.h"
 #include "ui/dialogs/MSALoginDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/SkinUploadDialog.h"
@@ -246,3 +247,20 @@ void AccountListPage::on_actionDeleteSkin_triggered()
         return;
     }
 }
+
+void AccountListPage::on_actionAddBs_triggered()
+{
+    MinecraftAccountPtr account = BsLoginDialog::newAccount(
+                this,
+                tr("请输入您的 皮肤站帐户电子邮件和密码以添加您的帐户。"));
+
+    if (account)
+    {
+        m_accounts->addAccount(account);
+        if (m_accounts->count() == 1)
+        {
+            m_accounts->setDefaultAccount(account);
+        }
+    }
+}
+

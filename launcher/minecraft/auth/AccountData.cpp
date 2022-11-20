@@ -314,6 +314,8 @@ bool AccountData::resumeStateFromV3(QJsonObject data) {
         type = AccountType::MSA;
     } else if (typeS == "Mojang") {
         type = AccountType::Mojang;
+    } else if (typeS == "Bs") {
+        type = AccountType::Bs;
     } else {
         qWarning() << "Failed to parse account data: type is not recognized.";
         return false;
@@ -323,6 +325,10 @@ bool AccountData::resumeStateFromV3(QJsonObject data) {
         legacy = data.value("legacy").toBool(false);
         canMigrateToMSA = data.value("canMigrateToMSA").toBool(false);
         mustMigrateToMSA = data.value("mustMigrateToMSA").toBool(false);
+    }
+    if(type == AccountType::Bs) {
+        legacy = data.value("legacy").toBool(false);
+        canMigrateToMSA = data.value("canMigrateToMSA").toBool(false);
     }
 
     if(type == AccountType::MSA) {
@@ -345,7 +351,70 @@ bool AccountData::resumeStateFromV3(QJsonObject data) {
     validity_ = minecraftProfile.validity;
     return true;
 }
+bool AccountData::resumeStateFromV4(QJsonObject data) {
+    // The JSON object must at least have a username for it to be valid.
+    if (!data.value("username").isString())
+    {
+        qCritical() << "Can't load Mojang account info from JSON object. Username field is missing or of the wrong type.";
+        return false;
+    }
 
+    QString userName = data.value("username").toString("");
+    QString clientToken = data.value("clientToken").toString("");
+    QString accessToken = data.value("accessToken").toString("");
+
+    QJsonArray profileArray = data.value("profiles").toArray();
+    if (profileArray.size() < 1)
+    {
+        qCritical() << "Can't load Mojang account with username \"" << userName << "\". No profiles found.";
+        return false;
+    }
+
+    struct AccountProfile
+    {
+        QString id;
+        QString name;
+        bool legacy;
+    };
+
+    QList<AccountProfile> profiles;
+    int currentProfileIndex = 0;
+    int index = -1;
+    QString currentProfile = data.value("activeProfile").toString("");
+    for (QJsonValue profileVal : profileArray)
+    {
+        index++;
+        QJsonObject profileObject = profileVal.toObject();
+        QString id = profileObject.value("id").toString("");
+        QString name = profileObject.value("name").toString("");
+        bool legacy = profileObject.value("legacy").toBool(false);
+        if (id.isEmpty() || name.isEmpty())
+        {
+            qWarning() << "Unable to load a profile" << name << "because it was missing an ID or a name.";
+            continue;
+        }
+        if(id == currentProfile) {
+            currentProfileIndex = index;
+        }
+        profiles.append({id, name, legacy});
+    }
+    auto & profile = profiles[currentProfileIndex];
+
+    type = AccountType::Bs;
+    legacy = profile.legacy;
+
+    minecraftProfile.id = profile.id;
+    minecraftProfile.name = profile.name;
+    minecraftProfile.validity = Katabasis::Validity::Assumed;
+
+    yggdrasilToken.token = accessToken;
+    yggdrasilToken.extra["clientToken"] = clientToken;
+    yggdrasilToken.extra["userName"] = userName;
+    yggdrasilToken.validity = Katabasis::Validity::Assumed;
+
+    validity_ = minecraftProfile.validity;
+    return true;
+}
 QJsonObject AccountData::saveState() const {
     QJsonObject output;
     if(type == AccountType::Mojang) {
@@ -366,6 +435,14 @@ QJsonObject AccountData::saveState() const {
         tokenToJSONV3(output, userToken, "utoken");
         tokenToJSONV3(output, xboxApiToken, "xrp-main");
         tokenToJSONV3(output, mojangservicesToken, "xrp-mc");
+    }else if(type == AccountType::Bs) {
+        output["type"] = "Bs";
+        if(legacy) {
+            output["legacy"] = true;
+        }
+        if(canMigrateToMSA) {
+            output["canMigrateToMSA"] = true;
+        }
     }
 
     tokenToJSONV3(output, yggdrasilToken, "ygg");
@@ -375,7 +452,7 @@ QJsonObject AccountData::saveState() const {
 }
 
 QString AccountData::userName() const {
-    if(type != AccountType::Mojang) {
+    if(type == AccountType::MSA) {
         return QString();
     }
     return yggdrasilToken.extra["userName"].toString();
@@ -386,14 +463,14 @@ QString AccountData::accessToken() const {
 }
 
 QString AccountData::clientToken() const {
-    if(type != AccountType::Mojang) {
+    if(type == AccountType::MSA) {
         return QString();
     }
     return yggdrasilToken.extra["clientToken"].toString();
 }
 
 void AccountData::setClientToken(QString clientToken) {
-    if(type != AccountType::Mojang) {
+    if(type == AccountType::MSA) {
         return;
     }
     yggdrasilToken.extra["clientToken"] = clientToken;
@@ -407,7 +484,7 @@ void AccountData::generateClientTokenIfMissing() {
 }
 
 void AccountData::invalidateClientToken() {
-    if(type != AccountType::Mojang) {
+    if(type == AccountType::MSA) {
         return;
     }
     yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegExp("[{-}]"));
@@ -430,6 +507,9 @@ QString AccountData::accountDisplayString() const {
     switch(type) {
         case AccountType::Mojang: {
             return userName();
+        }
+        case AccountType::Bs: {
+        return userName();
         }
         case AccountType::MSA: {
             if(xboxApiToken.extra.contains("gtg")) {
