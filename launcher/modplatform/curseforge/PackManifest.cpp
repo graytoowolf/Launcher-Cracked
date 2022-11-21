@@ -76,8 +76,9 @@ bool CurseForge::File::parseFromBytes(const QByteArray& bytes)
         qCritical() << bytes;
         return false;
     }
-    fileName = Json::requireString(obj, "FileNameOnDisk");
-    QString rawUrl = Json::requireString(obj, "DownloadURL");
+    QJsonObject data =Json::ensureObject(obj,"data",{});
+    fileName = Json::requireString(data, "fileName");
+    QString rawUrl = Json::requireString(data, "downloadUrl");
     url = QUrl(rawUrl, QUrl::TolerantMode);
     if(!url.isValid())
     {

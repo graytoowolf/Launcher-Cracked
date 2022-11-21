@@ -29,6 +29,7 @@ namespace {
  */
 
 QString MSAClientID = "b1d72203-d142-4d7e-929a-aae9c27b2c7b";
+QString CurseAPIKey = "$2a$10$bL4bIL5pUWqfcO7KQtnMReakwtfHbNKh6v1uTpKlzhwoueEJQnPnm";
 }
 
 namespace Secrets {

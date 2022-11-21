@@ -23,6 +23,7 @@ protected:
 
 protected slots:
     void netJobFinished();
+    void netJobprogress(qint64 current, qint64 total);
 
 private: /* data */
     shared_qobject_ptr<QNetworkAccessManager> m_network;

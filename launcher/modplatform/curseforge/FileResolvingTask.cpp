@@ -1,8 +1,9 @@
 #include "FileResolvingTask.h"
+#include "Application.h"
 #include "Json.h"
 
 namespace {
-    const char * metabase = "https://cursemeta.dries007.net";
+    const char * metabase = "https://api.curseforge.com/v1/mods";
 }
 
 CurseForge::FileResolvingTask::FileResolvingTask(shared_qobject_ptr<QNetworkAccessManager> network, CurseForge::Manifest& toProcess)
@@ -21,13 +22,19 @@ void CurseForge::FileResolvingTask::executeTask()
     {
         auto projectIdStr = QString::number(file.projectId);
         auto fileIdStr = QString::number(file.fileId);
-        QString metaurl = QString("%1/%2/%3.json").arg(metabase, projectIdStr, fileIdStr);
+        QString metaurl = QString("%1/%2/files/%3").arg(metabase, projectIdStr, fileIdStr);
         auto dl = Net::Download::makeByteArray(QUrl(metaurl), &results[index]);
+        dl->setExtraHeader("x-api-key", APPLICATION->curseAPIKey());
         m_dljob->addNetAction(dl);
         index ++;
     }
     connect(m_dljob.get(), &NetJob::finished, this, &CurseForge::FileResolvingTask::netJobFinished);
+    connect(m_dljob.get(), &NetJob::progress, this, &CurseForge::FileResolvingTask::netJobprogress);
     m_dljob->start();
+}
+void CurseForge::FileResolvingTask::netJobprogress(qint64 current, qint64 total)
+{
+    setProgress(current, total);
 }
 
 void CurseForge::FileResolvingTask::netJobFinished()
