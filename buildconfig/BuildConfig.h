@@ -83,11 +83,6 @@ public:
      */
     QString META_URL;
 
-    /**
-     * Client API key for CurseForge
-     */
-    QString CURSEFORGE_API_KEY;
-
     QString BUG_TRACKER_URL;
     QString DISCORD_URL;
     QString SUBREDDIT_URL;

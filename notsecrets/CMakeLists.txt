@@ -13,8 +13,6 @@ set(Launcher_UserAgent "${Launcher_CommonName}/5.0" PARENT_SCOPE)
 set(Launcher_ConfigFile "MCLauncher.cfg" PARENT_SCOPE)
 set(Launcher_Git "https://github.com/graytoowolf/Launcher" PARENT_SCOPE)
 
-set(Launcher_CURSEFORGE_API_KEY "$2a$10$bL4bIL5pUWqfcO7KQtnMReakwtfHbNKh6v1uTpKlzhwoueEJQnPnm" CACHE STRING "CurseForge API Key")
-
 set(Launcher_Branding_ICNS "notsecrets/Launcher.icns" PARENT_SCOPE)
 set(Launcher_Branding_WindowsRC "notsecrets/launcher.rc" PARENT_SCOPE)
 set(Launcher_Branding_LogoQRC "notsecrets/logo.qrc" PARENT_SCOPE)

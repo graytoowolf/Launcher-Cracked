@@ -1778,15 +1778,7 @@ bool Application::FileHash(QString srcDir, QString hash256)
     }
     return false;
 }
-QString Application::getCurseKey()
-{
-    QString keyOverride = m_settings->get("CFKeyOverride").toString();
-    if (!keyOverride.isEmpty()) {
-        return keyOverride;
-    }
 
-    return BuildConfig.CURSEFORGE_API_KEY;
-}
 QString Application::getCfWorkersurl()
 {
     return m_settings->get("CfWorkersurl").toString();

@@ -127,8 +127,6 @@ public:
 
     QString getJarsPath();
 
-    QString getCurseKey();
-
     QString getCfWorkersurl();
 
     QString getsource(QString ID);
