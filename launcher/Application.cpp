@@ -1787,7 +1787,7 @@ QString Application::getCfWorkersurl()
 QString Application::getsource(QString ID)
 {
     QFileInfo file(BuildConfig.LAUNCHER_CONFIGFILE);
-    if(file.exists()){
+    if(file.isFile()){
         auto source = m_settings->get(ID).toString();
         if(!source.isEmpty()){
             return source;

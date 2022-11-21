@@ -76,6 +76,32 @@ void Download::startImpl()
         emit aborted(m_index_within_job);
         return;
     }
+    if (m_url.host().contains("edge.forgecdn.net")){
+        QString cfurl = APPLICATION->getCfWorkersurl().toUtf8();
+        if(!cfurl.isEmpty()){
+           m_url.setHost(cfurl);
+        }
+    }
+    auto source = APPLICATION->getsource("Downloadsource").toUtf8();
+    if(source != "Mojang"){
+        QString j_url = "download.mcbbs.net";
+        if(source == "BMCLAPI"){
+            j_url = "bmclapi2.bangbang93.com";
+        }
+        if(m_url.host().contains("resources.download.minecraft.net")){
+            m_url = QString("https://%1/assets%2").arg(j_url,m_url.path());
+        }
+        else if(m_url.host().contains("libraries.minecraft.net") || m_url.host().contains("maven.minecraftforge.net") || m_url.host().contains("maven.fabricmc.net")){
+            m_url = QString("https://%1/maven%2").arg(j_url,m_url.path());
+        }
+        else if(m_url.host().contains("files.minecraftforge.net") || m_url.host().contains("launchermeta.mojang.com") || m_url.host().contains("launcher.mojang.com")){
+            m_url.setHost(j_url);
+        }
+        else if(m_url.host().contains("meta.fabricmc.net")){
+            m_url = QString("https://%1/fabric-meta%2").arg(j_url,m_url.path());
+        }
+    }
+
     QNetworkRequest request(m_url);
     m_status = m_sink->init(request);
     switch(m_status)

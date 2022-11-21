@@ -15,6 +15,7 @@
 
 #include "NetJob.h"
 #include "Download.h"
+#include "Application.h"
 
 #include <QDebug>
 
@@ -131,7 +132,8 @@ void NetJob::startMoreParts()
         return;
     }
     // There's work to do, try to start more parts.
-    while (m_doing.size() < 6)
+    auto source = APPLICATION->getsource("Threads").toInt();
+    while (m_doing.size() < source)
     {
         if(!m_todo.size())
             return;

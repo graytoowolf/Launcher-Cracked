@@ -280,6 +280,35 @@ void LauncherPage::applySettings()
         s->set("IconTheme", "multimc");
         break;
     }
+    switch (ui->downloadcomboBox->currentIndex())
+    {
+    case 1:
+        s->set("Downloadsource", "Mcbbs");
+        break;
+    case 0:
+    default:
+        s->set("Downloadsource", "Mojang");
+        break;
+    }
+    switch (ui->threadcomboBox->currentIndex())
+    {
+    case 0:
+        s->set("Threads", "4");
+        break;
+    case 1:
+        s->set("Threads", "6");
+        break;
+    case 3:
+        s->set("Threads", "16");
+        break;
+    case 4:
+        s->set("Threads", "32");
+        break;
+    case 2:
+    default:
+        s->set("Threads", "8");
+        break;
+    }
 
     if(original != s->get("IconTheme"))
     {
@@ -372,6 +401,40 @@ void LauncherPage::loadSettings()
     {
         ui->themeComboBox->setCurrentIndex(0);
     }
+
+    auto download = s->get("Downloadsource").toString();
+    if(download == "Mojang"){
+        ui->downloadcomboBox->setCurrentIndex(0);
+    }
+    else if(download == "Mcbbs"){
+        ui->downloadcomboBox->setCurrentIndex(1);
+    }
+    else
+    {
+        ui->downloadcomboBox->setCurrentIndex(0);
+    }
+
+    auto thread = s->get("Threads").toString();
+    if(thread == "4"){
+        ui->threadcomboBox->setCurrentIndex(0);
+    }
+    else if(thread == "6"){
+        ui->threadcomboBox->setCurrentIndex(1);
+    }
+    else if(thread == "8"){
+        ui->threadcomboBox->setCurrentIndex(2);
+    }
+    else if(thread == "16"){
+        ui->threadcomboBox->setCurrentIndex(3);
+    }
+    else if(thread == "32"){
+        ui->threadcomboBox->setCurrentIndex(4);
+    }
+    else
+    {
+        ui->threadcomboBox->setCurrentIndex(2);
+    }
+
 
     {
         auto currentTheme = s->get("ApplicationTheme").toString();
