@@ -521,6 +521,15 @@ set(CURSEFORGE_SOURCES
     modplatform/curseforge/FileResolvingTask.cpp
 )
 
+set(MODPACKSCH_SOURCES
+    modplatform/modpacksch/FTBPackInstallTask.h
+    modplatform/modpacksch/FTBPackInstallTask.cpp
+    modplatform/modpacksch/FTBPackManifest.h
+    modplatform/modpacksch/FTBPackManifest.cpp
+    modplatform/modpacksch/MCHPackType.h
+    modplatform/modpacksch/MCHPackType.cpp
+)
+
 set(TECHNIC_SOURCES
     modplatform/technic/SingleZipPackInstallTask.h
     modplatform/technic/SingleZipPackInstallTask.cpp
@@ -575,6 +584,7 @@ set(LOGIC_SOURCES
     ${ICONS_SOURCES}
     ${FTB_SOURCES}
     ${FTBA_SOURCES}
+    ${MODPACKSCH_SOURCES}
     ${TECHNIC_SOURCES}
     ${ATLAUNCHER_SOURCES}
     ${MODRINTH_SOURCES}
@@ -735,6 +745,13 @@ SET(LAUNCHER_SOURCES
     ui/pages/modplatform/atlauncher/AtlPage.cpp
     ui/pages/modplatform/atlauncher/AtlPage.h
 
+    ui/pages/modplatform/modpacksch/MCHFilterModel.cpp
+    ui/pages/modplatform/modpacksch/MCHFilterModel.h
+    ui/pages/modplatform/modpacksch/MCHListModel.cpp
+    ui/pages/modplatform/modpacksch/MCHListModel.h
+    ui/pages/modplatform/modpacksch/FtbPage.cpp
+    ui/pages/modplatform/modpacksch/FtbPage.h
+
     ui/pages/modplatform/legacy_ftb/Page.cpp
     ui/pages/modplatform/legacy_ftb/Page.h
     ui/pages/modplatform/legacy_ftb/ListModel.h
@@ -888,6 +905,7 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/pages/modplatform/legacy_ftb/Page.ui
     ui/pages/modplatform/import_ftb/FTBAPage.ui
     ui/pages/modplatform/ImportPage.ui
+    ui/pages/modplatform/modpacksch/FtbPage.ui
     ui/pages/modplatform/modrinth/ModrinthPage.ui
     ui/pages/modplatform/technic/TechnicPage.ui
     ui/widgets/InstanceCardWidget.ui
