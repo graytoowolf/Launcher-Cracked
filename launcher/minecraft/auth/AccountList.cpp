@@ -51,10 +51,10 @@ AccountList::AccountList(QObject *parent) : QAbstractListModel(parent) {
 
 AccountList::~AccountList() noexcept {}
 
-int AccountList::findAccountByProfileId(const QString& profileId,QString& profiletype) const {
+int AccountList::findAccountByProfileId(const QString& profileId) const {
     for (int i = 0; i < count(); i++) {
         MinecraftAccountPtr account = at(i);
-        if (account->profileId() == profileId && account->typeString() == profiletype) {
+        if (account->profileId() == profileId) {
             return i;
         }
     }
@@ -103,7 +103,7 @@ void AccountList::addAccount(const MinecraftAccountPtr account)
     auto profileId = account->profileId();
     auto profiletype = account->typeString();
     if(profileId.size()) {
-        auto existingAccount = findAccountByProfileId(profileId,profiletype);
+        auto existingAccount = findAccountByProfileId(profileId);
         if(existingAccount != -1) {
             MinecraftAccountPtr existingAccountPtr = m_accounts[existingAccount];
             m_accounts[existingAccount] = account;
@@ -507,7 +507,7 @@ bool AccountList::loadV2(QJsonObject& root) {
             if(!profileId.size()) {
                 continue;
             }
-            if(findAccountByProfileId(profileId, profiletype) != -1) {
+            if(findAccountByProfileId(profileId) != -1) {
                 continue;
             }
             connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
@@ -540,7 +540,7 @@ bool AccountList::loadV4(QJsonObject& root) {
             if(!profileId.size()) {
                 continue;
             }
-            if(findAccountByProfileId(profileId, profiletype) != -1) {
+            if(findAccountByProfileId(profileId) != -1) {
                 continue;
             }
             connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
@@ -570,7 +570,7 @@ bool AccountList::loadV3(QJsonObject& root) {
             auto profileId = account->profileId();
             auto profiletype = account->typeString();
             if(profileId.size()) {
-                if(findAccountByProfileId(profileId,profiletype) != -1) {
+                if(findAccountByProfileId(profileId) != -1) {
                     continue;
                 }
             }
