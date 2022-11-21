@@ -20,6 +20,7 @@
 #include <QDebug>
 
 #include "FileSystem.h"
+#include "Application.h"
 #include "ChecksumValidator.h"
 #include "MetaCacheSink.h"
 #include "ByteArraySink.h"

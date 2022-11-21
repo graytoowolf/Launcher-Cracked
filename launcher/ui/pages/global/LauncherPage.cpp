@@ -339,6 +339,9 @@ void LauncherPage::applySettings()
     s->set("CentralModsDir", ui->modsDirTextBox->text());
     s->set("IconsDir", ui->iconsDirTextBox->text());
 
+    //cloudflareurl
+    s->set("CfWorkersurl",ui->WorkersurlDirTextBox->text());
+
     auto sortMode = (InstSortMode)ui->sortingModeGroup->checkedId();
     switch (sortMode)
     {
@@ -474,6 +477,9 @@ void LauncherPage::loadSettings()
     ui->instDirTextBox->setText(s->get("InstanceDir").toString());
     ui->modsDirTextBox->setText(s->get("CentralModsDir").toString());
     ui->iconsDirTextBox->setText(s->get("IconsDir").toString());
+
+    //cloudflareurl
+    ui->WorkersurlDirTextBox->setText(s->get("CfWorkersurl").toString());
 
     QString sortMode = s->get("InstSortMode").toString();
 
