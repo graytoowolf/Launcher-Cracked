@@ -203,7 +203,7 @@ public:
     TranslatedAction actionCheckUpdate;
     TranslatedAction actionSettings;
     //TranslatedAction actionPatreon;
-    TranslatedAction actionMoreNews;
+    //TranslatedAction actionMoreNews;
     TranslatedAction actionManageAccounts;
     TranslatedAction actionLaunchInstance;
     TranslatedAction actionRenameInstance;
@@ -437,9 +437,11 @@ public:
     {
         statusBar = new QStatusBar(MainWindow);
         statusBar->setObjectName(QStringLiteral("statusBar"));
+        statusBar->setStyleSheet("QStatusBar {border-top: 1px solid rgb(150, 150, 150);}");
         MainWindow->setStatusBar(statusBar);
     }
 
+    /*
     void createNewsToolbar(QMainWindow *MainWindow)
     {
         newsToolBar = TranslatedToolbar(MainWindow);
@@ -462,6 +464,7 @@ public:
         all_toolbars.append(&newsToolBar);
         MainWindow->addToolBar(Qt::BottomToolBarArea, newsToolBar);
     }
+    */
 
     void createInstanceToolbar(QMainWindow *MainWindow)
     {
@@ -654,7 +657,7 @@ public:
         MainWindow->setCentralWidget(centralWidget);
 
         createStatusBar(MainWindow);
-        createNewsToolbar(MainWindow);
+        //createNewsToolbar(MainWindow);
         createInstanceToolbar(MainWindow);
 
         retranslateUi(MainWindow);
@@ -710,6 +713,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     }
 
     // Add the news label to the news toolbar.
+    /*
     {
         m_newsChecker.reset(new NewsChecker(APPLICATION->network(), BuildConfig.NEWS_RSS_URL));
         newsLabel = new QToolButton();
@@ -722,6 +726,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         QObject::connect(m_newsChecker.get(), &NewsChecker::newsLoaded, this, &MainWindow::updateNewsLabel);
         updateNewsLabel();
     }
+    */
 
     // Create the instance list widget
     {
@@ -828,10 +833,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     // auto accounts = APPLICATION->accounts();
 
     // load the news
+    /*
     {
         m_newsChecker->reloadNews();
         updateNewsLabel();
     }
+    */
 
 
     if(BuildConfig.UPDATER_ENABLED)
@@ -1707,7 +1714,7 @@ void MainWindow::on_actionPatreon_triggered()
 {
     DesktopServices::openUrl(QUrl("https://www.patreon.com/multimc"));
 }
-*/
+
 void MainWindow::on_actionMoreNews_triggered()
 {
     DesktopServices::openUrl(QUrl("https://multimc.org/posts.html"));
@@ -1725,7 +1732,7 @@ void MainWindow::newsButtonClicked()
         DesktopServices::openUrl(QUrl("https://multimc.org/posts.html"));
     }
 }
-
+*/
 void MainWindow::on_actionAbout_triggered()
 {
     AboutDialog dialog(this);

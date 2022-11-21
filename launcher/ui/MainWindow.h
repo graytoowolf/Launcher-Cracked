@@ -111,9 +111,9 @@ private slots:
 
     //void on_actionPatreon_triggered();
 
-    void on_actionMoreNews_triggered();
+    //void on_actionMoreNews_triggered();
 
-    void newsButtonClicked();
+    //void newsButtonClicked();
 
     void on_actionLaunchInstance_triggered();
 
