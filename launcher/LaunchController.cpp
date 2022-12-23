@@ -11,6 +11,7 @@
 #include "ui/dialogs/ProfileSetupDialog.h"
 #include "ui/dialogs/LoginDialog.h"
 #include "ui/dialogs/MSALoginDialog.h"
+#include "ui/dialogs/BsLoginDialog.h"
 
 #include <QLineEdit>
 #include <QInputDialog>
@@ -236,11 +237,10 @@ void LaunchController::login() {
                 if (button == QMessageBox::StandardButton::Ok) {
                     auto accounts = APPLICATION->accounts();
                     bool isDefault = accounts->defaultAccount() == m_accountToUse;
-                    bool msa = m_accountToUse->isMSA();
                     auto profiletype = m_accountToUse->typeString();
                     accounts->removeAccount(accounts->index(accounts->findAccountByProfileId(m_accountToUse->profileId(),profiletype)));
                     MinecraftAccountPtr newAccount = nullptr;
-                    if (msa) {
+                    if (profiletype == "msa") {
                         if(BuildConfig.BUILD_PLATFORM == "osx64") {
                             CustomMessageBox::selectable(
                                     m_parentWidget,
@@ -258,7 +258,15 @@ void LaunchController::login() {
                                 m_parentWidget,
                                 tr("Please enter your Mojang account email and password to add your account.")
                         );
-                    } else {
+                    }
+                    else if(profiletype == "bs"){
+                        newAccount = BsLoginDialog::newAccount(
+                                m_parentWidget,
+                                "请输入您的 mcpeau皮肤站 帐户电子邮件和密码以添加您的帐户。"
+                        );
+
+                    }
+                    else if(profiletype == "mojang"){
                         newAccount = LoginDialog::newAccount(
                                 m_parentWidget,
                                 tr("Please enter your Mojang account email and password to add your account.")
