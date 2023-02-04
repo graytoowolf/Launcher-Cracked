@@ -576,7 +576,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         FS::updateTimestamp(m_rootPath);
 #endif
 
-        qDebug() << BuildConfig.LAUNCHER_DISPLAYNAME << ", (c) 2013-2021 " << BuildConfig.LAUNCHER_COPYRIGHT;
+        qDebug() << BuildConfig.LAUNCHER_DISPLAYNAME << ", (c) 2013-2023 " << BuildConfig.LAUNCHER_COPYRIGHT;
         qDebug() << "Version                    : " << BuildConfig.printableVersionString();
         qDebug() << "Git commit                 : " << BuildConfig.GIT_COMMIT;
         qDebug() << "Git refspec                : " << BuildConfig.GIT_REFSPEC;
@@ -628,7 +628,6 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
     {
         m_settings.reset(new INISettingsObject(BuildConfig.LAUNCHER_CONFIGFILE, this));
         // Updates
-        m_settings->registerSetting("UpdateChannel", BuildConfig.VERSION_CHANNEL);
         m_settings->registerSetting("AutoUpdate", true);
 
         // Theming
@@ -820,8 +819,8 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
     {
         auto platform = getIdealPlatform(BuildConfig.BUILD_PLATFORM);
         auto channelUrl = BuildConfig.UPDATER_BASE + platform + "/channels.json";
-        //qDebug() << "Initializing updater with platform: " << platform << " -- " << channelUrl;
-        m_updateChecker.reset(new UpdateChecker(m_network, channelUrl, BuildConfig.VERSION_CHANNEL, BuildConfig.VERSION_BUILD));
+        qDebug() << "Initializing updater with platform: " << platform << " -- " << channelUrl;
+        m_updateChecker.reset(new UpdateChecker(m_network, channelUrl, BuildConfig.VERSION_BUILD));
         qDebug() << "<> Updater started.";
     }
 
