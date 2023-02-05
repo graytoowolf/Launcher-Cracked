@@ -348,7 +348,15 @@ void InstanceImportTask::processCurseForge()
         // nuke the original files
         FS::deletePath(jarmodsPath);
     }
-    instance.setName(m_instName);
+    if(m_instName.contains(pack.version))
+    {
+        m_instName.replace(pack.version,"");
+        if(m_instName.endsWith("-"))
+        {
+            m_instName.chop(1);
+        }
+    }
+    instance.setName(QString("%1_v%2").arg(m_instName).arg(pack.version));
     m_modIdResolver = new CurseForge::FileResolvingTask(APPLICATION->network(), pack);
     connect(m_modIdResolver.get(), &CurseForge::FileResolvingTask::succeeded, [&]()
     {
