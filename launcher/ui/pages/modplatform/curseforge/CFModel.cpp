@@ -218,7 +218,9 @@ void CurseForge::ListModel::searchRequestFinished()
     jobPtr.reset();
 
     QJsonParseError parse_error;
+#ifndef NDEBUG
     qDebug() << response;
+#endif
     QJsonDocument doc = QJsonDocument::fromJson(response, &parse_error);
     if(parse_error.error != QJsonParseError::NoError) {
         qWarning() << "Error while parsing JSON response from CurseForge at " << parse_error.offset << " reason: " << parse_error.errorString();
