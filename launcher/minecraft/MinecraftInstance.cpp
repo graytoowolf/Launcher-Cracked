@@ -313,8 +313,9 @@ QStringList MinecraftInstance::javaArguments() const
     if(m_user_type == "bs")
     {
         MetaEntryPtr authlib_path = APPLICATION->metacache()->resolveEntry("jars", "authlib-injector.jar");
-        args << "-javaagent:"+ authlib_path->getFullPath() +"=" + BuildConfig.Bs_AUTH_BASE;
+        args << "-javaagent:"+ authlib_path->getFullPath() +"=" + APPLICATION->getyggdrasilUrl();
     }
+
 
 
     // custom args go first. we want to override them if we have our own here.

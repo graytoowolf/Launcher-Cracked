@@ -129,7 +129,9 @@ public:
 
     QString getCfWorkersurl();
 
-    QString getsource(QString ID);
+    QString getyggdrasilUrl();
+
+    QString getsource(QString ID);    
 
     /// this is the root of the 'installation'. Used for automatic updates
     const QString &root() {

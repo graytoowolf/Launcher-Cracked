@@ -89,7 +89,7 @@ void BsYggdrasil::refresh()
     req.insert("requestUser", false);
     QJsonDocument doc(req);
 
-    QUrl reqUrl(BuildConfig.Bs_AUTH_BASE + "authserver/refresh");
+    QUrl reqUrl(APPLICATION->getyggdrasilUrl() + "authserver/refresh");
     QByteArray requestData = doc.toJson();
 
     sendRequest(reqUrl, requestData);
@@ -136,7 +136,7 @@ void BsYggdrasil::login(QString password)
     QJsonDocument doc(req);
 
 
-    QUrl reqUrl(BuildConfig.Bs_AUTH_BASE +"authserver/authenticate");
+    QUrl reqUrl(APPLICATION->getyggdrasilUrl() +"authserver/authenticate");
     QNetworkRequest netRequest(reqUrl);
     QByteArray requestData = doc.toJson();
 
@@ -214,6 +214,9 @@ void BsYggdrasil::processResponse(QJsonObject responseData)
 
     // Now, we set the access token.
     qDebug() << "Getting access token.";
+    //selectedProfile
+    m_data->minecraftProfile.id = responseData.value("selectedProfile").toObject().value("id").toString();
+    m_data->minecraftProfile.name = responseData.value("selectedProfile").toObject().value("name").toString();
     QString accessToken = responseData.value("accessToken").toString("");
     if (accessToken.isEmpty())
     {
