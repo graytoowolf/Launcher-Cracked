@@ -684,6 +684,9 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         //cloudflareWorkersurl
         m_settings->registerSetting("CfWorkersurl", "");
 
+        //yggdrasilUrl
+        m_settings->registerSetting("yggdrasilUrl", "");
+
         m_settings->registerSetting("Downloadsource", "Mojang");
 
         m_settings->registerSetting("Threads", 8);
@@ -1794,5 +1797,15 @@ QString Application::getsource(QString ID)
         }
     }
     return "6";
+}
+
+QString Application::getyggdrasilUrl()
+{
+    QString yggdrasilUrl = m_settings->get("yggdrasilUrl").toString();
+    if (!yggdrasilUrl.isEmpty()) {
+        return yggdrasilUrl;
+    }
+
+    return BuildConfig.Bs_AUTH_BASE;
 }
 

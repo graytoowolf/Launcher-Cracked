@@ -15,6 +15,7 @@
 
 #include "BsLoginDialog.h"
 #include "ui_BsLoginDialog.h"
+#include "Application.h"
 
 #include "minecraft/auth/AccountTask.h"
 
@@ -123,5 +124,7 @@ MinecraftAccountPtr BsLoginDialog::newAccount(QWidget *parent, QString msg)
 }
 
 void BsLoginDialog::on_regpushButton_clicked(){
-    DesktopServices::openUrl(QUrl("https://www.mcpeau.com/auth/register?share=MCLauncher"));
+    QUrl url = APPLICATION->getyggdrasilUrl();
+    url.setPath("/auth/register");
+    DesktopServices::openUrl(url);
 }

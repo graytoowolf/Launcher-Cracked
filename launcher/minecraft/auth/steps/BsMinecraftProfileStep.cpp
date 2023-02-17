@@ -1,5 +1,6 @@
 #include "BsMinecraftProfileStep.h"
 #include "BuildConfig.h"
+#include "Application.h"
 
 #include <QNetworkRequest>
 
@@ -19,7 +20,8 @@ QString BsMinecraftProfileStep::describe()
 
 void BsMinecraftProfileStep::perform()
 {
-    auto url = QUrl(BuildConfig.Bs_AUTH_BASE + "minecraft/profile");
+    QUrl url = QUrl(APPLICATION->getyggdrasilUrl());
+    url.setPath(QString("/%1.json").arg(m_data->minecraftProfile.name));
     QNetworkRequest request = QNetworkRequest(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Authorization", QString("Bearer %1").arg(m_data->yggdrasilToken.token).toUtf8());
@@ -75,20 +77,33 @@ void BsMinecraftProfileStep::onRequestDone(
             tr("Minecraft Java profile acquisition failed."));
         return;
     }
-    if (!Parsers::parseMinecraftProfile(data, m_data->minecraftProfile))
-    {
-        m_data->minecraftProfile = MinecraftProfile();
-        emit finished(
-            AccountTaskState::STATE_FAILED_SOFT,
-            tr("Minecraft Java profile response could not be parsed"));
+    QJsonParseError jsonError;
+    QJsonDocument doc = QJsonDocument::fromJson(data, &jsonError);
+    if(jsonError.error) {
+        qWarning() << "Failed to parse response from user.auth.xboxlive.com as JSON: " << jsonError.errorString();
         return;
     }
+    auto obj = doc.object();
+    auto url = QUrl(APPLICATION->getyggdrasilUrl());
+    auto skins = obj.value("skins").toObject();
+    QString variant = skins. keys()[0];
+    url.setPath(QString("/textures/%1").arg(skins.value(variant).toString()));
+    m_data->minecraftProfile.skin.variant = variant.toUpper();
+    m_data->minecraftProfile.skin.url = url.toString();
+//    if (!Parsers::parseMinecraftProfile(data, m_data->minecraftProfile))
+//    {
+//        m_data->minecraftProfile = MinecraftProfile();
+//        emit finished(
+//            AccountTaskState::STATE_FAILED_SOFT,
+//            tr("Minecraft Java profile response could not be parsed"));
+//        return;
+//    }
 
     if (m_data->type == AccountType::Bs)
     {
-        auto validProfile = m_data->minecraftProfile.validity == Katabasis::Validity::Certain;
-        m_data->minecraftEntitlement.canPlayMinecraft = validProfile;
-        m_data->minecraftEntitlement.ownsMinecraft = validProfile;
+        //auto validProfile = m_data->minecraftProfile.validity == Katabasis::Validity::Certain;
+        m_data->minecraftEntitlement.canPlayMinecraft = true;
+        m_data->minecraftEntitlement.ownsMinecraft = true;
     }
     emit finished(
         AccountTaskState::STATE_WORKING,
