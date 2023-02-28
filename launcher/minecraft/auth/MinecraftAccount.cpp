@@ -150,8 +150,8 @@ shared_qobject_ptr<AccountTask> MinecraftAccount::refresh() {
 
         m_currentTask.reset(new MojangRefresh(&data));
     }
-    else
-    {
+    else if (data.type == AccountType::Bs){
+
         m_currentTask.reset(new BsRefresh(&data));
     }
 
