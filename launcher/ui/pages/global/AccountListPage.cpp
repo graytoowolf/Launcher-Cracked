@@ -198,16 +198,21 @@ void AccountListPage::updateButtonStates()
     QModelIndexList selection = ui->listView->selectionModel()->selectedIndexes();
     bool hasSelection = selection.size() > 0;
     bool accountIsReady = false;
+    bool UploadSkin = false;
     if (hasSelection)
     {
         QModelIndex selected = selection.first();
         MinecraftAccountPtr account = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
         accountIsReady = !account->isActive();
+        UploadSkin = accountIsReady;
+        if(account->typeString() == "bs"){
+            UploadSkin = false;
+        }
     }
     ui->actionRemove->setEnabled(accountIsReady);
     ui->actionSetDefault->setEnabled(accountIsReady);
-    ui->actionUploadSkin->setEnabled(accountIsReady);
-    ui->actionDeleteSkin->setEnabled(accountIsReady);
+    ui->actionUploadSkin->setEnabled(UploadSkin);
+    ui->actionDeleteSkin->setEnabled(UploadSkin);
     ui->actionRefresh->setEnabled(accountIsReady);
 
     if(m_accounts->defaultAccount().get() == nullptr) {
