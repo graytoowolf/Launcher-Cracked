@@ -61,11 +61,13 @@ int AccountList::findAccountByProfileId(const QString& profileId,QString& profil
     return -1;
 }
 
-MinecraftAccountPtr AccountList::getAccountByProfileName(const QString& profileName) const {
+MinecraftAccountPtr AccountList::getAccountByProfileName(const QString& profileName,const QString& type) const {
     for (int i = 0; i < count(); i++) {
         MinecraftAccountPtr account = at(i);
-        if (account->accountDisplayString() == profileName) {
-            return account;
+        if (account->profileName() == profileName) {
+            if(account->typeString() == type || type.isEmpty()){
+                return account;
+            }
         }
     }
     return nullptr;
