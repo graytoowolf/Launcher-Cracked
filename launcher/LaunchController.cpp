@@ -330,7 +330,7 @@ void LaunchController::launchInstance()
         return;
     }
 
-    m_launcher = m_instance->createLaunchTask(m_session, m_serverToJoin);
+    m_launcher = m_instance->createLaunchTask(m_session, m_quickPlayTarget);
     if (!m_launcher)
     {
         emitFailed(tr("Couldn't instantiate a launcher."));
