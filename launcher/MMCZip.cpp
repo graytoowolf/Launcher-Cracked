@@ -188,6 +188,32 @@ QString MMCZip::findFolderOfFileInZip(QuaZip * zip, const QString & what, const 
 }
 
 // ours
+QString MMCZip::findFolderOfFileInZipList(QuaZip *zip, const QStringList &what, QString &foundFileName, const QString &root)
+{
+    QuaZipDir rootDir(zip, root);
+    for(auto fileName: rootDir.entryList(QDir::Files))
+    {
+        for (const auto& file : what) {
+            if(fileName == file){
+                foundFileName = file;
+                return root;
+            }
+        }
+
+
+    }
+    for(auto fileName: rootDir.entryList(QDir::Dirs))
+    {
+        QString result = findFolderOfFileInZipList(zip, what,foundFileName, root + fileName);
+        if(!result.isEmpty())
+        {
+            return result;
+        }
+    }
+    return QString();
+}
+
+// ours
 bool MMCZip::findFilesInZip(QuaZip * zip, const QString & what, QStringList & result, const QString &root)
 {
     QuaZipDir rootDir(zip, root);

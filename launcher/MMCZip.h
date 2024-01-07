@@ -44,6 +44,7 @@ namespace MMCZip
      * \return the path prefix where the file is
      */
     QString findFolderOfFileInZip(QuaZip * zip, const QString & what, const QString &root = QString(""));
+    QString findFolderOfFileInZipList(QuaZip *zip, const QStringList &what, QString &foundFileName, const QString &root = QString(""));
 
     /**
      * Find a multiple files of the same name in archive by file name

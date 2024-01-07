@@ -102,47 +102,51 @@ void InstanceImportTask::processZipPack()
         return;
     }
 
-    QStringList blacklist = {"instance.cfg", "manifest.json"};
-    QString mmcFound = MMCZip::findFolderOfFileInZip(m_packZip.get(), "instance.cfg");
-    bool technicFound = QuaZipDir(m_packZip.get()).exists("/bin/modpack.jar") || QuaZipDir(m_packZip.get()).exists("/bin/version.json");
-    QString flameFound = MMCZip::findFolderOfFileInZip(m_packZip.get(), "manifest.json");
-    QString modrinthFound = MMCZip::findFolderOfFileInZip(m_packZip.get(), "modrinth.index.json");
     QString root;
-    if(!mmcFound.isNull())
+    QString fileName;
+    QStringList filesToSearch = {"instance.cfg", "manifest.json", "modrinth.index.json"};
+    QString rootDirectory = MMCZip::findFolderOfFileInZipList(m_packZip.get(), filesToSearch, fileName);
+    if (!rootDirectory.isNull())
     {
-        // process as MultiMC instance/pack
-        qDebug() << "MultiMC:" << mmcFound;
-        root = mmcFound;
-        m_modpackType = ModpackType::MultiMC;
+        if (fileName == "instance.cfg")
+        {
+            // process as MultiMC instance/pack
+            qDebug() << "MultiMC:" << rootDirectory;
+            m_modpackType = ModpackType::MultiMC;
+
+        }
+        else if (fileName == "manifest.json")
+        {
+            // process as CurseForge pack
+            qDebug() << "CurseForge:" << rootDirectory;
+            m_modpackType = ModpackType::CurseForge;
+        }
+        else if (fileName == "modrinth.index.json")
+        {
+            // process as Modrinth pack
+            qDebug() << "Modrinth:" << rootDirectory;
+            m_modpackType = ModpackType::Modrinth;
+        }
+        root = rootDirectory;
     }
-    else if (technicFound)
+    else
     {
-        // process as Technic pack
-        qDebug() << "Technic:" << technicFound;
-        extractDir.mkpath(".minecraft");
-        extractDir.cd(".minecraft");
-        m_modpackType = ModpackType::Technic;
-    }
-    else if(!flameFound.isNull())
-    {
-        // process as CurseForge pack
-        qDebug() << "CurseForge:" << flameFound;
-        root = flameFound;
-        m_modpackType = ModpackType::CurseForge;
-    }
-    else if(!modrinthFound.isNull())
-    {
-        // process as Modrinth pack
-        qDebug() << "Modrinth:" << modrinthFound;
-        root = modrinthFound;
-        m_modpackType = ModpackType::Modrinth;
+        QuaZipDir packZipDir(m_packZip.get());
+        bool technicFound = packZipDir.exists("/bin/modpack.jar") || packZipDir.exists("/bin/version.json");
+        if (technicFound)
+            {
+                // process as Technic pack
+                qDebug() << "Technic:" << technicFound;
+                extractDir.mkpath(".minecraft");
+                extractDir.cd(".minecraft");
+                m_modpackType = ModpackType::Technic;
+            }
     }
     if(m_modpackType == ModpackType::Unknown)
     {
         emitFailed(tr("Archive does not contain a recognized modpack type."));
         return;
     }
-
     // make sure we extract just the pack
     m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), MMCZip::extractSubDir, m_packZip.get(), root, extractDir.absolutePath());
     connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, &InstanceImportTask::extractFinished);
