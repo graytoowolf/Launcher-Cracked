@@ -77,10 +77,16 @@ void Download::startImpl()
         emit aborted(m_index_within_job);
         return;
     }
-    if (m_url.host().contains("edge.forgecdn.net")){
+    if (m_url.host().contains("edge.forgecdn.net") || m_url.host().contains("mediafilez.forgecdn.net")){
         QString cfurl = APPLICATION->getCfWorkersurl().toUtf8();
         if(!cfurl.isEmpty()){
-           m_url.setHost(cfurl);
+            if(!cfurl.endsWith("/")){
+                cfurl += "/";
+            }
+            if(!cfurl.startsWith("http")){
+                cfurl += "https://";
+            }
+            m_url = QUrl(cfurl + m_url.toString());
         }
     }
     auto source = APPLICATION->getsource("Downloadsource").toUtf8();
