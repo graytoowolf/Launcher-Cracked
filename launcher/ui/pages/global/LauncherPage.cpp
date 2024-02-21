@@ -53,6 +53,8 @@ LauncherPage::LauncherPage(QWidget *parent) : QWidget(parent), ui(new Ui::Launch
 
     defaultFormat = new QTextCharFormat(ui->fontPreview->currentCharFormat());
 
+    sources = APPLICATION->getDownloadSources();
+
     m_languageModel = APPLICATION->translations();
     loadSettings();
 
@@ -196,16 +198,10 @@ void LauncherPage::applySettings()
         s->set("IconTheme", "multimc");
         break;
     }
-    switch (ui->downloadcomboBox->currentIndex())
-    {
-    case 1:
-        s->set("Downloadsource", "Mcbbs");
-        break;
-    case 0:
-    default:
-        s->set("Downloadsource", "Mojang");
-        break;
-    }
+    const DownloadSource &secondSource = sources[ui->downloadcomboBox->currentIndex()];
+    s->set("Downloadsource", secondSource.type);
+    s->set("Downloadsourceurl", secondSource.url);
+
     switch (ui->threadcomboBox->currentIndex())
     {
     case 0:
@@ -278,6 +274,7 @@ void LauncherPage::applySettings()
 }
 void LauncherPage::loadSettings()
 {
+
     auto s = APPLICATION->settings();
     // Updates
     ui->autoUpdateCheckBox->setChecked(s->get("AutoUpdate").toBool());
@@ -320,17 +317,18 @@ void LauncherPage::loadSettings()
         ui->themeComboBox->setCurrentIndex(0);
     }
 
+    int i =0;
     auto download = s->get("Downloadsource").toString();
-    if(download == "Mojang"){
-        ui->downloadcomboBox->setCurrentIndex(0);
-    }
-    else if(download == "Mcbbs"){
-        ui->downloadcomboBox->setCurrentIndex(1);
-    }
-    else
+    for (const DownloadSource &source : sources)
     {
-        ui->downloadcomboBox->setCurrentIndex(0);
+        ui->downloadcomboBox->addItem(source.name);
+        if (source.type == download)
+        {
+            ui->downloadcomboBox->setCurrentIndex(i);
+        }
+        i++;
     }
+
 
     auto thread = s->get("Threads").toString();
     if(thread == "4"){

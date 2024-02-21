@@ -715,6 +715,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         m_settings->registerSetting("yggdrasilUrl", "");
 
         m_settings->registerSetting("Downloadsource", "Mojang");
+        m_settings->registerSetting("Downloadsourceurl", "");
 
         m_settings->registerSetting("Threads", 8);
 
@@ -867,6 +868,15 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         //           m_filesNetJob = new NetJob(tr("Mod download"), APPLICATION->network());
         //           auto dl = Net::Download::makeFile(QUrl("https://authlib-injector.yushi.moe/artifact/40/authlib-injector-1.1.40.jar"),"jars/authlib-injector-1.1.40.jar");
         //           m_filesNetJob->addNetAction(dl);
+    }
+
+    //获取下载源
+    {
+        auto *netJob = new NetJob("获取下载源", network());
+        netJob->addNetAction(Net::Download::makeByteArray(QUrl("https://mmc.mcpeau.com/source.json"), &response));
+        m_filesNetJob = netJob;
+        m_filesNetJob->start();
+        QObject::connect(netJob, &NetJob::succeeded, this, &Application::sourceFinished);
     }
 
     // Instance icons
@@ -1820,6 +1830,35 @@ bool Application::FileHash(QString srcDir, QString hash256)
     return false;
 }
 
+void Application::sourceFinished()
+{
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+    if (!jsonDoc.isArray())
+    {
+        qDebug() << "JSON document is not an array";
+        return;
+    }
+
+    QJsonArray jsonArray = jsonDoc.array();
+    for (const QJsonValue &value : jsonArray)
+    {
+        if (!value.isObject())
+        {
+            qDebug() << "JSON value is not an object";
+            continue;
+        }
+
+        QJsonObject obj = value.toObject();
+        DownloadSource source;
+        source.name = obj["name"].toString();
+        source.url = obj["url"].toString();
+        source.type = obj["type"].toString();
+
+        downloadSources.append(source);
+    }
+
+}
+
 QString Application::getCfWorkersurl()
 {
     return m_settings->get("CfWorkersurl").toString();
@@ -1845,5 +1884,10 @@ QString Application::getyggdrasilUrl()
     }
 
     return BuildConfig.Bs_AUTH_BASE;
+}
+
+QList<DownloadSource> Application::getDownloadSources() const
+{
+    return downloadSources;
 }
 

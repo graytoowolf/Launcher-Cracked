@@ -44,6 +44,13 @@ namespace Meta {
 #undef APPLICATION
 #endif
 #define APPLICATION (static_cast<Application *>(QCoreApplication::instance()))
+class DownloadSource
+{
+public:
+    QString name;
+    QString url;
+    QString type;
+};
 
 class Application : public QApplication
 {
@@ -131,6 +138,8 @@ public:
 
     QString getyggdrasilUrl();
 
+    QList<DownloadSource> getDownloadSources() const;
+
     QString getsource(QString ID);    
 
     /// this is the root of the 'installation'. Used for automatic updates
@@ -170,6 +179,7 @@ public slots:
 
 private slots:
     void requestFinished();
+    void sourceFinished();
     bool FileHash(QString srcDir, QString hash256);
     void on_windowClose();
     void messageReceived(const QByteArray & message);
@@ -218,6 +228,8 @@ private:
 
     QString m_rootPath;
     Status m_status = Application::StartingUp;
+
+    QList<DownloadSource> downloadSources;
 
 #if defined Q_OS_WIN32
     // used on Windows to attach the standard IO streams

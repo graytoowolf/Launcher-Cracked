@@ -170,16 +170,6 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <item>
-             <property name="text">
-              <string>官方下载源</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>MCBBS下载源</string>
-             </property>
-            </item>
            </widget>
           </item>
           <item row="1" column="0">

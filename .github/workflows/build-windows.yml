@@ -94,7 +94,7 @@ jobs:
           cmake ^
            -DCMAKE_BUILD_TYPE=Release ^
            -DLauncher_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json ^
-           -DCMAKE_INSTALL_PREFIX:PATH=D:/MCLauncher/install  ^
+           -DCMAKE_INSTALL_PREFIX:PATH=D:/MiniSkins/install  ^
            -DLauncher_UPDATER_BASE=https://mmc.mcpeau.com/ ^
            -DLauncher_VERSION_BUILD=%GITHUB_RUN_NUMBER% ^
            -DLauncher_PASTE_EE_API_KEY:STRING=ajtc1fWcjZqLl0jWJ9orxvAs0em2VyeTYr8eX2NrA ^
@@ -126,7 +126,7 @@ jobs:
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make test
-          cmake -E remove_directory "D:/MCLauncher/install"
+          cmake -E remove_directory "D:/MiniSkins/install"
 
       - name: Install
         shell: cmd
@@ -142,21 +142,21 @@ jobs:
       - name: Copy OpenSSL
         shell: cmd
         run: |
-          cp OpenSSL/ssleay32.dll D:/MCLauncher/install/ssleay32.dll
-          cp OpenSSL/libeay32.dll D:/MCLauncher/install/libeay32.dll
+          cp OpenSSL/ssleay32.dll D:/MiniSkins/install/ssleay32.dll
+          cp OpenSSL/libeay32.dll D:/MiniSkins/install/libeay32.dll
 
       - name: 生成json文件
         run: |
-          cd D:/MCLauncher/
-          mkdir D:/MCLauncher/qiniu/win32/bs
-          mkdir D:/MCLauncher/qiniu/MCLauncher
+          cd D:/MiniSkins/
+          mkdir D:/MiniSkins/qiniu/win32/bs
+          mkdir D:/MiniSkins/qiniu/MiniSkins
           curl -L https://mmc.mcpeau.com/mc.exe -o mc.exe
-          Compress-Archive -Path D:/MCLauncher/install/* -DestinationPath D:/MCLauncher/qiniu/MCLauncher.zip
+          Compress-Archive -Path D:/MiniSkins/install/* -DestinationPath D:/MiniSkins/qiniu/MiniSkins.zip
           .\mc $env:GITHUB_RUN_NUMBER
 
       - name: Upload qiniu
         run: |
-          cd D:/MCLauncher/
+          cd D:/MiniSkins/
           curl -L https://devtools.qiniu.com/qshell-v2.6.2-windows-386.zip -o qshell.zip
           unzip qshell.zip
           .\qshell account ${{ secrets.AK }} ${{ secrets.SK }} bs
@@ -166,7 +166,7 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: mmc-cracked-win32
-          path: "D:/MCLauncher/install"
+          path: "D:/MiniSkins/install"
 
   build-linux:
     name: build-linux
@@ -196,7 +196,7 @@ jobs:
            -DCMAKE_CXX_COMPILER=/usr/bin/g++-5 \
            -DCMAKE_BUILD_TYPE=Release \
            -DLauncher_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json \
-           -DCMAKE_INSTALL_PREFIX:PATH=/home/runner/MCLauncher/MCLauncher \
+           -DCMAKE_INSTALL_PREFIX:PATH=/home/runner/MiniSkins/MiniSkins \
            -DLauncher_PASTE_EE_API_KEY:STRING=ajtc1fWcjZqLl0jWJ9orxvAs0em2VyeTYr8eX2NrA \
            -DLauncher_IMGUR_CLIENT_ID:STRING=d7340b1158a28c6 \
            -DLauncher_ANALYTICS_ID:STRING=UA-179508337-1 \
@@ -214,20 +214,20 @@ jobs:
         run: |
           cd build
           make test
-          cmake -E remove_directory "/home/runner/MCLauncher/MCLauncher"
+          cmake -E remove_directory "/home/runner/MiniSkins/MiniSkins"
 
       - name: Install
         run: |
           cd build
           make install
-          chmod +x /home/runner/MCLauncher/MCLauncher/MCLauncher
-          chmod +x /home/runner/MCLauncher/MCLauncher/bin//MCLauncher
+          chmod +x /home/runner/MiniSkins/MiniSkins/MiniSkins
+          chmod +x /home/runner/MiniSkins/MiniSkins/bin//MiniSkins
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@main
         with:
           name: mmc-cracked-lin64
-          path: /home/runner/MCLauncher
+          path: /home/runner/MiniSkins
 
   build-mac:
     name: build-mac
@@ -258,7 +258,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
           -DCMAKE_BUILD_TYPE=Release \
           -DLauncher_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json \
-          -DCMAKE_INSTALL_PREFIX:PATH=/Users/runner/work/MCLauncher/build/dist \
+          -DCMAKE_INSTALL_PREFIX:PATH=/Users/runner/work/MiniSkins/build/dist \
           -DCMAKE_PREFIX_PATH="$(brew --prefix qt@5);$(brew --prefix qt@5)/lib/cmake/Qt5Core;$(brew --prefix qt@5)/lib/cmake/Qt5Widgets;$(brew --prefix qt@5)/lib/cmake/Qt5Concurrent;$(brew --prefix qt@5)/lib/cmake/Qt5Network;$(brew --prefix qt@5)/lib/cmake/Qt5Test;$(brew --prefix qt@5)/lib/cmake/Qt5Xml" \
           -DQt5_DIR="$(brew --prefix qt@5)" \
           -DLauncher_PASTE_EE_API_KEY:STRING=ajtc1fWcjZqLl0jWJ9orxvAs0em2VyeTYr8eX2NrA \
@@ -278,16 +278,16 @@ jobs:
         run: |
           cd build
           make test
-          cmake -E remove_directory "/Users/runner/work/MCLauncher/build/dist"
+          cmake -E remove_directory "/Users/runner/work/MiniSkins/build/dist"
 
       - name: Install
         run: |
           cd build
           make install
-          chmod +x /Users/runner/work/MCLauncher/build/dist/MCLauncher.app/Contents/MacOS/MCLauncher
+          chmod +x /Users/runner/work/MiniSkins/build/dist/MiniSkins.app/Contents/MacOS/MiniSkins
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@main
         with:
           name: mmc-cracked-osx64
-          path: /Users/runner/work/MCLauncher/build/dist
+          path: /Users/runner/work/MiniSkins/build/dist

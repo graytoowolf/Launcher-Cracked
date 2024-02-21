@@ -83,4 +83,5 @@ private:
     std::unique_ptr<LogColorCache> m_colors;
 
     std::shared_ptr<TranslationsModel> m_languageModel;
+    QList<DownloadSource> sources;
 };

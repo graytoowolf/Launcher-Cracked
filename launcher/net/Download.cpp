@@ -85,21 +85,33 @@ void Download::startImpl()
     }
     auto source = APPLICATION->getsource("Downloadsource").toUtf8();
     if(source != "Mojang"){
-        QString j_url = "download.mcbbs.net";
-        if(source == "BMCLAPI"){
-            j_url = "bmclapi2.bangbang93.com";
-        }
-        if(m_url.host().contains("resources.download.minecraft.net")){
-            m_url = QString("https://%1/assets%2").arg(j_url,m_url.path());
-        }
-        else if(m_url.host().contains("libraries.minecraft.net") || m_url.host().contains("maven.minecraftforge.net") || m_url.host().contains("maven.fabricmc.net")){
-            m_url = QString("https://%1/maven%2").arg(j_url,m_url.path());
-        }
-        else if(m_url.host().contains("files.minecraftforge.net") || m_url.host().contains("launchermeta.mojang.com") || m_url.host().contains("launcher.mojang.com")){
-            m_url.setHost(j_url);
-        }
-        else if(m_url.host().contains("meta.fabricmc.net")){
-            m_url = QString("https://%1/fabric-meta%2").arg(j_url,m_url.path());
+        QString j_url = APPLICATION->getsource("Downloadsourceurl").toUtf8();
+        QString host = m_url.toString();
+        struct Replacement {
+            QString search;
+            QString replace;
+        };
+        Replacement replacements[] = {
+            {"resources.download.minecraft.net", "<j_url>/assets"},
+            {"libraries.minecraft.net", "<j_url>/maven"},
+            {"maven.fabricmc.net", "<j_url>/maven"},
+            {"launchermeta.mojang.com", "<j_url>"},
+            {"launcher.mojang.com", "<j_url>"},
+            {"files.minecraftforge.net", "<j_url>"},
+            {"meta.fabricmc.net", "<j_url>/fabric-meta"},
+            {"maven.neoforged.net/releases", "<j_url>/maven"},
+            {"maven.quiltmc.org/repository/release","<j_url>/maven"},
+            {"meta.quiltmc.org","<j_url>/quilt-meta"}
+        };
+        for (const auto& replacement : replacements) {
+            QString oldURL =replacement.search;
+            if (host.contains(oldURL)) {
+                QString newUrl = replacement.replace;
+                newUrl.replace("<j_url>", j_url);
+                host.replace(oldURL,newUrl);
+                m_url =QUrl(host);
+                break;
+            }
         }
     }
 
