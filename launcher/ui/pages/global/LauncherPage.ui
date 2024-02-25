@@ -139,7 +139,7 @@
           <item row="1" column="0">
            <widget class="QLineEdit" name="WorkersurlDirTextBox">
             <property name="placeholderText">
-             <string>演示地址：edge.graywolf.workers.dev</string>
+             <string>演示地址：https://proxy.mcpeau.com</string>
             </property>
            </widget>
           </item>
