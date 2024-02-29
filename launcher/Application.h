@@ -50,6 +50,7 @@ public:
     QString name;
     QString url;
     QString type;
+    bool proxy;
 };
 
 class Application : public QApplication
@@ -134,13 +135,11 @@ public:
 
     QString getJarsPath();
 
-    QString getCfWorkersurl();
-
     QString getyggdrasilUrl();
 
-    QList<DownloadSource> getDownloadSources() const;
+    bool getconfigfile();
 
-    QString getsource(QString ID);    
+    QList<DownloadSource> getDownloadSources() const;
 
     /// this is the root of the 'installation'. Used for automatic updates
     const QString &root() {

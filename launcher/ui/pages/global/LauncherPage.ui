@@ -131,32 +131,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="customizeBox">
-         <property name="title">
-          <string>自定义设置</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="1" column="0">
-           <widget class="QLineEdit" name="WorkersurlDirTextBox">
-            <property name="placeholderText">
-             <string>演示地址：https://proxy.mcpeau.com</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="WorkersurlInstDir">
-            <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;curseforge 下载反向代理地址.默认不开启&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="buddy">
-             <cstring>instDirTextBox</cstring>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <widget class="QGroupBox" name="groupdownload">
          <property name="title">
           <string>下载设置</string>

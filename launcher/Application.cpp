@@ -708,14 +708,13 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
 
         // curseforgekey
         m_settings->registerSetting("CFKeyOverride", "");
-        //cloudflareWorkersurl
-        m_settings->registerSetting("CfWorkersurl", "");
 
         //yggdrasilUrl
         m_settings->registerSetting("yggdrasilUrl", "");
 
         m_settings->registerSetting("Downloadsource", "Mojang");
         m_settings->registerSetting("Downloadsourceurl", "");
+        m_settings->registerSetting("Downloadsourceproxy",false);
 
         m_settings->registerSetting("Threads", 8);
 
@@ -1853,27 +1852,18 @@ void Application::sourceFinished()
         source.name = obj["name"].toString();
         source.url = obj["url"].toString();
         source.type = obj["type"].toString();
+        source.proxy = obj["proxy"].toBool();
 
         downloadSources.append(source);
     }
 
 }
 
-QString Application::getCfWorkersurl()
-{
-    return m_settings->get("CfWorkersurl").toString();
-}
-
-QString Application::getsource(QString ID)
+bool Application::getconfigfile()
 {
     QFileInfo file(BuildConfig.LAUNCHER_CONFIGFILE);
-    if(file.isFile()){
-        auto source = m_settings->get(ID).toString();
-        if(!source.isEmpty()){
-            return source;
-        }
-    }
-    return "6";
+    return file.isFile();
+
 }
 
 QString Application::getyggdrasilUrl()

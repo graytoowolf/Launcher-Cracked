@@ -77,21 +77,15 @@ void Download::startImpl()
         emit aborted(m_index_within_job);
         return;
     }
-    if (m_url.host().contains("edge.forgecdn.net") || m_url.host().contains("mediafilez.forgecdn.net")){
-        QString cfurl = APPLICATION->getCfWorkersurl().toUtf8();
-        if(!cfurl.isEmpty()){
-            if(!cfurl.endsWith("/")){
-                cfurl += "/";
-            }
-            if(!cfurl.startsWith("http")){
-                cfurl += "https://";
-            }
-            m_url = QUrl(cfurl + m_url.toString());
-        }
+    QString source = "Mojang";
+    if(APPLICATION->getconfigfile()){
+        source = APPLICATION->settings()->get("Downloadsource").toString();
     }
-    auto source = APPLICATION->getsource("Downloadsource").toUtf8();
+
     if(source != "Mojang"){
-        QString j_url = APPLICATION->getsource("Downloadsourceurl").toUtf8();
+        auto s = APPLICATION->settings();
+        bool proxy = s->get("Downloadsourceproxy").toBool();
+        QString j_url = s->get("Downloadsourceurl").toString();
         QString host = m_url.toString();
         struct Replacement {
             QString search;
@@ -107,16 +101,32 @@ void Download::startImpl()
             {"meta.fabricmc.net", "<j_url>/fabric-meta"},
             {"maven.neoforged.net/releases", "<j_url>/maven"},
             {"maven.quiltmc.org/repository/release","<j_url>/maven"},
-            {"meta.quiltmc.org","<j_url>/quilt-meta"}
+            {"meta.quiltmc.org","<j_url>/quilt-meta"},
+            {"edge.forgecdn.net",""},
+            {"mediafilez.forgecdn.net",""}
         };
         for (const auto& replacement : replacements) {
             QString oldURL =replacement.search;
             if (host.contains(oldURL)) {
-                QString newUrl = replacement.replace;
-                newUrl.replace("<j_url>", j_url);
-                host.replace(oldURL,newUrl);
-                m_url =QUrl(host);
-                break;
+                if (proxy){
+                    if(!j_url.isEmpty()){
+                        if(!j_url.endsWith("/")){
+                            j_url += "/";
+                        }
+                        if(!j_url.startsWith("http")){
+                            j_url = "https://" + j_url;
+                        }
+                        m_url = QUrl(j_url + m_url.toString());
+                    }
+                } else {
+                    QString newUrl = replacement.replace;
+                    if (!newUrl.isEmpty()) {
+                        newUrl.replace("<j_url>", j_url);
+                        host.replace(oldURL,newUrl);
+                        m_url =QUrl(host);
+                        break;
+                    }                    
+                }
             }
         }
     }

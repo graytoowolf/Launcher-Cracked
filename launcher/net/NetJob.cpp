@@ -132,7 +132,10 @@ void NetJob::startMoreParts()
         return;
     }
     // There's work to do, try to start more parts.
-    auto source = APPLICATION->getsource("Threads").toInt();
+    int source = 6;
+    if(APPLICATION->getconfigfile()){
+        source = APPLICATION->settings()->get("Threads").toInt();
+    }
     while (m_doing.size() < source)
     {
         if(!m_todo.size())

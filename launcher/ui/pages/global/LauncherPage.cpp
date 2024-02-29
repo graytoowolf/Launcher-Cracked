@@ -201,6 +201,7 @@ void LauncherPage::applySettings()
     const DownloadSource &secondSource = sources[ui->downloadcomboBox->currentIndex()];
     s->set("Downloadsource", secondSource.type);
     s->set("Downloadsourceurl", secondSource.url);
+    s->set("Downloadsourceproxy",secondSource.proxy);
 
     switch (ui->threadcomboBox->currentIndex())
     {
@@ -250,9 +251,6 @@ void LauncherPage::applySettings()
     s->set("InstanceDir", ui->instDirTextBox->text());
     s->set("CentralModsDir", ui->modsDirTextBox->text());
     s->set("IconsDir", ui->iconsDirTextBox->text());
-
-    //cloudflareurl
-    s->set("CfWorkersurl",ui->WorkersurlDirTextBox->text());
 
     auto sortMode = (InstSortMode)ui->sortingModeGroup->checkedId();
     switch (sortMode)
@@ -390,9 +388,6 @@ void LauncherPage::loadSettings()
     ui->instDirTextBox->setText(s->get("InstanceDir").toString());
     ui->modsDirTextBox->setText(s->get("CentralModsDir").toString());
     ui->iconsDirTextBox->setText(s->get("IconsDir").toString());
-
-    //cloudflareurl
-    ui->WorkersurlDirTextBox->setText(s->get("CfWorkersurl").toString());
 
     QString sortMode = s->get("InstSortMode").toString();
 
