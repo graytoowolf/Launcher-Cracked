@@ -82,14 +82,27 @@ void Download::startImpl()
         source = APPLICATION->settings()->get("Downloadsource").toString();
     }
 
-    if(source != "Mojang"){
-        auto s = APPLICATION->settings();
-        bool proxy = s->get("Downloadsourceproxy").toBool();
-        QString j_url = s->get("Downloadsourceurl").toString();
+    if (source != "Mojang")
+    {
+        auto settings = APPLICATION->settings();
+        bool useProxy = settings->get("Downloadsourceproxy").toBool();
+        QString baseUrl = settings->get("Downloadsourceurl").toString().trimmed();
+        if (!baseUrl.isEmpty())
+        {
+            baseUrl = QUrl::fromUserInput(baseUrl).toString();
+            if (!baseUrl.startsWith("https://"))
+            {
+                baseUrl = baseUrl.replace("http://", "https://");
+            }
+            if (!baseUrl.endsWith("/"))
+            {
+                baseUrl.append('/');
+            }
+        }
+
         QString host = m_url.toString();
         struct Replacement {
-            QString search;
-            QString replace;
+            QString search, replace;
         };
         Replacement replacements[] = {
             {"resources.download.minecraft.net", "<j_url>/assets"},
@@ -105,27 +118,20 @@ void Download::startImpl()
             {"edge.forgecdn.net",""},
             {"mediafilez.forgecdn.net",""}
         };
-        for (const auto& replacement : replacements) {
-            QString oldURL =replacement.search;
-            if (host.contains(oldURL)) {
-                if (proxy){
-                    if(!j_url.isEmpty()){
-                        if(!j_url.endsWith("/")){
-                            j_url += "/";
-                        }
-                        if(!j_url.startsWith("http")){
-                            j_url = "https://" + j_url;
-                        }
-                        m_url = QUrl(j_url + m_url.toString());
-                    }
-                } else {
-                    QString newUrl = replacement.replace;
-                    if (!newUrl.isEmpty()) {
-                        newUrl.replace("<j_url>", j_url);
-                        host.replace(oldURL,newUrl);
-                        m_url =QUrl(host);
-                        break;
-                    }                    
+        for (const auto &replacement : replacements)
+        {
+            if (host.contains(replacement.search) && !host.contains(baseUrl))
+            {
+                QString replacementUrl = baseUrl.isEmpty() ? "" : baseUrl + replacement.replace;
+                if (useProxy && !baseUrl.isEmpty())
+                {
+                    m_url = QUrl(baseUrl + host);
+                }
+                else if (!replacementUrl.isEmpty())
+                {
+                    host.replace(replacement.search, replacementUrl);
+                    m_url = QUrl(host);
+                    break;
                 }
             }
         }
