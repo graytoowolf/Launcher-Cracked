@@ -15,6 +15,7 @@ CFPage::CFPage(NewInstanceDialog* dialog, QWidget *parent)
 {
     ui->setupUi(this);
     connect(ui->searchButton, &QPushButton::clicked, this, &CFPage::triggerSearch);
+    connect(ui->searchEdit, &QLineEdit::returnPressed, this, &CFPage::triggerSearch);
     ui->searchEdit->installEventFilter(this);
     listModel = new CurseForge::ListModel(this);
     ui->packView->setModel(listModel);
