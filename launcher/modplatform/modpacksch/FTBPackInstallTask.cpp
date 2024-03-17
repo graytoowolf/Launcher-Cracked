@@ -273,6 +273,9 @@ void PackInstallTask::install()
         else if(target.name == "fabric") {
             components->setComponentVersion("net.fabricmc.fabric-loader", target.version, true);
         }
+        else if(target.name == "neoforge") {
+            components->setComponentVersion("net.neoforged", target.version, true);
+        }
     }
 
     // install any jar mods
