@@ -261,6 +261,7 @@ void InstanceImportTask::processCurseForge()
 
     QString forgeVersion;
     QString fabricVersion;
+    QString neoforgecVersion;
     for(auto &loader: pack.minecraft.modLoaders)
     {
         auto id = loader.id;
@@ -274,6 +275,12 @@ void InstanceImportTask::processCurseForge()
         {
             id.remove("fabric-");
             fabricVersion = id;
+            continue;
+        }
+        if(id.startsWith("neoforge-"))
+        {
+            id.remove("neoforge-");
+            neoforgecVersion = id;
             continue;
         }
         logWarning(tr("Unknown mod loader in manifest: %1").arg(id));
@@ -313,6 +320,10 @@ void InstanceImportTask::processCurseForge()
     if(!fabricVersion.isEmpty())
     {
         components->setComponentVersion("net.fabricmc.fabric-loader", fabricVersion);
+    }
+    if(!neoforgecVersion.isEmpty())
+    {
+        components->setComponentVersion("net.neoforged",neoforgecVersion);
     }
     if (m_instIcon != "default")
     {
