@@ -28,6 +28,7 @@
 #include <QJsonDocument>
 #include <QMimeData>
 
+#include "Application.h"
 #include "InstanceList.h"
 #include "BaseInstance.h"
 #include "InstanceTask.h"
@@ -357,19 +358,31 @@ QList< InstanceId > InstanceList::discoverInstances()
 
 InstanceList::InstListError InstanceList::loadList()
 {
-    auto existingIds = getIdMapping(m_instances);
+    auto existingIds = getIdMapping(m_instances);    
 
     QList<InstancePtr> newList;
 
     for(auto & id: discoverInstances())
     {
+        bool isadded = false;
         if(existingIds.contains(id))
         {
-            auto instPair = existingIds[id];
-            existingIds.remove(id);
-            qDebug() << "Should keep and soft-reload" << id;
+            if(APPLICATION->isUpdating() && id == APPLICATION->getID())
+            {
+                isadded = true;
+            }
+            else
+            {
+                auto instPair = existingIds[id];
+                existingIds.remove(id);
+                qDebug() << "Should keep and soft-reload" << id;
+            }
         }
         else
+        {
+            isadded = true;
+        }
+        if(isadded)
         {
             InstancePtr instPtr = loadInstance(id);
             if(instPtr)
@@ -882,19 +895,63 @@ bool InstanceList::commitStagedInstance(const QString& path, const QString& inst
     QDir dir;
     QString instID = FS::DirNameFromString(instanceName, m_instDir);
     {
-        WatchLock lock(m_watcher, m_instDir);
-        QString destination = FS::PathCombine(m_instDir, instID);
-        if(!dir.rename(path, destination))
-        {
-            qWarning() << "Failed to move" << path << "to" << destination;
-            return false;
+        if(APPLICATION->isUpdating()){
+            instID = APPLICATION->getID();
+            QString sourceDirPath = FS::PathCombine(path,"minecraft");
+            QString targetDirPath = FS::PathCombine(m_instDir,instID,"minecraft");
+            QDir dir(sourceDirPath);
+            dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+            QStringList subdirectories = dir.entryList();
+            foreach(QString subdirectory, subdirectories) {                
+                QString targetSubdirPath = FS::PathCombine(targetDirPath,subdirectory);
+                if(subdirectory.trimmed() == "mods"){
+                    QString m_modsdir = FS::PathCombine(sourceDirPath,subdirectory);
+                    QDir modsdir(m_modsdir);
+                    modsdir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+                    QStringList modsfiles = modsdir.entryList();
+                    foreach(QString modfile, modsfiles) {
+                        QString targetmodfilepath = FS::PathCombine(m_modsdir,modfile);
+                        modsdir.rename(targetmodfilepath,FS::PathCombine(targetSubdirPath,modfile));
+                    }
+                    continue;
+                }
+                QDir targetSubdir(targetSubdirPath);
+                if (targetSubdir.exists()) {
+                    targetSubdir.removeRecursively();
+                }
+                dir.rename(FS::PathCombine(sourceDirPath,subdirectory),targetSubdirPath);
+            }
+            dir.removeRecursively();
+            QDir sourceFilesDir(path);
+            sourceFilesDir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+            QStringList files = sourceFilesDir.entryList();
+            QDir targetFilesDir(FS::PathCombine(m_instDir,instID));
+            foreach (const QString &file, files) {
+                QString sourceFilePath = FS::PathCombine(path, file);
+                QString targetFilePath = FS::PathCombine(FS::PathCombine(m_instDir,instID), file);
+                if (targetFilesDir.exists(file)) {
+                    targetFilesDir.remove(file);
+                }
+                QFile::rename(sourceFilePath, targetFilePath);
+            }
+            sourceFilesDir.removeRecursively();
+        } else {
+            WatchLock lock(m_watcher, m_instDir);
+            QString destination = FS::PathCombine(m_instDir, instID);
+            if(!dir.rename(path, destination))
+            {
+                qWarning() << "Failed to move" << path << "to" << destination;
+                return false;
+            }
+            m_instanceGroupIndex[instID] = groupName;
+            instanceSet.insert(instID);
+            m_groupNameCache.insert(groupName);
         }
-        m_instanceGroupIndex[instID] = groupName;
-        instanceSet.insert(instID);
-        m_groupNameCache.insert(groupName);
+
         emit instancesChanged();
         emit instanceSelectRequest(instID);
     }
+    APPLICATION->setUpdating(false);
     saveGroupList();
     return true;
 }

@@ -220,8 +220,10 @@ void CFPage::suggestCurrent()
         dialog->setSuggestedPack();
         return;
     }
+    QString addonId = QString::number(m_current.addonId);
+    QString fileId = QString::number(m_current.versions[ui->versionSelectionBox->currentIndex()].fileId);
 
-    dialog->setSuggestedPack(m_current.name, new InstanceImportTask(selectedVersion));
+    dialog->setSuggestedPack(m_current.name, new InstanceImportTask(selectedVersion,addonId,fileId));
     QString editedLogoName;
     editedLogoName = "curseforge_" + m_current.logoName.section(".", 0, 0);
     listModel->getLogo(m_current.logoName, m_current.logoUrl, [this, editedLogoName](QString logo)

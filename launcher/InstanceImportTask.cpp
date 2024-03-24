@@ -40,9 +40,11 @@
 #include <algorithm>
 #include <iterator>
 
-InstanceImportTask::InstanceImportTask(const QUrl sourceUrl)
+InstanceImportTask::InstanceImportTask(const QUrl sourceUrl, const QString& addonId, const QString& fileId)
 {
-    m_sourceUrl = sourceUrl;
+    m_sourceUrl = sourceUrl;    
+    m_addonId = addonId;
+    m_fileId = fileId;
 }
 
 void InstanceImportTask::executeTask()
@@ -365,20 +367,29 @@ void InstanceImportTask::processCurseForge()
     }
     if(m_instName.contains(pack.version))
     {
-        m_instName.replace(pack.version,"");
-        if(m_instName.endsWith("-"))
-        {
-            m_instName.chop(1);
-        }
+        m_instName.replace(pack.version, "");
+        m_instName.remove(QRegExp("-+$"));
     }
+
+    int index = m_instName.indexOf("_v");
+    if(index != -1)
+    {
+        m_instName.truncate(index);
+    }
+    instance.setmodpacks(m_addonId,m_fileId,"curseforge");
     instance.setName(QString("%1_v%2").arg(m_instName).arg(pack.version));
-    m_modIdResolver = new CurseForge::FileResolvingTask(APPLICATION->network(), pack);
+    m_modIdResolver = new CurseForge::FileResolvingTask(APPLICATION->network(), pack,m_stagingPath);
     connect(m_modIdResolver.get(), &CurseForge::FileResolvingTask::succeeded, [&]()
     {
         auto results = m_modIdResolver->getResults();
+        int downloadCount = 0;
         m_filesNetJob = new NetJob(tr("Mod download"), APPLICATION->network());
         for(auto result: results.files)
         {
+            if(result.url.isEmpty())
+            {
+                continue;
+            }
             QString filename = result.fileName;
             if(!result.required)
             {
@@ -390,27 +401,31 @@ void InstanceImportTask::processCurseForge()
 
             switch(result.type)
             {
-                case CurseForge::File::Type::Folder:
-                {
-                    logWarning(tr("This 'Folder' may need extracting: %1").arg(relpath));
-                    // fall-through intentional, we treat these as plain old mods and dump them wherever.
-                }
-                case CurseForge::File::Type::SingleFile:
-                case CurseForge::File::Type::Mod:
-                {
-                    qDebug() << "Will download" << result.url << "to" << path;
-                    auto dl = Net::Download::makeFile(result.url, path);
-                    m_filesNetJob->addNetAction(dl);
-                    break;
-                }
-                case CurseForge::File::Type::Modpack:
-                    logWarning(tr("Nesting modpacks in modpacks is not implemented, nothing was downloaded: %1").arg(relpath));
-                    break;
-                case CurseForge::File::Type::Cmod2:
-                case CurseForge::File::Type::Ctoc:
-                case CurseForge::File::Type::Unknown:
-                    logWarning(tr("Unrecognized/unhandled PackageType for: %1").arg(relpath));
-                    break;
+            case CurseForge::File::Type::Folder:
+            {
+                logWarning(tr("This 'Folder' may need extracting: %1").arg(relpath));
+                // fall-through intentional, we treat these as plain old mods and dump them wherever.
+            }
+            case CurseForge::File::Type::SingleFile:
+            case CurseForge::File::Type::Mod:
+            {
+
+                qDebug() << "Will download" << result.url << "to" << path;
+                auto dl = Net::Download::makeFile(result.url, path);
+                m_filesNetJob->addNetAction(dl);
+                downloadCount++;
+                break;
+
+
+            }
+            case CurseForge::File::Type::Modpack:
+                logWarning(tr("Nesting modpacks in modpacks is not implemented, nothing was downloaded: %1").arg(relpath));
+                break;
+            case CurseForge::File::Type::Cmod2:
+            case CurseForge::File::Type::Ctoc:
+            case CurseForge::File::Type::Unknown:
+                logWarning(tr("Unrecognized/unhandled PackageType for: %1").arg(relpath));
+                break;
             }
         }
         m_modIdResolver.reset();
@@ -429,8 +444,13 @@ void InstanceImportTask::processCurseForge()
         {
             setProgress(current, total);
         });
-        setStatus(tr("Downloading mods..."));
-        m_filesNetJob->start();
+        if (downloadCount > 0) {
+            setStatus(tr("Downloading mods..."));
+            m_filesNetJob->start();
+        } else {
+            m_filesNetJob.reset();
+            emitSucceeded();
+        }
     }
     );
     connect(m_modIdResolver.get(), &CurseForge::FileResolvingTask::failed, [&](QString reason)

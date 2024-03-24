@@ -64,6 +64,11 @@ BaseInstance::BaseInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr s
     m_settings->registerSetting("ManagedPackName", "");
     m_settings->registerSetting("ManagedPackVersionID", "");
     m_settings->registerSetting("ManagedPackVersionName", "");
+
+    //curseforge
+    m_settings->registerSetting("modpacksaddonId","");
+    m_settings->registerSetting("modpacksfileId","");
+    m_settings->registerSetting("modpacksplatform","");
 }
 
 QString BaseInstance::getPreLaunchCommand()
@@ -119,6 +124,28 @@ void BaseInstance::setManagedPack(const QString& type, const QString& id, const 
     settings()->set("ManagedPackName", name);
     settings()->set("ManagedPackVersionID", versionId);
     settings()->set("ManagedPackVersionName", version);
+}
+
+void BaseInstance::setmodpacks(const QString& addonId,const QString& fileId,const QString& platform)
+{
+    settings()->set("modpacksaddonId",addonId);
+    settings()->set("modpacksfileId",fileId);
+    settings()->set("modpacksplatform", platform);
+}
+
+QString BaseInstance::getmodpacksplatform()
+{
+    return settings()->get("modpacksplatform").toString();
+}
+
+QString BaseInstance::getmodpacksaddonId()
+{
+    return settings()->get("modpacksaddonId").toString();
+}
+
+QString BaseInstance::getmodpacksfileId()
+{
+    return settings()->get("modpacksfileId").toString();
 }
 
 int BaseInstance::getConsoleMaxLines() const

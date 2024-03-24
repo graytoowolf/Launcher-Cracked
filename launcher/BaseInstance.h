@@ -128,7 +128,11 @@ public:
     QString getManagedPackName();
     QString getManagedPackVersionID();
     QString getManagedPackVersionName();
+    QString getmodpacksaddonId();
+    QString getmodpacksfileId();
+    QString getmodpacksplatform();
     void setManagedPack(const QString& type, const QString& id, const QString& name, const QString& versionId, const QString& version);
+    void setmodpacks(const QString& addonId,const QString& fileId,const QString& platform);
 
     /// guess log level from a line of game log
     virtual MessageLevel::Enum guessLevel(const QString &line, MessageLevel::Enum level)

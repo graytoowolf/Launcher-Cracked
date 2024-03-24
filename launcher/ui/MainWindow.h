@@ -38,6 +38,7 @@ class BaseProfilerFactory;
 class InstanceView;
 class KonamiCode;
 class InstanceTask;
+class NewInstanceDialog;
 
 class MainWindow : public QMainWindow
 {
@@ -63,6 +64,7 @@ signals:
 
 protected:
     QMenu * createPopupMenu() override;
+    QNetworkReply *m_netReply = nullptr;
 
 private slots:
     void onCatToggled(bool);
@@ -76,6 +78,8 @@ private slots:
     void on_actionDISCORD_triggered();
 
     void on_actionCopyInstance_triggered();
+
+    void on_CheckInstanceupdates_triggered();
 
     void on_actionChangeInstGroup_triggered();
 
@@ -202,6 +206,7 @@ private:
     void runModalTask(Task *task);
     void instanceFromInstanceTask(InstanceTask *task);
     void finalizeInstance(InstancePtr inst);
+    void processReply();
 
 private:
     std::unique_ptr<Ui> ui;
@@ -215,12 +220,21 @@ private:
     QMenu *accountMenu = nullptr;
     QToolButton *accountMenuButton = nullptr;
     KonamiCode * secretEventFilter = nullptr;
+    NewInstanceDialog* dialog = nullptr;
+
 
     unique_qobject_ptr<NewsChecker> m_newsChecker;
     unique_qobject_ptr<NotificationChecker> m_notificationChecker;
 
     InstancePtr m_selectedInstance;
     QString m_currentInstIcon;
+    QString m_addonId;
+    QString m_fileId;
+    QString m_id;
+    QString m_platform;
+    QString m_iconKey;
+    QString m_name;
+
 
     // managed by the application object
     Task *m_versionLoadTask = nullptr;

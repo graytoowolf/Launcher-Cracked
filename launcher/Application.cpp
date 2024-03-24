@@ -1881,3 +1881,35 @@ QList<DownloadSource> Application::getDownloadSources() const
     return downloadSources;
 }
 
+QString Application::getAddonId() const {
+    return addonId;
+}
+
+QString Application::getFileId() const {
+    return fileId;
+}
+
+QString Application::getID() const {
+    return ID;
+}
+
+QString Application::getSplatform() const {
+    return splatform;
+}
+
+bool Application::isUpdating() const {
+    return updating;
+}
+
+void Application::setData(const QString &addonId, const QString &fileId,
+const QString &ID, const QString &splatform, const QString &downloadUrl) {
+    this->addonId = addonId;
+    this->fileId = fileId;
+    this->ID = ID;
+    this->splatform = splatform;
+}
+
+void Application::setUpdating(bool updating) {
+    this->updating = updating;
+}
+

@@ -89,6 +89,16 @@ public:
 
     void setApplicationTheme(const QString& name, bool initial);
 
+    void setData(const QString &addonId, const QString &fileId, const QString &ID, const QString &splatform, const QString &downloadUrl);
+
+    void setUpdating(bool updating);
+
+    QString getAddonId() const;
+    QString getFileId() const;
+    QString getID() const;
+    QString getSplatform() const;
+    bool isUpdating() const;
+
     shared_qobject_ptr<UpdateChecker> updateChecker() {
         return m_updateChecker;
     }
@@ -260,6 +270,12 @@ public:
     QString m_serverToJoin;
     QString m_worldToJoin;
     QString m_profileToUse;
+    QString addonId;
+    QString fileId;
+    QString ID;
+    QString splatform;
+    QString downloadUrl;
+    bool updating = false;
     bool m_offline = false;
     QString m_offlineName;
     bool m_liveCheck = false;

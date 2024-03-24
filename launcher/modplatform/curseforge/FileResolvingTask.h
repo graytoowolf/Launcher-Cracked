@@ -10,7 +10,7 @@ class FileResolvingTask : public Task
 {
     Q_OBJECT
 public:
-    explicit FileResolvingTask(shared_qobject_ptr<QNetworkAccessManager> network, CurseForge::Manifest &toProcess);
+    explicit FileResolvingTask(shared_qobject_ptr<QNetworkAccessManager> network, CurseForge::Manifest &toProcess,const QString& path = QString());
     virtual ~FileResolvingTask() {};
 
     const CurseForge::Manifest &getResults() const
@@ -30,5 +30,7 @@ private: /* data */
     CurseForge::Manifest m_toProcess;
     QVector<QByteArray> results;
     NetJob::Ptr m_dljob;
+    QString m_path;
+    QString m_filePath;
 };
 }

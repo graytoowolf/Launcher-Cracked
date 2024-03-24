@@ -218,6 +218,7 @@ public:
     TranslatedAction actionViewSelectedMCFolder;
     TranslatedAction actionViewSelectedModsFolder;
     TranslatedAction actionDeleteInstance;
+    TranslatedAction CheckInstanceupdates;
     TranslatedAction actionConfig_Folder;
     TranslatedAction actionCAT;
     TranslatedAction actionCopyInstance;
@@ -628,6 +629,16 @@ public:
         actionCopyInstance.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Copy the selected instance."));
         all_actions.append(&actionCopyInstance);
         instanceToolBar->addAction(actionCopyInstance);
+
+        instanceToolBar->addSeparator();
+
+        CheckInstanceupdates = TranslatedAction(MainWindow);
+        CheckInstanceupdates->setObjectName(QStringLiteral("CheckInstanceupdates"));
+        CheckInstanceupdates.setTextId(QT_TRANSLATE_NOOP("MainWindow", "检查更新"));
+        CheckInstanceupdates.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "检查所选实例的更新。"));
+        all_actions.append(&CheckInstanceupdates);
+        instanceToolBar->addAction(CheckInstanceupdates);
+
 
         all_toolbars.append(&instanceToolBar);
         MainWindow->addToolBar(Qt::RightToolBarArea, instanceToolBar);
@@ -1452,6 +1463,76 @@ void MainWindow::on_actionCopyInstance_triggered()
     copyTask->setIcon(copyInstDlg.iconKey());
     unique_qobject_ptr<Task> task(APPLICATION->instances()->wrapInstanceTask(copyTask));
     runModalTask(task.get());
+}
+
+void MainWindow::on_CheckInstanceupdates_triggered()
+{
+    if (!m_selectedInstance) return;
+
+    m_addonId = m_selectedInstance->getmodpacksaddonId();
+    m_fileId = m_selectedInstance->getmodpacksfileId();
+    m_id = m_selectedInstance->id();
+    m_name = m_selectedInstance->name();
+    m_platform = m_selectedInstance->getmodpacksplatform();
+    m_iconKey = m_selectedInstance->iconKey();
+
+    auto modpacksupdater = APPLICATION->network();
+    QNetworkRequest request(QUrl(QString("https://api.curseforge.com/v1/mods/%1/files").arg(m_addonId)));
+    request.setRawHeader("x-api-key", APPLICATION->curseAPIKey().toUtf8());
+    m_netReply = APPLICATION->network()->get(request);
+    connect(m_netReply, &QNetworkReply::finished, this, &MainWindow::processReply);
+
+}
+void MainWindow::processReply()
+{
+    QJsonParseError jsonError;
+    QByteArray replyData = m_netReply->readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(replyData, &jsonError);
+
+    if (jsonError.error != QJsonParseError::NoError) {
+        qDebug() << "JSON Parse Error:" << jsonError.errorString();
+        return;
+    }
+
+    QJsonObject rootObject = doc.object();
+    QJsonArray dataArray = rootObject.value("data").toArray();
+
+    // 检查dataArray是否至少有一个元素
+    if (dataArray.isEmpty()) {
+        qDebug() << "Data array is empty.";
+        return;
+    }
+
+    // 获取第一个对象
+    QJsonObject firstObject = dataArray.first().toObject();
+    QString fileId = QString::number(firstObject.value("id").toInt());
+    QString downloadUrl = firstObject.value("downloadUrl").toString();
+    QString displayName = firstObject.value("displayName").toString();
+
+    // 与当前的fileId比较
+    if (fileId != m_fileId) {
+        // ID不一样，提示更新
+        QMessageBox::StandardButton reply = QMessageBox::question(this, tr("可用更新"),
+            tr("有新的更新可用。最新版本是：%1。您想现在更新吗？").arg(displayName),
+            QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            // 用户选择更新，执行更新操作
+            qDebug() << "用户选择更新。";
+            // ... 执行更新逻辑 ...
+            APPLICATION->setUpdating(true);
+            APPLICATION->setData(m_addonId, m_fileId, m_id, m_platform,downloadUrl);
+            // 创建任务实例
+            auto importTask = new InstanceImportTask(downloadUrl, m_addonId, fileId);
+            importTask->setName(m_name);
+            importTask->setIcon(m_iconKey);
+            instanceFromInstanceTask(importTask);
+        }
+    } else {
+        // ID一样，无更新
+        QMessageBox::information(this, tr("没有更新"),
+            tr("您的modpack是最新的。无需更新。"),
+            QMessageBox::Ok);
+    }
 }
 
 void MainWindow::finalizeInstance(InstancePtr inst)
