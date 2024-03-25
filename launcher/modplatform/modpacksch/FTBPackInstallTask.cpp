@@ -108,7 +108,7 @@ void PackInstallTask::onDownloadSucceeded()
     //downloadPack();
 }
 void PackInstallTask::verifyurl(){
-    setStatus(tr("获取MOD下载地址"));
+    setStatus(tr("Get MOD download link"));
     auto *dlurl = new NetJob(tr("Mod downloadurl"), APPLICATION->network());
     results.resize(m_version.files.size());
     int index = 0;

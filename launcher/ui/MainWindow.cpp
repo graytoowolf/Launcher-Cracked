@@ -634,8 +634,8 @@ public:
 
         CheckInstanceupdates = TranslatedAction(MainWindow);
         CheckInstanceupdates->setObjectName(QStringLiteral("CheckInstanceupdates"));
-        CheckInstanceupdates.setTextId(QT_TRANSLATE_NOOP("MainWindow", "检查更新"));
-        CheckInstanceupdates.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "检查所选实例的更新。"));
+        CheckInstanceupdates.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Check for Updates"));
+        CheckInstanceupdates.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Check for updates for the selected instance."));
         all_actions.append(&CheckInstanceupdates);
         instanceToolBar->addAction(CheckInstanceupdates);
 
@@ -1508,16 +1508,16 @@ void MainWindow::processReply()
     QString fileId = QString::number(firstObject.value("id").toInt());
     QString downloadUrl = firstObject.value("downloadUrl").toString();
     QString displayName = firstObject.value("displayName").toString();
-
+    
     // 与当前的fileId比较
     if (fileId != m_fileId) {
         // ID不一样，提示更新
-        QMessageBox::StandardButton reply = QMessageBox::question(this, tr("可用更新"),
-            tr("有新的更新可用。最新版本是：%1。您想现在更新吗？").arg(displayName),
+        QMessageBox::StandardButton reply = QMessageBox::question(this, tr("Update Available"),
+            tr("A new update is available. The latest version is: %1. Would you like to update now?").arg(displayName),
             QMessageBox::Yes | QMessageBox::No);
         if (reply == QMessageBox::Yes) {
             // 用户选择更新，执行更新操作
-            qDebug() << "用户选择更新。";
+            qDebug() << "User chose to update.";
             // ... 执行更新逻辑 ...
             APPLICATION->setUpdating(true);
             APPLICATION->setData(m_addonId, m_fileId, m_id, m_platform,downloadUrl);
@@ -1529,8 +1529,8 @@ void MainWindow::processReply()
         }
     } else {
         // ID一样，无更新
-        QMessageBox::information(this, tr("没有更新"),
-            tr("您的modpack是最新的。无需更新。"),
+        QMessageBox::information(this, tr("No Update"),
+            tr("Your modpack is up to date. No updates necessary."),
             QMessageBox::Ok);
     }
 }

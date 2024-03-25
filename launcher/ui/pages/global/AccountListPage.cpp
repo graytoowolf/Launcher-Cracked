@@ -257,7 +257,7 @@ void AccountListPage::on_actionAddBs_triggered()
 {
     MinecraftAccountPtr account = BsLoginDialog::newAccount(
                 this,
-                tr("请输入您的 皮肤站帐户电子邮件和密码以添加您的帐户。"));
+                tr("Please enter your skin site account email and password to add your account."));
 
     if (account)
     {

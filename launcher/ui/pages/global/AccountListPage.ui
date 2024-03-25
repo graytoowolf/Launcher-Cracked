@@ -117,10 +117,10 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>添加皮肤站账号</string>
+    <string>Add skin site account</string>
    </property>
    <property name="toolTip">
-    <string>添加皮肤站账号</string>
+    <string>Add skin site account</string>
    </property>
   </action>
  </widget>

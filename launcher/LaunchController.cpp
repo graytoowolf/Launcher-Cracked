@@ -262,7 +262,7 @@ void LaunchController::login() {
                     else if(profiletype == "bs"){
                         newAccount = BsLoginDialog::newAccount(
                                 m_parentWidget,
-                                "请输入您的 mcpeau皮肤站 帐户电子邮件和密码以添加您的帐户。"
+                                tr("Please enter your MiniSkins skin site account email and password to add your account.")
                         );
 
                     }

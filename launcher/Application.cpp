@@ -871,7 +871,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
 
     //获取下载源
     {
-        auto *netJob = new NetJob("获取下载源", network());
+        auto *netJob = new NetJob("Acquire download source", network());
         netJob->addNetAction(Net::Download::makeByteArray(QUrl("https://mmc.mcpeau.com/source.json"), &response));
         m_filesNetJob = netJob;
         m_filesNetJob->start();
@@ -1805,7 +1805,7 @@ void Application::requestFinished()
 
     if (!file.exists() || !Application::FileHash(entry->getFullPath(), hash256))
     {
-        qDebug()<<"开始下载authlib-injector.";
+        qDebug()<<"Start downloading authlib-injector.";
         QFile::remove(entry->getFullPath());
         entry->setStale(true);
         auto dl = Net::Download::makeCached(QUrl(download_url), entry);
