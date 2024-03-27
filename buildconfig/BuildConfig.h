@@ -92,7 +92,7 @@ public:
     QString AUTH_BASE = "https://authserver.mojang.com/";
     QString IMGUR_BASE_URL = "https://api.imgur.com/3/";
     QString FMLLIBS_BASE_URL = "https://files.multimc.org/fmllibs/";
-    QString TRANSLATIONS_BASE_URL = "https://files.multimc.org/translations/";
+    QString TRANSLATIONS_BASE_URL = "https://mmc.mcpeau.com/translations/";
 
     QString Bs_AUTH_BASE = "https://www.mcpeau.com/api/yggdrasil/";
     QString authlib_injector = "https://authlib-injector.yushi.moe/artifact/latest.json";
