@@ -66,9 +66,9 @@ BaseInstance::BaseInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr s
     m_settings->registerSetting("ManagedPackVersionName", "");
 
     //curseforge
-    m_settings->registerSetting("modpacksaddonId","");
-    m_settings->registerSetting("modpacksfileId","");
-    m_settings->registerSetting("modpacksplatform","");
+    m_settings->registerSetting("modpacksaddonId","0");
+    m_settings->registerSetting("modpacksfileId","0");
+    m_settings->registerSetting("modpacksplatform","0");
 }
 
 QString BaseInstance::getPreLaunchCommand()
