@@ -1475,15 +1475,15 @@ void MainWindow::on_CheckInstanceupdates_triggered()
     m_name = m_selectedInstance->name();
     m_platform = m_selectedInstance->getmodpacksplatform();
     m_iconKey = m_selectedInstance->iconKey();
-    if (m_addonId.isEmpty())
-    {
-        QMessageBox::information(this, tr("Update Check"), tr("Please manually re-download the modpacks."));
-        return;
-    }
 
-    if (m_platform != "curseforge" || m_addonId == "0")
+    if (!m_iconKey.startsWith("curseforge"))
     {
         QMessageBox::information(this, tr("Update Check"), tr("Automatic updates are currently only supported for the CurseForge platform."));
+        return;
+    }
+    if (m_addonId == "0")
+    {
+        QMessageBox::information(this, tr("Update Check"), tr("Please manually re-download the modpacks."));
         return;
     }
     auto modpacksupdater = APPLICATION->network();
