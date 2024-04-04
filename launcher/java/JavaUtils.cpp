@@ -32,15 +32,15 @@ JavaUtils::JavaUtils()
 }
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
-static QString processLD_LIBRARY_PATH(const QString & LD_LIBRARY_PATH)
+static QString processLD_LIBRARY_PATH(const QString &LD_LIBRARY_PATH)
 {
     QDir mmcBin(QCoreApplication::applicationDirPath());
     auto items = LD_LIBRARY_PATH.split(':');
     QStringList final;
-    for(auto & item: items)
+    for (auto &item : items)
     {
         QDir test(item);
-        if(test == mmcBin)
+        if (test == mmcBin)
         {
             qDebug() << "Env:LD_LIBRARY_PATH ignoring path" << item;
             continue;
@@ -58,34 +58,33 @@ QProcessEnvironment CleanEnviroment()
     QProcessEnvironment env;
 
     QStringList ignored =
-    {
-        "JAVA_ARGS",
-        "CLASSPATH",
-        "CONFIGPATH",
-        "JAVA_HOME",
-        "JRE_HOME",
-        "_JAVA_OPTIONS",
-        "JAVA_OPTIONS",
-        "JAVA_TOOL_OPTIONS"
-    };
-    for(auto key: rawenv.keys())
+        {
+            "JAVA_ARGS",
+            "CLASSPATH",
+            "CONFIGPATH",
+            "JAVA_HOME",
+            "JRE_HOME",
+            "_JAVA_OPTIONS",
+            "JAVA_OPTIONS",
+            "JAVA_TOOL_OPTIONS"};
+    for (auto key : rawenv.keys())
     {
         auto value = rawenv.value(key);
         // filter out dangerous java crap
-        if(ignored.contains(key))
+        if (ignored.contains(key))
         {
             qDebug() << "Env: ignoring" << key << value;
             continue;
         }
         // filter MultiMC-related things
-        if(key.startsWith("QT_"))
+        if (key.startsWith("QT_"))
         {
             qDebug() << "Env: ignoring" << key << value;
             continue;
         }
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
         // Do not pass LD_* variables to java. They were intended for MultiMC
-        if(key.startsWith("LD_"))
+        if (key.startsWith("LD_"))
         {
             qDebug() << "Env: ignoring" << key << value;
             continue;
@@ -98,12 +97,12 @@ QProcessEnvironment CleanEnviroment()
             value.replace(IBUS, "");
             qDebug() << "Env: stripped" << IBUS << "from" << save << ":" << value;
         }
-        if(key == "GAME_PRELOAD")
+        if (key == "GAME_PRELOAD")
         {
             env.insert("LD_PRELOAD", value);
             continue;
         }
-        if(key == "GAME_LIBRARY_PATH")
+        if (key == "GAME_LIBRARY_PATH")
         {
             env.insert("LD_LIBRARY_PATH", processLD_LIBRARY_PATH(value));
             continue;
@@ -114,7 +113,7 @@ QProcessEnvironment CleanEnviroment()
     }
 #ifdef Q_OS_LINUX
     // HACK: Workaround for QTBUG42500
-    if(!env.contains("LD_LIBRARY_PATH"))
+    if (!env.contains("LD_LIBRARY_PATH"))
     {
         env.insert("LD_LIBRARY_PATH", "");
     }
@@ -290,7 +289,7 @@ QList<QString> JavaUtils::FindJavaPaths()
         KEY_WOW64_64KEY, "SOFTWARE\\Azul Systems\\Zulu", "InstallationPath");
     QList<JavaInstallPtr> ZULU32s = this->FindJavaFromRegistryKey(
         KEY_WOW64_32KEY, "SOFTWARE\\Azul Systems\\Zulu", "InstallationPath");
-    
+
     // BellSoft Liberica
     QList<JavaInstallPtr> LIBERICA64s = this->FindJavaFromRegistryKey(
         KEY_WOW64_64KEY, "SOFTWARE\\BellSoft\\Liberica", "InstallationPath");
@@ -328,13 +327,16 @@ QList<QString> JavaUtils::FindJavaPaths()
     java_candidates.append(ADOPTIUMJDK32s);
     java_candidates.append(ZULU32s);
     java_candidates.append(LIBERICA32s);
-    
+
     java_candidates.append(MakeJavaPtr(this->GetDefaultJava()->path));
 
+    QList<JavaInstallPtr> programFilesJavaPaths = FindJavaInProgramFiles();
+    java_candidates += programFilesJavaPaths;
+
     QList<QString> candidates;
-    for(JavaInstallPtr java_candidate : java_candidates)
+    for (JavaInstallPtr java_candidate : java_candidates)
     {
-        if(!candidates.contains(java_candidate->path))
+        if (!candidates.contains(java_candidate->path))
         {
             candidates.append(java_candidate->path);
         }
@@ -353,13 +355,15 @@ QList<QString> JavaUtils::FindJavaPaths()
     javas.append("/System/Library/Frameworks/JavaVM.framework/Versions/Current/Commands/java");
     QDir libraryJVMDir("/Library/Java/JavaVirtualMachines/");
     QStringList libraryJVMJavas = libraryJVMDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    foreach (const QString &java, libraryJVMJavas) {
+    foreach (const QString &java, libraryJVMJavas)
+    {
         javas.append(libraryJVMDir.absolutePath() + "/" + java + "/Contents/Home/bin/java");
         javas.append(libraryJVMDir.absolutePath() + "/" + java + "/Contents/Home/jre/bin/java");
     }
     QDir systemLibraryJVMDir("/System/Library/Java/JavaVirtualMachines/");
     QStringList systemLibraryJVMJavas = systemLibraryJVMDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    foreach (const QString &java, systemLibraryJVMJavas) {
+    foreach (const QString &java, systemLibraryJVMJavas)
+    {
         javas.append(systemLibraryJVMDir.absolutePath() + "/" + java + "/Contents/Home/bin/java");
         javas.append(systemLibraryJVMDir.absolutePath() + "/" + java + "/Contents/Commands/java");
     }
@@ -373,17 +377,17 @@ QList<QString> JavaUtils::FindJavaPaths()
 
     QList<QString> javas;
     javas.append(this->GetDefaultJava()->path);
-    auto scanJavaDir = [&](const QString & dirPath)
+    auto scanJavaDir = [&](const QString &dirPath)
     {
         QDir dir(dirPath);
-        if(!dir.exists())
+        if (!dir.exists())
             return;
         auto entries = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-        for(auto & entry: entries)
+        for (auto &entry : entries)
         {
 
             QString prefix;
-            if(entry.isAbsolute())
+            if (entry.isAbsolute())
             {
                 prefix = entry.absoluteFilePath();
             }
@@ -420,3 +424,25 @@ QList<QString> JavaUtils::FindJavaPaths()
     return javas;
 }
 #endif
+
+QList<JavaInstallPtr> JavaUtils::FindJavaInProgramFiles()
+{
+    QList<JavaInstallPtr> javaPaths;
+    QString programFilesDir = QProcessEnvironment::systemEnvironment().value("ProgramW6432", "C:/Program Files");
+    QDir javaDir(programFilesDir + "/Java");
+
+    if (javaDir.exists())
+    {
+        QStringList javaVersions = javaDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const QString &versionDir : javaVersions)
+        {
+            QString javaExecPath = javaDir.absoluteFilePath(versionDir + "/bin/javaw.exe");
+            QFile javaExec(javaExecPath);
+            if (javaExec.exists())
+            {
+                javaPaths.append(MakeJavaPtr(javaExecPath));
+            }
+        }
+    }
+    return javaPaths;
+}
