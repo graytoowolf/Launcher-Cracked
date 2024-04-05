@@ -345,6 +345,29 @@ QList<QString> JavaUtils::FindJavaPaths()
     return candidates;
 }
 
+
+QList<JavaInstallPtr> JavaUtils::FindJavaInProgramFiles()
+{
+    QList<JavaInstallPtr> javaPaths;
+    QString programFilesDir = QProcessEnvironment::systemEnvironment().value("ProgramW6432", "C:/Program Files");
+    QDir javaDir(programFilesDir + "/Java");
+
+    if (javaDir.exists())
+    {
+        QStringList javaVersions = javaDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const QString &versionDir : javaVersions)
+        {
+            QString javaExecPath = javaDir.absoluteFilePath(versionDir + "/bin/javaw.exe");
+            QFile javaExec(javaExecPath);
+            if (javaExec.exists())
+            {
+                javaPaths.append(MakeJavaPtr(javaExecPath));
+            }
+        }
+    }
+    return javaPaths;
+}
+
 #elif defined(Q_OS_MAC)
 QList<QString> JavaUtils::FindJavaPaths()
 {
@@ -424,25 +447,3 @@ QList<QString> JavaUtils::FindJavaPaths()
     return javas;
 }
 #endif
-
-QList<JavaInstallPtr> JavaUtils::FindJavaInProgramFiles()
-{
-    QList<JavaInstallPtr> javaPaths;
-    QString programFilesDir = QProcessEnvironment::systemEnvironment().value("ProgramW6432", "C:/Program Files");
-    QDir javaDir(programFilesDir + "/Java");
-
-    if (javaDir.exists())
-    {
-        QStringList javaVersions = javaDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-        for (const QString &versionDir : javaVersions)
-        {
-            QString javaExecPath = javaDir.absoluteFilePath(versionDir + "/bin/javaw.exe");
-            QFile javaExec(javaExecPath);
-            if (javaExec.exists())
-            {
-                javaPaths.append(MakeJavaPtr(javaExecPath));
-            }
-        }
-    }
-    return javaPaths;
-}
