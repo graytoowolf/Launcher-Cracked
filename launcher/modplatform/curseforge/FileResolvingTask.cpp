@@ -14,8 +14,75 @@ CurseForge::FileResolvingTask::FileResolvingTask(shared_qobject_ptr<QNetworkAcce
 
 void CurseForge::FileResolvingTask::executeTask()
 {
+    setStatus(tr("Parsing directory"));
+    QJsonObject requestObject;
+    QJsonArray modIdsArray;
+    for (auto &file : m_toProcess.files) {
+        modIdsArray.append(file.projectId);
+    }
+    requestObject["modIds"] = modIdsArray;
+    requestObject["filterPcOnly"] = true;
+    QNetworkRequest netRequest{QUrl(metabase)};
+    netRequest.setRawHeader("x-api-key", APPLICATION->curseAPIKey().toUtf8());
+    netRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    m_rep = m_network->post(netRequest,QJsonDocument(requestObject).toJson());
+    connect(m_rep, &QNetworkReply::finished, this, &CurseForge::FileResolvingTask::downloadFinished);
+
+
+}
+void CurseForge::FileResolvingTask::downloadFinished()
+{
+    if (m_rep->error() != QNetworkReply::NoError) {
+        qDebug() << "Network Error:" << m_rep->errorString();
+        m_rep->deleteLater();
+        return;
+    }
+
+    QByteArray response = m_rep->readAll();
+    m_rep->deleteLater();
+
+    auto rootObj = QJsonDocument::fromJson(response).object();
+    auto dataArray = rootObj.value("data").toArray();
+    processModData(dataArray);
+
     setStatus(tr("Resolving mod IDs..."));
     setProgress(0, m_toProcess.files.size());
+    prepareDownloads();
+}
+
+void CurseForge::FileResolvingTask::processModData(const QJsonArray &dataArray)
+{
+    for (const auto &dataValue : dataArray) {
+        auto modObj = dataValue.toObject();
+        int classId = modObj.value("classId").toInt();
+        int m_id = modObj.value("id").toInt();
+        qDebug() << "Processing Mod Data:" << m_id << classId;
+
+        for (auto &m_file : m_toProcess.files) {
+            if (m_file.projectId == m_id){
+                m_file.targetFolder = getTargetFolderByClassId(classId);
+            }
+        }
+    }
+}
+
+QString CurseForge::FileResolvingTask::getTargetFolderByClassId(int classId)
+{
+    switch (classId) {
+    case 6:
+        return "mods";
+    case 6552:
+        return "shaderpacks";
+    case 12:
+        return "resourcepacks";
+    default:
+        return "other"; // 其他情况根据需要设置
+    }
+}
+
+void CurseForge::FileResolvingTask::prepareDownloads()
+{
     m_dljob = new NetJob("Mod id resolver", m_network);
     results.resize(m_toProcess.files.size());
     QString InstanceDir = APPLICATION->settings()->get("InstanceDir").toString();
@@ -38,6 +105,7 @@ void CurseForge::FileResolvingTask::executeTask()
     int index = 0;
     int indextask = 0;
     for (auto &file : m_toProcess.files) {
+        qDebug()<<"333333333---------"<<file.targetFolder;
         auto projectIdStr = QString::number(file.projectId);
         auto fileIdStr = QString::number(file.fileId);
         bool shouldQueueForDownload = true;
@@ -70,7 +138,7 @@ void CurseForge::FileResolvingTask::executeTask()
 
 
         if (shouldQueueForDownload) {
-            QString metaurl = QString("%1/%2/files/%3").arg(metabase, projectIdStr, fileIdStr);            
+            QString metaurl = QString("%1/%2/files/%3").arg(metabase, projectIdStr, fileIdStr);
             auto dl = Net::Download::makeByteArray(QUrl(metaurl), &results[index]);
             dl->setExtraHeader("x-api-key", APPLICATION->curseAPIKey());
             m_dljob->addNetAction(dl);

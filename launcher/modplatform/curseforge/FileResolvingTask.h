@@ -24,6 +24,10 @@ protected:
 protected slots:
     void netJobFinished();
     void netJobprogress(qint64 current, qint64 total);
+    void processModData(const QJsonArray &dataArray);
+    QString getTargetFolderByClassId(int classId);
+    void prepareDownloads();
+    void downloadFinished();
 
 private: /* data */
     shared_qobject_ptr<QNetworkAccessManager> m_network;
@@ -32,5 +36,6 @@ private: /* data */
     NetJob::Ptr m_dljob;
     QString m_path;
     QString m_filePath;
+    QNetworkReply *m_rep;
 };
 }
