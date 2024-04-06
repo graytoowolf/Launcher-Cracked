@@ -858,15 +858,11 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
     // authlib-injector
     {
 
-        auto *netJob = new NetJob("authlib-injector", network());
-        netJob->addNetAction(Net::Download::makeByteArray(QUrl(BuildConfig.authlib_injector), &response));
-        m_filesNetJob = netJob;
-        m_filesNetJob->start();
-        QObject::connect(netJob, &NetJob::succeeded, this, &Application::requestFinished);
-
-        //           m_filesNetJob = new NetJob(tr("Mod download"), APPLICATION->network());
-        //           auto dl = Net::Download::makeFile(QUrl("https://authlib-injector.yushi.moe/artifact/40/authlib-injector-1.1.40.jar"),"jars/authlib-injector-1.1.40.jar");
-        //           m_filesNetJob->addNetAction(dl);
+        auto *authlib_netJob = new NetJob("authlib-injector", network());
+        authlib_netJob->addNetAction(Net::Download::makeByteArray(QUrl(BuildConfig.authlib_injector), &authlib_response));
+        authlib_filesNetJob = authlib_netJob;
+        authlib_filesNetJob->start();
+        QObject::connect(authlib_netJob, &NetJob::succeeded, this, &Application::requestFinished);
     }
 
     //获取下载源
@@ -1785,14 +1781,14 @@ QString Application::getJarsPath()
 
 void Application::requestFinished()
 {
-    // m_filesNetJob.reset();
+    authlib_filesNetJob.reset();
     QJsonParseError parse_error;
-    QJsonDocument doc = QJsonDocument::fromJson(response, &parse_error);
+    QJsonDocument doc = QJsonDocument::fromJson(authlib_response, &parse_error);
     if (parse_error.error != QJsonParseError::NoError)
     {
 
         qWarning() << "Error while parsing JSON response from ATL at " << parse_error.offset << " reason: " << parse_error.errorString();
-        qWarning() << response;
+        qWarning() << authlib_response;
         return;
     }
     QJsonObject object = doc.object();
@@ -1805,12 +1801,13 @@ void Application::requestFinished()
 
     if (!file.exists() || !Application::FileHash(entry->getFullPath(), hash256))
     {
-        qDebug()<<"Start downloading authlib-injector.";
         QFile::remove(entry->getFullPath());
         entry->setStale(true);
-        auto dl = Net::Download::makeCached(QUrl(download_url), entry);
-        m_filesNetJob->addNetAction(dl);
-        m_filesNetJob->start();
+        auto *authlib_netJob = new NetJob("Start downloading authlib-injector", network());
+        authlib_netJob->addNetAction(Net::Download::makeCached(QUrl(download_url), entry));
+        authlib_filesNetJob = authlib_netJob;
+        authlib_filesNetJob->start();
+        QObject::connect(authlib_netJob, &NetJob::succeeded, this, &Application::authlibFinished);
     }
 }
 //判断 authlib hash256s是否一致
@@ -1828,9 +1825,15 @@ bool Application::FileHash(QString srcDir, QString hash256)
     }
     return false;
 }
+void Application::authlibFinished()
+{
+    qDebug()<<"downloading authlib-injector succeeded";
+    authlib_filesNetJob.reset();
 
+}
 void Application::sourceFinished()
 {
+    m_filesNetJob.reset();
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
     if (!jsonDoc.isArray())
     {

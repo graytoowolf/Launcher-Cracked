@@ -188,6 +188,7 @@ public slots:
 
 private slots:
     void requestFinished();
+    void authlibFinished();
     void sourceFinished();
     bool FileHash(QString srcDir, QString hash256);
     void on_windowClose();
@@ -211,6 +212,8 @@ private:
 
 private:
     NetJob::Ptr m_filesNetJob;
+    NetJob::Ptr authlib_filesNetJob;
+    QByteArray authlib_response;
     QByteArray response;
     QDateTime startTime;
 
