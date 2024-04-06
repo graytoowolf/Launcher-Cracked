@@ -9,7 +9,7 @@ namespace CurseForge
 struct File
 {
     // NOTE: throws JSONValidationError
-    bool parseFromBytes(const QByteArray &bytes);
+    // bool parseFromBytes(const QByteArray &bytes);
 
     int projectId = 0;
     int fileId = 0;

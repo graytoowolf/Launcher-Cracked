@@ -57,8 +57,6 @@ void CurseForge::FileResolvingTask::processModData(const QJsonArray &dataArray)
         auto modObj = dataValue.toObject();
         int classId = modObj.value("classId").toInt();
         int m_id = modObj.value("id").toInt();
-        qDebug() << "Processing Mod Data:" << m_id << classId;
-
         for (auto &m_file : m_toProcess.files) {
             if (m_file.projectId == m_id){
                 m_file.targetFolder = getTargetFolderByClassId(classId);
@@ -103,9 +101,9 @@ void CurseForge::FileResolvingTask::prepareDownloads()
         }
     }
     int index = 0;
-    int indextask = 0;
+    //int indextask = 0;
+    QJsonArray modIdsArray;
     for (auto &file : m_toProcess.files) {
-        qDebug()<<"333333333---------"<<file.targetFolder;
         auto projectIdStr = QString::number(file.projectId);
         auto fileIdStr = QString::number(file.fileId);
         bool shouldQueueForDownload = true;
@@ -138,23 +136,41 @@ void CurseForge::FileResolvingTask::prepareDownloads()
 
 
         if (shouldQueueForDownload) {
-            QString metaurl = QString("%1/%2/files/%3").arg(metabase, projectIdStr, fileIdStr);
-            auto dl = Net::Download::makeByteArray(QUrl(metaurl), &results[index]);
-            dl->setExtraHeader("x-api-key", APPLICATION->curseAPIKey());
-            m_dljob->addNetAction(dl);
-            indextask++;
+//            QString metaurl = QString("%1/%2/files/%3").arg(metabase, projectIdStr, fileIdStr);
+//            auto dl = Net::Download::makeByteArray(QUrl(metaurl), &results[index]);
+//            dl->setExtraHeader("x-api-key", APPLICATION->curseAPIKey());
+//            m_dljob->addNetAction(dl);
+//            indextask++;
+            modIdsArray.append(fileIdStr);
         }
         index++;
     }
-    if (indextask > 0) {
-        // 仅当有文件需要下载时，即 index > 0 时，连接信号与槽并启动 m_dljob
-        connect(m_dljob.get(), &NetJob::finished, this, &CurseForge::FileResolvingTask::netJobFinished);
-        connect(m_dljob.get(), &NetJob::progress, this, &CurseForge::FileResolvingTask::netJobprogress);
-        m_dljob->start();
+    if (!modIdsArray.isEmpty())
+    {
+        QJsonObject requestObject;
+        requestObject["fileIds"] = modIdsArray;
+        QString metaurl = QString("%1/files").arg(metabase);
+        QNetworkRequest netRequest{QUrl(metaurl)};
+        netRequest.setRawHeader("x-api-key", APPLICATION->curseAPIKey().toUtf8());
+        netRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+        m_rep = m_network->post(netRequest,QJsonDocument(requestObject).toJson());
+
+        connect(m_rep, &QNetworkReply::finished, this, &CurseForge::FileResolvingTask::netJobFinished);
     } else {
-        // 如果没有文件需要下载，即 index == 0 时，可能想要直接通知任务完成
         emitSucceeded();
     }
+
+
+//    if (indextask > 0) {
+//        // 仅当有文件需要下载时，即 index > 0 时，连接信号与槽并启动 m_dljob
+//        connect(m_dljob.get(), &NetJob::finished, this, &CurseForge::FileResolvingTask::netJobFinished);
+//        connect(m_dljob.get(), &NetJob::progress, this, &CurseForge::FileResolvingTask::netJobprogress);
+//        m_dljob->start();
+//    } else {
+//        // 如果没有文件需要下载，即 index == 0 时，可能想要直接通知任务完成
+//        emitSucceeded();
+//    }
 }
 void CurseForge::FileResolvingTask::netJobprogress(qint64 current, qint64 total)
 {
@@ -164,7 +180,31 @@ void CurseForge::FileResolvingTask::netJobprogress(qint64 current, qint64 total)
 void CurseForge::FileResolvingTask::netJobFinished()
 {
     bool failed = false;
-    int index = -1;
+    //int index = -1;
+    QByteArray response = m_rep->readAll();
+    m_rep->deleteLater();
+    auto rootObj = QJsonDocument::fromJson(response).object();
+    auto dataArray = rootObj.value("data").toArray();
+    for(const auto &dataValue : dataArray)
+    {
+        auto modObj = dataValue.toObject();
+        int m_id = Json::requireInteger(modObj,"modId");
+        //int m_id = modObj.value("modId").toInt();
+        for (auto &m_file : m_toProcess.files) {
+            if (m_file.projectId == m_id)
+            {
+                m_file.fileName = Json::requireString(modObj, "fileName");
+                QString rawUrl = Json::requireString(modObj, "downloadUrl");
+                m_file.url = QUrl(rawUrl, QUrl::TolerantMode);
+                if(!m_file.url.isValid())
+                {
+                    throw JSONValidationError(QString("Invalid URL: %1").arg(rawUrl));
+                }
+            }
+        }
+    }
+
+/*
     for(auto & bytes: results)
     {
         index++;
@@ -187,6 +227,7 @@ void CurseForge::FileResolvingTask::netJobFinished()
         }
 
     }
+*/
     m_filePath = FS::PathCombine(m_filePath,"mod.json");
     QFile m_modFile(m_filePath);
     if (m_modFile.open(QIODevice::WriteOnly)) {
