@@ -58,6 +58,7 @@ AccountListPage::AccountListPage(QWidget *parent)
     ui->listView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->listView->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     ui->listView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->actionAddMojang->setVisible(false);
 
     // Expand the account column
 
