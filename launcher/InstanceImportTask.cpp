@@ -365,9 +365,11 @@ void InstanceImportTask::processCurseForge()
         // nuke the original files
         FS::deletePath(jarmodsPath);
     }
-    if(m_instName.contains(pack.version))
+    QString cleanVersion = pack.version;
+    cleanVersion.remove('v');
+    if(m_instName.contains(cleanVersion))
     {
-        m_instName.replace(pack.version, "");
+        m_instName.replace(cleanVersion, "");
         m_instName.remove(QRegExp("-+$"));
     }
 
@@ -377,7 +379,7 @@ void InstanceImportTask::processCurseForge()
         m_instName.truncate(index);
     }
     instance.setmodpacks(m_addonId,m_fileId,"curseforge");
-    instance.setName(QString("%1_v%2").arg(m_instName).arg(pack.version));
+    instance.setName(QString("%1_v%2").arg(m_instName).arg(cleanVersion));
     m_modIdResolver = new CurseForge::FileResolvingTask(APPLICATION->network(), pack,m_stagingPath);
     connect(m_modIdResolver.get(), &CurseForge::FileResolvingTask::succeeded, [&]()
     {
