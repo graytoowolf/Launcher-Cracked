@@ -7,6 +7,7 @@
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "net/PasteUpload.h"
+#include "net/mcloUpload.h"
 
 #include "Application.h"
 #include <settings/SettingsObject.h>
@@ -17,11 +18,19 @@ QString GuiUtil::uploadPaste(const QString &text, QWidget *parentWidget)
 {
     ProgressDialog dialog(parentWidget);
     auto APIKeySetting = APPLICATION->settings()->get("PasteEEAPIKey").toString();
-    if(APIKeySetting == "multimc")
+    auto LogPlatform = APPLICATION->settings()->get("LogPlatform").toString();
+    std::unique_ptr<UploadTask> paste;
+    if(LogPlatform == "paste.ee")
     {
-        APIKeySetting = BuildConfig.PASTE_EE_KEY;
+        if(APIKeySetting == "multimc")
+        {
+            APIKeySetting = BuildConfig.PASTE_EE_KEY;
+        }
+        paste.reset(new PasteUpload(parentWidget, text, APIKeySetting));
+    } else if (LogPlatform == "mclo.gs")
+    {
+        paste.reset(new mcloUpload(parentWidget, text));
     }
-    std::unique_ptr<PasteUpload> paste(new PasteUpload(parentWidget, text, APIKeySetting));
 
     if (!paste->validateText())
     {
@@ -45,7 +54,7 @@ QString GuiUtil::uploadPaste(const QString &text, QWidget *parentWidget)
     }
     else
     {
-        const QString link = paste->pasteLink();
+        const QString link = paste->Link();
         setClipboardText(link);
         CustomMessageBox::selectable(
             parentWidget, QObject::tr("Upload finished"),

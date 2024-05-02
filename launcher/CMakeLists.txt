@@ -122,6 +122,10 @@ set(NET_SOURCES
     net/NetJob.h
     net/PasteUpload.cpp
     net/PasteUpload.h
+    net/mcloUpload.cpp
+    net/mcloUpload.h
+    net/UploadTask.cpp
+    net/UploadTask.h
     net/Sink.h
     net/Validator.h
 )

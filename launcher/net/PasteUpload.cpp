@@ -1,16 +1,11 @@
 #include "PasteUpload.h"
 #include "BuildConfig.h"
 #include "Application.h"
-
-#include <QDebug>
-#include <QJsonObject>
-#include <QJsonArray>
 #include <QJsonDocument>
-#include <QFile>
 
-PasteUpload::PasteUpload(QWidget *window, QString text, QString key) : m_window(window)
+PasteUpload::PasteUpload(QWidget *window, const QString &text, const QString &key)
+    : UploadTask(window, text), m_key(key)
 {
-    m_key = key;
     QByteArray temp;
     QJsonObject topLevelObj;
     QJsonObject sectionObject;
@@ -21,16 +16,19 @@ PasteUpload::PasteUpload(QWidget *window, QString text, QString key) : m_window(
     topLevelObj.insert("sections", sectionArray);
     QJsonDocument docOut;
     docOut.setObject(topLevelObj);
-    m_jsonContent = docOut.toJson();
+    m_postData = docOut.toJson();
 }
 
-PasteUpload::~PasteUpload()
+bool PasteUpload::validateText() const
 {
+    return m_postData.size() <= maxSize();
 }
 
-bool PasteUpload::validateText()
+int PasteUpload::maxSize() const
 {
-    return m_jsonContent.size() <= maxSize();
+    if (m_key == "public")
+        return 1024 * 1024 * 2;
+    return 1024 * 1024 * 12;
 }
 
 void PasteUpload::executeTask()
@@ -39,29 +37,36 @@ void PasteUpload::executeTask()
     request.setHeader(QNetworkRequest::UserAgentHeader, BuildConfig.USER_AGENT_UNCACHED);
 
     request.setRawHeader("Content-Type", "application/json");
-    request.setRawHeader("Content-Length", QByteArray::number(m_jsonContent.size()));
+    request.setRawHeader("Content-Length", QByteArray::number(m_postData.size()));
     request.setRawHeader("X-Auth-Token", m_key.toStdString().c_str());
 
-    QNetworkReply *rep = APPLICATION->network()->post(request, m_jsonContent);
+    QNetworkReply *rep = APPLICATION->network()->post(request, m_postData);
 
     m_reply = std::shared_ptr<QNetworkReply>(rep);
     setStatus(tr("Uploading to paste.ee"));
     connect(rep, &QNetworkReply::uploadProgress, this, &Task::setProgress);
-    connect(rep, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(downloadError(QNetworkReply::NetworkError)));
-    connect(rep, SIGNAL(finished()), this, SLOT(downloadFinished()));
+    connect(rep, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(networkError(QNetworkReply::NetworkError)));
+    connect(rep, SIGNAL(finished()), this, SLOT(uploadFinished()));
 }
 
-void PasteUpload::downloadError(QNetworkReply::NetworkError error)
+bool PasteUpload::parseResult(const QJsonDocument &doc)
 {
-    // error happened during download.
-    qCritical() << "Network error: " << error;
-    emitFailed(m_reply->errorString());
+    auto object = doc.object();
+    auto status = object.value("success").toBool();
+    if (!status)
+    {
+        qCritical() << "paste.ee reported error:" << QString(object.value("error").toString());
+        return false;
+    }
+    m_link = object.value("link").toString();
+    m_pasteID = object.value("id").toString();
+    qDebug() << m_link;
+    return true;
 }
 
-void PasteUpload::downloadFinished()
+void PasteUpload::uploadFinished()
 {
     QByteArray data = m_reply->readAll();
-    // if the download succeeded
     if (m_reply->error() == QNetworkReply::NetworkError::NoError)
     {
         m_reply.reset();
@@ -78,7 +83,6 @@ void PasteUpload::downloadFinished()
             return;
         }
     }
-    // else the download failed
     else
     {
         emitFailed(QString("Network error: %1").arg(m_reply->errorString()));
@@ -87,19 +91,3 @@ void PasteUpload::downloadFinished()
     }
     emitSucceeded();
 }
-
-bool PasteUpload::parseResult(QJsonDocument doc)
-{
-    auto object = doc.object();
-    auto status = object.value("success").toBool();
-    if (!status)
-    {
-        qCritical() << "paste.ee reported error:" << QString(object.value("error").toString());
-        return false;
-    }
-    m_pasteLink = object.value("link").toString();
-    m_pasteID = object.value("id").toString();
-    qDebug() << m_pasteLink;
-    return true;
-}
-

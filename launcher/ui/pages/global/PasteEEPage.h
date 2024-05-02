@@ -56,6 +56,7 @@ private:
 
 private slots:
     void textEdited(const QString &text);
+    void platformChanged(int index);
 
 private:
     Ui::PasteEEPage *ui;

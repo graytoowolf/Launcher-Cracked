@@ -32,12 +32,23 @@ PasteEEPage::PasteEEPage(QWidget *parent) :
     ui->setupUi(this);
     ui->tabWidget->tabBar()->hide();\
     connect(ui->customAPIkeyEdit, &QLineEdit::textEdited, this, &PasteEEPage::textEdited);
+    connect(ui->logPlatformComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                this, &PasteEEPage::platformChanged);
     loadSettings();
 }
 
 PasteEEPage::~PasteEEPage()
 {
     delete ui;
+}
+void PasteEEPage::platformChanged(int index)
+{
+    QString platform = ui->logPlatformComboBox->itemText(index);
+    if(platform == "mclo.gs") {
+        ui->groupBox_2->hide();
+    } else if(platform == "paste.ee") {
+        ui->groupBox_2->show();
+    }
 }
 
 void PasteEEPage::loadSettings()
@@ -53,6 +64,13 @@ void PasteEEPage::loadSettings()
         ui->customButton->setChecked(true);
         ui->customAPIkeyEdit->setText(keyToUse);
     }
+
+    QString currentPlatform = s->get("LogPlatform").toString();
+    int index = ui->logPlatformComboBox->findText(currentPlatform);
+    if(index != -1) {
+        ui->logPlatformComboBox->setCurrentIndex(index);
+    }
+    platformChanged(index);
 }
 
 void PasteEEPage::applySettings()
@@ -66,7 +84,10 @@ void PasteEEPage::applySettings()
     {
         pasteKeyToUse =  "multimc";
     }
+    QString currentPlatform = ui->logPlatformComboBox->currentText();
+
     s->set("PasteEEAPIKey", pasteKeyToUse);
+    s->set("LogPlatform",currentPlatform);
 }
 
 bool PasteEEPage::apply()

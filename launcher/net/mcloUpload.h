@@ -1,12 +1,12 @@
 #pragma once
 #include "UploadTask.h"
 
-class PasteUpload : public UploadTask
+class mcloUpload : public UploadTask
 {
     Q_OBJECT
 public:
-    PasteUpload(QWidget *window, const QString &text, const QString &key = "public");
-    virtual ~PasteUpload() = default;
+    mcloUpload(QWidget *window, const QString &text);
+    virtual ~mcloUpload() = default;
 
     bool validateText() const override;
     int maxSize() const;
@@ -16,8 +16,7 @@ protected:
     bool parseResult(const QJsonDocument &doc) override;
 
 private:
-    QString m_key;
-    QString m_pasteID;
+    QString m_mcloID;
 
 public slots:
     void uploadFinished() override;

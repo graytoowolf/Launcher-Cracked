@@ -34,6 +34,29 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Platform Selection</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QComboBox" name="logPlatformComboBox">
+            <item>
+             <property name="text">
+              <string notr="true">mclo.gs</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string notr="true">paste.ee</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
           <string>paste.ee API key</string>
@@ -103,7 +126,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>216</height>
+           <height>40</height>
           </size>
          </property>
         </spacer>

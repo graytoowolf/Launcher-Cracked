@@ -796,6 +796,9 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         // paste.ee API key
         m_settings->registerSetting("PasteEEAPIKey", "multimc");
 
+        // Log Platform
+        m_settings->registerSetting("LogPlatform", "mclo.gs");
+
         if(!BuildConfig.ANALYTICS_ID.isEmpty())
         {
             // Analytics
