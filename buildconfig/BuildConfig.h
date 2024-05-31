@@ -65,6 +65,12 @@ public:
     QString VERSION_STR;
 
     /**
+     * This is used to open the news page with the "More news" button.
+     * It defaults in CMakeLists.txt to "https://multimc.org/posts.html"
+     */
+    QString NEWS_URL;
+
+    /**
      * This is used to fetch the news RSS feed.
      * It defaults in CMakeLists.txt to "https://multimc.org/rss.xml"
      */
