@@ -403,13 +403,16 @@ public:
 
         mainToolBar->addSeparator();
 
-        actionPatreon = TranslatedAction(MainWindow);
-        actionPatreon->setObjectName(QStringLiteral("actionPatreon"));
-        actionPatreon->setIcon(APPLICATION->getThemedIcon("patreon"));
-        actionPatreon.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Support %1"));
-        actionPatreon.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the %1 Patreon page."));
-        all_actions.append(&actionPatreon);
-        mainToolBar->addAction(actionPatreon);
+        if (!BuildConfig.PATREON_URL.isEmpty())
+        {
+            actionPatreon = TranslatedAction(MainWindow);
+            actionPatreon->setObjectName(QStringLiteral("actionPatreon"));
+            actionPatreon->setIcon(APPLICATION->getThemedIcon("patreon"));
+            actionPatreon.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Support %1"));
+            actionPatreon.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the %1 Patreon page."));
+            all_actions.append(&actionPatreon);
+            mainToolBar->addAction(actionPatreon);
+        }
 
         actionCAT = TranslatedAction(MainWindow);
         actionCAT->setObjectName(QStringLiteral("actionCAT"));
@@ -1732,7 +1735,7 @@ void MainWindow::on_actionReportBug_triggered()
 
 void MainWindow::on_actionPatreon_triggered()
 {
-    DesktopServices::openUrl(QUrl("https://www.patreon.com/multimc"));
+    DesktopServices::openUrl(QUrl(BuildConfig.PATREON_URL));
 }
 
 void MainWindow::on_actionMoreNews_triggered()
