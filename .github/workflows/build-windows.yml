@@ -60,7 +60,7 @@ jobs:
 
       - name: Setup CMake
         run: |
-          curl -L https://github.com/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-windows-i386.zip -o cmake.zip
+          curl -L https://github.com/Kitware/CMake/releases/download/v3.29.3/cmake-3.29.3-windows-i386.zip -o cmake.zip
           unzip cmake.zip
 
       - name: Setup JDK
@@ -238,7 +238,7 @@ jobs:
 
   build-mac:
     name: build-mac
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
       - uses: actions/checkout@main
