@@ -90,12 +90,13 @@ jobs:
         shell: cmd
         if: steps.build-cached.outputs.cache-hit != 'true'
         run: |
+          for /f "tokens=*" %%n in ('powershell -NoLogo -Command "$(ls $pwd\cmake-*-windows-i386\bin).Fullname"') do @(set PATHCM=%%n)
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
           set PATH=%CD%\zlib;%CD%\zlib\bin;%CD%\zlib\lib;%CD%\zlib\include;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
-          set PATH=%CD%\cmake-3.23.1-windows-i386\bin;%PATH%
           set CC=D:\Qt\Tools\mingw492_32\bin\gcc.exe
           set CXX=D:\Qt\Tools\mingw492_32\bin\g++.exe
+          set PATH=%PATHCM%;%PATH%
           mkdir build
           cd build
           cmake ^
@@ -114,10 +115,11 @@ jobs:
       - name: Compile
         shell: cmd
         run: |
+          for /f "tokens=*" %%n in ('powershell -NoLogo -Command "$(ls $pwd\cmake-*-windows-i386\bin).Fullname"') do @(set PATHCM=%%n)
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
-          set PATH=%CD%\cmake-3.23.1-windows-i386\bin;%PATH%
+          set PATH=%PATHCM%;%PATH%
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make tcversion
@@ -126,10 +128,11 @@ jobs:
       - name: Test
         shell: cmd
         run: |
+          for /f "tokens=*" %%n in ('powershell -NoLogo -Command "$(ls $pwd\cmake-*-windows-i386\bin).Fullname"') do @(set PATHCM=%%n)
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
-          set PATH=%CD%\cmake-3.23.1-windows-i386\bin;%PATH%
+          set PATH=%PATHCM%;%PATH%
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make test
@@ -138,10 +141,11 @@ jobs:
       - name: Install
         shell: cmd
         run: |
+          for /f "tokens=*" %%n in ('powershell -NoLogo -Command "$(ls $pwd\cmake-*-windows-i386\bin).Fullname"') do @(set PATHCM=%%n)
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
-          set PATH=%CD%\cmake-3.23.1-windows-i386\bin;%PATH%
+          set PATH=%PATHCM%;%PATH%
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make install
@@ -152,7 +156,7 @@ jobs:
           cp OpenSSL/ssleay32.dll D:/MiniSkins/install/ssleay32.dll
           cp OpenSSL/libeay32.dll D:/MiniSkins/install/libeay32.dll
 
-      - name: 生成json文件
+      - name: Generate json file
         run: |
           cd D:/MiniSkins/
           mkdir D:/MiniSkins/qiniu/win32/bs
