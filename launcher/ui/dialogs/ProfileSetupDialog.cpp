@@ -28,6 +28,7 @@
 #include "minecraft/auth/AuthRequest.h"
 #include "minecraft/auth/Parsers.h"
 
+#include "BuildConfig.h"
 
 ProfileSetupDialog::ProfileSetupDialog(MinecraftAccountPtr accountToSetup, QWidget *parent)
     : QDialog(parent), m_accountToSetup(accountToSetup), ui(new Ui::ProfileSetupDialog)
@@ -134,7 +135,7 @@ void ProfileSetupDialog::checkName(const QString &name) {
 
     auto token = m_accountToSetup->accessToken();
 
-    auto url = QString("https://api.minecraftservices.com/minecraft/profile/name/%1/available").arg(name);
+    auto url = QString("%1/minecraft/profile/name/%2/available").arg(BuildConfig.API_BASE).arg(name);
     QNetworkRequest request = QNetworkRequest(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Accept", "application/json");
@@ -183,7 +184,7 @@ void ProfileSetupDialog::setupProfile(const QString &profileName) {
 
     auto token = m_accountToSetup->accessToken();
 
-    auto url = QString("https://api.minecraftservices.com/minecraft/profile");
+    auto url = QString("%1/minecraft/profile");
     QNetworkRequest request = QNetworkRequest(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Accept", "application/json");
