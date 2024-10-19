@@ -462,7 +462,7 @@ QStringList MinecraftInstance::processMinecraftArgs(
         token_mapping["auth_player_name"] = session->player_name;
         token_mapping["auth_uuid"] = session->uuid;
         token_mapping["user_properties"] = session->serializeUserProperties();
-        token_mapping["user_type"] = session->user_type;
+        token_mapping["user_type"] = "msa";
         if(session->demo) {
             args_pattern += " --demo";
         }
