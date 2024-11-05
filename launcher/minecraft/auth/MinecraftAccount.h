@@ -70,7 +70,7 @@ public: /* construction */
 
     static MinecraftAccountPtr createFromUsername(const QString &username);
 
-    static MinecraftAccountPtr createBlessings(const QString &username);
+    static MinecraftAccountPtr createBlessings(const QString &username, const QString &yggurl);
 
     static MinecraftAccountPtr createBlankMSA();
 
@@ -125,6 +125,11 @@ public: /* queries */
     QString profileName() const
     {
         return data.profileName();
+    }
+
+    QString yggurl() const
+    {
+        return data.yggurl();
     }
 
     bool isActive() const;

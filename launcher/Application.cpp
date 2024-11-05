@@ -1872,16 +1872,6 @@ bool Application::getconfigfile()
 
 }
 
-QString Application::getyggdrasilUrl()
-{
-    QString yggdrasilUrl = m_settings->get("yggdrasilUrl").toString();
-    if (!yggdrasilUrl.isEmpty()) {
-        return yggdrasilUrl;
-    }
-
-    return BuildConfig.Bs_AUTH_BASE;
-}
-
 QList<DownloadSource> Application::getDownloadSources() const
 {
     return downloadSources;

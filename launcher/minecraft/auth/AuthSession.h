@@ -40,6 +40,8 @@ struct AuthSession
     QString uuid;
     // 'legacy' or 'mojang', depending on account type
     QString user_type;
+    // yggurl
+    QString yggurl;
     // Did the auth server reply?
     bool auth_server_online = false;
     // Did the user request online mode?

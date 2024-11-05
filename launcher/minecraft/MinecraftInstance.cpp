@@ -317,7 +317,7 @@ QStringList MinecraftInstance::javaArguments() const
     if(m_user_type == "bs")
     {
         MetaEntryPtr authlib_path = APPLICATION->metacache()->resolveEntry("jars", "authlib-injector.jar");
-        args << "-javaagent:"+ authlib_path->getFullPath() +"=" + APPLICATION->getyggdrasilUrl();
+        args << "-javaagent:"+ authlib_path->getFullPath() +"=" + m_yggurl;
     }
 
 
@@ -495,6 +495,8 @@ QString MinecraftInstance::createLaunchScript(AuthSessionPtr session, QuickPlayT
     QString launchScript;
 
     m_user_type = session->user_type;
+    m_yggurl = session->yggurl;
+
     if (!m_components)
         return QString();
     auto profile = m_components->getProfile();

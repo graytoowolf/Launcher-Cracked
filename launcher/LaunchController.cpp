@@ -237,10 +237,11 @@ void LaunchController::login() {
                 if (button == QMessageBox::StandardButton::Ok) {
                     auto accounts = APPLICATION->accounts();
                     bool isDefault = accounts->defaultAccount() == m_accountToUse;
-                    auto profiletype = m_accountToUse->typeString();
-                    accounts->removeAccount(accounts->index(accounts->findAccountByProfileId(m_accountToUse->profileId(),profiletype)));
+                    auto m_profiletype = m_accountToUse->typeString();
+                    auto m_yggurl = m_accountToUse->yggurl();
+                    accounts->removeAccount(accounts->index(accounts->findAccountByProfileId(m_accountToUse->profileId(),m_profiletype,m_yggurl)));
                     MinecraftAccountPtr newAccount = nullptr;
-                    if (profiletype == "msa") {
+                    if (m_profiletype == "msa") {
                         if(BuildConfig.BUILD_PLATFORM == "osx64") {
                             CustomMessageBox::selectable(
                                     m_parentWidget,
@@ -259,14 +260,14 @@ void LaunchController::login() {
                                 tr("Please enter your Mojang account email and password to add your account.")
                         );
                     }
-                    else if(profiletype == "bs"){
+                    else if(m_profiletype == "bs"){
                         newAccount = BsLoginDialog::newAccount(
                                 m_parentWidget,
                                 tr("Please enter your MiniSkins skin site account email and password to add your account.")
                         );
 
                     }
-                    else if(profiletype == "mojang"){
+                    else if(m_profiletype == "mojang"){
                         newAccount = LoginDialog::newAccount(
                                 m_parentWidget,
                                 tr("Please enter your Mojang account email and password to add your account.")

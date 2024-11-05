@@ -32,6 +32,10 @@ void tokenToJSONV3(QJsonObject &parent, Katabasis::Token t, const char * tokenNa
         out["extra"] = QJsonObject::fromVariantMap(t.extra);
         save = true;
     }
+    if(!t.yggurl.isEmpty()) {
+        out["yggurl"] = QJsonValue(t.yggurl);
+        save = true;
+    }
     if(save) {
         parent[tokenName] = out;
     }
@@ -67,6 +71,11 @@ Katabasis::Token tokenFromJSONV3(const QJsonObject &parent, const char * tokenNa
     auto extra = tokenObject.value("extra");
     if(extra.isObject()) {
         out.extra = extra.toObject().toVariantMap();
+    }
+
+    auto yggurl = tokenObject.value("yggurl");
+    if(yggurl.isString()) {
+        out.yggurl = yggurl.toString();
     }
     return out;
 }
@@ -492,6 +501,10 @@ void AccountData::invalidateClientToken() {
 
 QString AccountData::profileId() const {
     return minecraftProfile.id;
+}
+
+QString AccountData::yggurl() const {
+    return yggdrasilToken.yggurl;
 }
 
 QString AccountData::profileName() const {

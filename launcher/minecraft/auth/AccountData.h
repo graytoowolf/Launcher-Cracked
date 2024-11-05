@@ -74,6 +74,8 @@ struct AccountData {
     //! Yggdrasil access token, as passed to the game.
     QString accessToken() const;
 
+    QString yggurl() const;
+
     QString profileId() const;
     QString profileName() const;
 

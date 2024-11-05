@@ -145,8 +145,6 @@ public:
 
     QString getJarsPath();
 
-    QString getyggdrasilUrl();
-
     bool getconfigfile();
 
     QList<DownloadSource> getDownloadSources() const;

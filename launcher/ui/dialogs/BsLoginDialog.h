@@ -54,6 +54,9 @@ protected slots:
 private slots:
     void on_regpushButton_clicked();
 
+    void onLineEditReturnPressed();
+    void onComboBoxCurrentTextChanged(const QString &text);
+
 private:
     Ui::BsLoginDialog *ui;
     MinecraftAccountPtr m_account;

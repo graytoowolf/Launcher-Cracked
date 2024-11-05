@@ -20,7 +20,7 @@ QString BsMinecraftProfileStep::describe()
 
 void BsMinecraftProfileStep::perform()
 {
-    QUrl url = QUrl(APPLICATION->getyggdrasilUrl());
+    QUrl url = QUrl(m_data->yggurl());
     url.setPath(QString("/%1.json").arg(m_data->minecraftProfile.name));
     QNetworkRequest request = QNetworkRequest(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -84,7 +84,7 @@ void BsMinecraftProfileStep::onRequestDone(
         return;
     }
     auto obj = doc.object();
-    auto url = QUrl(APPLICATION->getyggdrasilUrl());
+    auto url = QUrl(m_data->yggurl());
     auto skins = obj.value("skins").toObject();
     QString variant = skins. keys()[0];
     url.setPath(QString("/textures/%1").arg(skins.value(variant).toString()));

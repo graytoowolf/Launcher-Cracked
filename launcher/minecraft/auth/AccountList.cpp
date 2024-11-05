@@ -51,21 +51,21 @@ AccountList::AccountList(QObject *parent) : QAbstractListModel(parent) {
 
 AccountList::~AccountList() noexcept {}
 
-int AccountList::findAccountByProfileId(const QString& profileId,QString& profiletype) const {
+int AccountList::findAccountByProfileId(const QString& profileId,QString& profiletype,QString& yggurl) const {
     for (int i = 0; i < count(); i++) {
         MinecraftAccountPtr account = at(i);
-        if (account->profileId() == profileId && account->typeString() == profiletype) {
+        if (account->profileId() == profileId && account->typeString() == profiletype && account->yggurl() == yggurl) {
             return i;
         }
     }
     return -1;
 }
 
-MinecraftAccountPtr AccountList::getAccountByProfileName(const QString& profileName,const QString& type) const {
+MinecraftAccountPtr AccountList::getAccountByProfileName(const QString& profileName, const QString& type, const QString& yggurl) const {
     for (int i = 0; i < count(); i++) {
         MinecraftAccountPtr account = at(i);
         if (account->profileName() == profileName) {
-            if(account->typeString() == type || type.isEmpty()){
+            if ((account->typeString() == type || type.isEmpty()) && (account->yggurl() == yggurl || yggurl.isEmpty())) {
                 return account;
             }
         }
@@ -104,8 +104,9 @@ void AccountList::addAccount(const MinecraftAccountPtr account)
     // override/replace existing account with the same profileId
     auto profileId = account->profileId();
     auto profiletype = account->typeString();
+    auto yggurl = account->yggurl();
     if(profileId.size()) {
-        auto existingAccount = findAccountByProfileId(profileId,profiletype);
+        auto existingAccount = findAccountByProfileId(profileId,profiletype,yggurl);
         if(existingAccount != -1) {
             MinecraftAccountPtr existingAccountPtr = m_accounts[existingAccount];
             m_accounts[existingAccount] = account;
@@ -506,10 +507,11 @@ bool AccountList::loadV2(QJsonObject& root) {
         {
             auto profileId = account->profileId();
             auto profiletype = account->typeString();
+            auto yggurl = account->yggurl();
             if(!profileId.size()) {
                 continue;
             }
-            if(findAccountByProfileId(profileId,profiletype) != -1) {
+            if(findAccountByProfileId(profileId,profiletype,yggurl) != -1) {
                 continue;
             }
             connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
@@ -539,10 +541,11 @@ bool AccountList::loadV4(QJsonObject& root) {
         {
             auto profileId = account->profileId();
             auto profiletype = account->typeString();
+            auto yggurl = account->yggurl();
             if(!profileId.size()) {
                 continue;
             }
-            if(findAccountByProfileId(profileId,profiletype) != -1) {
+            if(findAccountByProfileId(profileId,profiletype,yggurl) != -1) {
                 continue;
             }
             connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
@@ -571,8 +574,9 @@ bool AccountList::loadV3(QJsonObject& root) {
         {
             auto profileId = account->profileId();
             auto profiletype = account->typeString();
+            auto yggurl = account->yggurl();
             if(profileId.size()) {
-                if(findAccountByProfileId(profileId,profiletype) != -1) {
+                if(findAccountByProfileId(profileId,profiletype,yggurl) != -1) {
                     continue;
                 }
             }

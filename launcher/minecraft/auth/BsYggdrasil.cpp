@@ -89,7 +89,7 @@ void BsYggdrasil::refresh()
     req.insert("requestUser", false);
     QJsonDocument doc(req);
 
-    QUrl reqUrl(APPLICATION->getyggdrasilUrl() + "authserver/refresh");
+    QUrl reqUrl(m_data->yggurl() + "authserver/refresh");
     QByteArray requestData = doc.toJson();
 
     sendRequest(reqUrl, requestData);
@@ -136,7 +136,7 @@ void BsYggdrasil::login(QString password)
     QJsonDocument doc(req);
 
 
-    QUrl reqUrl(APPLICATION->getyggdrasilUrl() +"authserver/authenticate");
+    QUrl reqUrl(m_data->yggurl() +"authserver/authenticate");
     QNetworkRequest netRequest(reqUrl);
     QByteArray requestData = doc.toJson();
 

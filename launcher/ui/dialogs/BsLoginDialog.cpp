@@ -28,8 +28,45 @@ BsLoginDialog::BsLoginDialog(QWidget *parent) : QDialog(parent), ui(new Ui::BsLo
     ui->progressBar->setVisible(false);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
+    ui->yggurlcomboBox->addItem("MiniSkins", "https://www.mcpeau.com/api/yggdrasil");
+    ui->yggurlcomboBox->addItem("LittleSkin", "https://littleskin.cn/api/yggdrasil");
+    ui->yggurlcomboBox->setEditable(true);
+    ui->yggurlcomboBox->addItem(tr("Custom Yggdrasil API"));
+
+    QLineEdit *lineEdit = ui->yggurlcomboBox->lineEdit();
+    lineEdit->setPlaceholderText(tr("For example: https://www.mcpeau.com/api/yggdrasil"));
+
+    // 阻止comboBox默认行为
+    ui->yggurlcomboBox->setInsertPolicy(QComboBox::NoInsert);
+
+    connect(lineEdit, &QLineEdit::textChanged, this, &BsLoginDialog::onLineEditReturnPressed);
+    connect(ui->yggurlcomboBox, &QComboBox::currentTextChanged, this, &BsLoginDialog::onComboBoxCurrentTextChanged);
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+}
+void BsLoginDialog::onLineEditReturnPressed()
+{
+    QString url = ui->yggurlcomboBox->lineEdit()->text();
+    QUrl urlObj(url);
+    if (urlObj.isValid() && !urlObj.scheme().isEmpty())
+    {
+        int index = ui->yggurlcomboBox->currentIndex();
+        ui->yggurlcomboBox->setItemText(index, url);
+        ui->yggurlcomboBox->setItemData(index, url);
+    }
+}
+
+void BsLoginDialog::onComboBoxCurrentTextChanged(const QString &text)
+{
+    if (ui->yggurlcomboBox->currentIndex() == ui->yggurlcomboBox->count() - 1) {
+        int index = ui->yggurlcomboBox->count() - 1;
+        ui->yggurlcomboBox->insertItem(index,"");
+        ui->yggurlcomboBox->setCurrentIndex(index);
+
+        ui->yggurlcomboBox->clearEditText();
+        ui->yggurlcomboBox->setFocus();
+    }
 }
 
 BsLoginDialog::~BsLoginDialog()
@@ -44,7 +81,8 @@ void BsLoginDialog::accept()
     ui->progressBar->setVisible(true);
 
     // Setup the login task and start it
-    m_account = MinecraftAccount::createBlessings(ui->userTextBox->text());
+    m_account = MinecraftAccount::createBlessings(
+                ui->userTextBox->text(), ui->yggurlcomboBox->currentData().toString());
     m_loginTask = m_account->bslogin(ui->passTextBox->text());
     connect(m_loginTask.get(), &Task::failed, this, &BsLoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this, &BsLoginDialog::onTaskSucceeded);
@@ -64,12 +102,12 @@ void BsLoginDialog::setUserInputsEnabled(bool enable)
 void BsLoginDialog::on_userTextBox_textEdited(const QString &newText)
 {
     ui->buttonBox->button(QDialogButtonBox::Ok)
-        ->setEnabled(!newText.isEmpty() && !ui->passTextBox->text().isEmpty());
+            ->setEnabled(!newText.isEmpty() && !ui->passTextBox->text().isEmpty());
 }
 void BsLoginDialog::on_passTextBox_textEdited(const QString &newText)
 {
     ui->buttonBox->button(QDialogButtonBox::Ok)
-        ->setEnabled(!newText.isEmpty() && !ui->userTextBox->text().isEmpty());
+            ->setEnabled(!newText.isEmpty() && !ui->userTextBox->text().isEmpty());
 }
 
 void BsLoginDialog::onTaskFailed(const QString &reason)
@@ -123,8 +161,10 @@ MinecraftAccountPtr BsLoginDialog::newAccount(QWidget *parent, QString msg)
     return 0;
 }
 
-void BsLoginDialog::on_regpushButton_clicked(){
-    QUrl url = APPLICATION->getyggdrasilUrl();
+void BsLoginDialog::on_regpushButton_clicked()
+{
+    QString customUrl = ui->yggurlcomboBox->currentData().toString();
+    QUrl url = QUrl::fromUserInput(customUrl);
     url.setPath("/auth/register");
     DesktopServices::openUrl(url);
 }

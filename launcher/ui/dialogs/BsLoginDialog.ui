@@ -34,6 +34,9 @@
     </widget>
    </item>
    <item>
+    <widget class="QComboBox" name="yggurlcomboBox"/>
+   </item>
+   <item>
     <widget class="QLineEdit" name="userTextBox">
      <property name="placeholderText">
       <string>Email</string>

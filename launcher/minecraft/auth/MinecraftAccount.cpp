@@ -69,11 +69,12 @@ MinecraftAccountPtr MinecraftAccount::createFromUsername(const QString &username
     account->data.yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegExp("[{}-]"));
     return account;
 }
-MinecraftAccountPtr MinecraftAccount::createBlessings(const QString &username)
+MinecraftAccountPtr MinecraftAccount::createBlessings(const QString &username, const QString &yggurl)
 {
     MinecraftAccountPtr account = new MinecraftAccount();
     account->data.type = AccountType::Bs;
     account->data.yggdrasilToken.extra["userName"] = username;
+    account->data.yggdrasilToken.yggurl = yggurl;
     account->data.yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegExp("[{}-]"));
     return account;
 }
@@ -277,6 +278,9 @@ void MinecraftAccount::fillSession(AuthSessionPtr session)
     session->uuid = data.profileId();
     // 'legacy' or 'mojang', depending on account type
     session->user_type = typeString();
+    // yggurl
+    session->yggurl = data.yggurl();
+
     if (!session->access_token.isEmpty())
     {
         session->session = "token:" + data.accessToken() + ":" + data.profileId();
