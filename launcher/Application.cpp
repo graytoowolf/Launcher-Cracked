@@ -709,9 +709,6 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         // curseforgekey
         m_settings->registerSetting("CFKeyOverride", "");
 
-        //yggdrasilUrl
-        m_settings->registerSetting("yggdrasilUrl", "");
-
         m_settings->registerSetting("Downloadsource", "Mojang");
         m_settings->registerSetting("Downloadsourceurl", "");
         m_settings->registerSetting("Downloadsourceproxy",false);

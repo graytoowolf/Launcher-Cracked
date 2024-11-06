@@ -94,7 +94,6 @@ public:
     QString FMLLIBS_BASE_URL = "https://files.multimc.org/fmllibs/";
     QString TRANSLATIONS_BASE_URL = "https://mmc.mcpeau.com/translations/";
 
-    QString Bs_AUTH_BASE = "https://www.mcpeau.com/api/yggdrasil/";
     QString authlib_injector = "https://authlib-injector.yushi.moe/artifact/latest.json";
 
     QString MODPACKSCH_API_BASE_URL = "https://api.modpacks.ch/";
