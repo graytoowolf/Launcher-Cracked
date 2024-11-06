@@ -74,7 +74,7 @@ MinecraftAccountPtr MinecraftAccount::createBlessings(const QString &username, c
     MinecraftAccountPtr account = new MinecraftAccount();
     account->data.type = AccountType::Bs;
     account->data.yggdrasilToken.extra["userName"] = username;
-    account->data.yggdrasilToken.yggurl = yggurl;
+    account->data.yggdrasilToken.yggurl = yggurl.endsWith('/') ? yggurl : yggurl + '/';
     account->data.yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegExp("[{}-]"));
     return account;
 }
