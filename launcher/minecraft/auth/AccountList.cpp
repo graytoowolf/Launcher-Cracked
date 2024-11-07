@@ -51,23 +51,32 @@ AccountList::AccountList(QObject *parent) : QAbstractListModel(parent) {
 
 AccountList::~AccountList() noexcept {}
 
-int AccountList::findAccountByProfileId(const QString& profileId,QString& profiletype,QString& yggurl) const {
+int AccountList::findAccountByProfileId(const MinecraftAccountPtr &m_account) const {
     for (int i = 0; i < count(); i++) {
         MinecraftAccountPtr account = at(i);
-        if (account->profileId() == profileId && account->typeString() == profiletype && account->yggurl() == yggurl) {
+        if (account->profileId() == m_account->profileId() && account->typeString() == m_account->typeString() && account->yggurl() == m_account->yggurl()) {
             return i;
         }
     }
     return -1;
 }
 
-MinecraftAccountPtr AccountList::getAccountByProfileName(const QString& profileName, const QString& type, const QString& yggurl) const {
+MinecraftAccountPtr AccountList::getAccountByProfileName(const AuthSessionPtr& m_session) const {
+    for (int i = 0; i < count(); i++) {
+        MinecraftAccountPtr account = at(i);
+        if (account->profileName() == m_session->player_name) {
+            if (account->typeString() == m_session->user_type && account->yggurl() == m_session->yggurl ) {
+                return account;
+            }
+        }
+    }
+    return nullptr;
+}
+MinecraftAccountPtr AccountList::getAccountByProfileName(const QString& profileName) const {
     for (int i = 0; i < count(); i++) {
         MinecraftAccountPtr account = at(i);
         if (account->profileName() == profileName) {
-            if ((account->typeString() == type || type.isEmpty()) && (account->yggurl() == yggurl || yggurl.isEmpty())) {
-                return account;
-            }
+            return account;
         }
     }
     return nullptr;
@@ -103,10 +112,8 @@ void AccountList::addAccount(const MinecraftAccountPtr account)
 
     // override/replace existing account with the same profileId
     auto profileId = account->profileId();
-    auto profiletype = account->typeString();
-    auto yggurl = account->yggurl();
     if(profileId.size()) {
-        auto existingAccount = findAccountByProfileId(profileId,profiletype,yggurl);
+        auto existingAccount = findAccountByProfileId(account);
         if(existingAccount != -1) {
             MinecraftAccountPtr existingAccountPtr = m_accounts[existingAccount];
             m_accounts[existingAccount] = account;
@@ -506,12 +513,10 @@ bool AccountList::loadV2(QJsonObject& root) {
         if (account.get() != nullptr)
         {
             auto profileId = account->profileId();
-            auto profiletype = account->typeString();
-            auto yggurl = account->yggurl();
             if(!profileId.size()) {
                 continue;
             }
-            if(findAccountByProfileId(profileId,profiletype,yggurl) != -1) {
+            if(findAccountByProfileId(account) != -1) {
                 continue;
             }
             connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
@@ -540,12 +545,10 @@ bool AccountList::loadV4(QJsonObject& root) {
         if (account.get() != nullptr)
         {
             auto profileId = account->profileId();
-            auto profiletype = account->typeString();
-            auto yggurl = account->yggurl();
             if(!profileId.size()) {
                 continue;
             }
-            if(findAccountByProfileId(profileId,profiletype,yggurl) != -1) {
+            if(findAccountByProfileId(account) != -1) {
                 continue;
             }
             connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
@@ -573,10 +576,8 @@ bool AccountList::loadV3(QJsonObject& root) {
         if (account.get() != nullptr)
         {
             auto profileId = account->profileId();
-            auto profiletype = account->typeString();
-            auto yggurl = account->yggurl();
             if(profileId.size()) {
-                if(findAccountByProfileId(profileId,profiletype,yggurl) != -1) {
+                if(findAccountByProfileId(account) != -1) {
                     continue;
                 }
             }

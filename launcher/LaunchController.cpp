@@ -239,7 +239,7 @@ void LaunchController::login() {
                     bool isDefault = accounts->defaultAccount() == m_accountToUse;
                     auto m_profiletype = m_accountToUse->typeString();
                     auto m_yggurl = m_accountToUse->yggurl();
-                    accounts->removeAccount(accounts->index(accounts->findAccountByProfileId(m_accountToUse->profileId(),m_profiletype,m_yggurl)));
+                    accounts->removeAccount(accounts->index(accounts->findAccountByProfileId(m_accountToUse)));
                     MinecraftAccountPtr newAccount = nullptr;
                     if (m_profiletype == "msa") {
                         if(BuildConfig.BUILD_PLATFORM == "osx64") {

@@ -63,8 +63,9 @@ public:
 
     void addAccount(const MinecraftAccountPtr account);
     void removeAccount(QModelIndex index);
-    int findAccountByProfileId(const QString &profileId,QString &profiletype,QString &yggurl) const;
-    MinecraftAccountPtr getAccountByProfileName(const QString& profileName, const QString& type = QString(), const QString& yggurl = QString()) const;
+    int findAccountByProfileId(const MinecraftAccountPtr &m_account) const;
+    MinecraftAccountPtr getAccountByProfileName(const AuthSessionPtr& m_session) const;
+    MinecraftAccountPtr getAccountByProfileName(const QString& profileName) const;
     QStringList profileNames() const;
 
     // requesting a refresh pushes it to the front of the queue
