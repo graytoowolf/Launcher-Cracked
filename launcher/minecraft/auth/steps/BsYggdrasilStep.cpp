@@ -16,7 +16,7 @@ BsYggdrasilStep::~BsYggdrasilStep() noexcept = default;
 
 QString BsYggdrasilStep::describe()
 {
-    return tr("Logging in with Mojang account.");
+    return tr("Logging in with Yggdrasil account.");
 }
 
 void BsYggdrasilStep::rehydrate()
