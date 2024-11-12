@@ -19,4 +19,9 @@ public:
 
 private slots:
     void onRequestDone(QNetworkReply::NetworkError, QByteArray, QList<QNetworkReply::RawHeaderPair>);
+
+private:
+    // 辅助函数，用于发送请求
+    void sendRequest(const QUrl &url);
+
 };
