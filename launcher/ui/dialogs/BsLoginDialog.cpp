@@ -150,10 +150,25 @@ void BsLoginDialog::onTaskProgress(qint64 current, qint64 total)
 }
 
 // Public interface
-MinecraftAccountPtr BsLoginDialog::newAccount(QWidget *parent, QString msg)
+MinecraftAccountPtr BsLoginDialog::newAccount(QWidget *parent, QString msg, QString initialAccount /*= ""*/, QString yggUrl /*= ""*/)
 {
     BsLoginDialog dlg(parent);
     dlg.ui->label->setText(msg);
+    dlg.ui->userTextBox->setText(initialAccount);
+
+    if (!yggUrl.isEmpty()) {
+        QString cleanedUrl = yggUrl.endsWith('/') ? yggUrl.left(yggUrl.length() - 1) : yggUrl;
+
+        int index = dlg.ui->yggurlcomboBox->findData(cleanedUrl);
+        if (index != -1) {
+            dlg.ui->yggurlcomboBox->setCurrentIndex(index);
+        } else {
+            int customIndex = dlg.ui->yggurlcomboBox->count() - 1;
+            dlg.ui->yggurlcomboBox->insertItem(customIndex, cleanedUrl);
+            dlg.ui->yggurlcomboBox->setCurrentIndex(customIndex);
+        }
+    }
+
     if (dlg.exec() == QDialog::Accepted)
     {
         return dlg.m_account;

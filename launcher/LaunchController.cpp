@@ -263,7 +263,10 @@ void LaunchController::login() {
                     else if(m_profiletype == "bs"){
                         newAccount = BsLoginDialog::newAccount(
                                 m_parentWidget,
-                                tr("Please enter your MiniSkins skin site account email and password to add your account.")
+                                tr("Please enter your Yggdrasil account email and password to add your account."),
+                                m_accountToUse->mojangUserName(),
+                                m_yggurl
+
                         );
 
                     }

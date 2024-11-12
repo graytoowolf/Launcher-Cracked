@@ -33,7 +33,7 @@ class BsLoginDialog : public QDialog
 public:
     ~BsLoginDialog();
 
-    static MinecraftAccountPtr newAccount(QWidget *parent, QString message);
+    static MinecraftAccountPtr newAccount(QWidget *parent, QString message, QString initialAccount = "", QString yggUrl = "");
 
 private:
     explicit BsLoginDialog(QWidget *parent = 0);
