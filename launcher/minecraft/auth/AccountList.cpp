@@ -27,6 +27,8 @@
 #include <QDir>
 #include <QTimer>
 
+#include <QUrl>
+
 #include <QDebug>
 
 #include <FileSystem.h>
@@ -278,8 +280,14 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
                 return account->accountDisplayString();
 
             case TypeColumn: {
-                auto typeStr = account->typeString();
+                QString typeStr = account->typeString();
                 typeStr[0] = typeStr[0].toUpper();
+
+                if (typeStr == "Bs") {
+                    QUrl yggurl = account->yggurl();
+                    typeStr = yggurl.host();
+                }
+
                 return typeStr;
             }
 
@@ -360,7 +368,7 @@ QVariant AccountList::headerData(int section, Qt::Orientation orientation, int r
         case NameColumn:
             return tr("Account");
         case TypeColumn:
-            return tr("Type");
+            return tr("platform");
         case StatusColumn:
             return tr("Status");
 //        case MigrationColumn:
@@ -377,7 +385,7 @@ QVariant AccountList::headerData(int section, Qt::Orientation orientation, int r
         case NameColumn:
             return tr("User name of the account.");
         case TypeColumn:
-            return tr("Type of the account - Mojang or MSA.");
+            return tr("The platform of the account.");
         case StatusColumn:
             return tr("Current status of the account.");
         // case MigrationColumn:
@@ -488,7 +496,7 @@ bool AccountList::loadList()
             return loadV3(root);
         }
         break;
-        case AccountListVersion::MojangBs: {        
+        case AccountListVersion::MojangBs: {
             return loadV4(root);
         }
         break;
@@ -787,3 +795,4 @@ void AccountList::endActivity() {
         emit activityChanged(false);
     }
 }
+

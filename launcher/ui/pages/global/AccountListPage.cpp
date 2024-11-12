@@ -46,7 +46,7 @@ AccountListPage::AccountListPage(QWidget *parent)
     ui->setupUi(this);
     ui->listView->setEmptyString(tr(
         "Welcome!\n"
-        "If you're new here, you can click the \"Add\" button to add your Mojang or Minecraft account."
+        "If you're new here, you can click the \"Add\" button to add your yggdrasil or Minecraft account."
     ));
     ui->listView->setEmptyMode(VersionListView::String);
     ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -55,7 +55,7 @@ AccountListPage::AccountListPage(QWidget *parent)
 
     ui->listView->setModel(m_accounts.get());
     ui->listView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
-    ui->listView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui->listView->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     ui->listView->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     ui->listView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->actionAddMojang->setVisible(false);
