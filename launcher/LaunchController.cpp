@@ -1,6 +1,7 @@
 #include "LaunchController.h"
 #include "minecraft/auth/AccountList.h"
 #include "Application.h"
+#include "BuildConfig.h"
 
 #include "ui/MainWindow.h"
 #include "ui/InstanceWindow.h"
@@ -345,7 +346,7 @@ void LaunchController::launchInstance()
         online_mode = "online";
 
         // Prepend Server Status
-        QStringList servers = {"authserver.mojang.com", "session.minecraft.net", "textures.minecraft.net", "api.mojang.com"};
+        QStringList servers = {QUrl(BuildConfig.AUTH_BASE).host(), QUrl(BuildConfig.SESSION_BASE).host(), QUrl(BuildConfig.TEXTURE_BASE).host(), QUrl(BuildConfig.API_BASE).host()};
         QString resolved_servers = "";
         QHostInfo host_info;
 

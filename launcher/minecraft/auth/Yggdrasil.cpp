@@ -26,6 +26,7 @@
 #include <QDebug>
 
 #include "Application.h"
+#include "BuildConfig.h"
 
 Yggdrasil::Yggdrasil(AccountData *data, QObject *parent)
     : AccountTask(data, parent)
@@ -84,7 +85,7 @@ void Yggdrasil::refresh() {
     req.insert("requestUser", false);
     QJsonDocument doc(req);
 
-    QUrl reqUrl("https://authserver.mojang.com/refresh");
+    QUrl reqUrl(QString("%1/refresh").arg(BuildConfig.AUTH_BASE));
     QByteArray requestData = doc.toJson();
 
     sendRequest(reqUrl, requestData);
@@ -129,7 +130,7 @@ void Yggdrasil::login(QString password) {
 
     QJsonDocument doc(req);
 
-    QUrl reqUrl("https://authserver.mojang.com/authenticate");
+    QUrl reqUrl(QString("%1/authenticate").arg(BuildConfig.AUTH_BASE));
     QNetworkRequest netRequest(reqUrl);
     QByteArray requestData = doc.toJson();
 
