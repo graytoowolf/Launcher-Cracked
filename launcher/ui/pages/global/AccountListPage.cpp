@@ -24,7 +24,6 @@
 #include "net/NetJob.h"
 
 #include "ui/dialogs/ProgressDialog.h"
-#include "ui/dialogs/LoginDialog.h"
 #include "ui/dialogs/MSALoginDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/SkinUploadDialog.h"
@@ -111,18 +110,6 @@ void AccountListPage::listChanged()
 
 void AccountListPage::on_actionAddMicrosoft_triggered()
 {
-    if(BuildConfig.BUILD_PLATFORM == "osx64") {
-        CustomMessageBox::selectable(
-            this,
-            tr("Microsoft Accounts not available"),
-            tr(
-                "Microsoft accounts are only usable on macOS 10.13 or newer, with fully updated MultiMC.\n\n"
-                "Please update both your operating system and MultiMC."
-            ),
-            QMessageBox::Warning
-        )->exec();
-        return;
-    }
     MinecraftAccountPtr account = MSALoginDialog::newAccount(
         this,
         tr("Please enter your Mojang account email and password to add your account.")

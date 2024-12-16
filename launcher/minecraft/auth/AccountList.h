@@ -37,11 +37,8 @@ public:
 
     enum VListColumns
     {
-        // TODO: Add icon column.
         NameColumn = 0,
         ProfileNameColumn,
-        MigrationColumn,
-        TypeColumn,
         StatusColumn,
 
         NUM_COLUMNS
@@ -82,7 +79,6 @@ public:
     void setListFilePath(QString path, bool autosave = false);
 
     bool loadList();
-    bool loadV2(QJsonObject &root);
     bool loadV3(QJsonObject &root);
     bool saveList();
 
