@@ -101,16 +101,16 @@ set(Launcher_IMGUR_CLIENT_ID "5b97b0713fba4a3" CACHE STRING "Client ID you can g
 set(Launcher_ANALYTICS_ID "UA-87731965-2" CACHE STRING "ID you can get from Google analytics")
 
 # Bug tracker URL
-set(Launcher_BUG_TRACKER_URL "" CACHE STRING "URL for the bug tracker.")
+set(Launcher_BUG_TRACKER_URL "https://github.com/MultiMC/Launcher/issues" CACHE STRING "URL for the bug tracker.")
 
 # Discord URL
-set(Launcher_DISCORD_URL "" CACHE STRING "URL for the Discord guild.")
+set(Launcher_DISCORD_URL "https://discord.gg/multimc" CACHE STRING "URL for the Discord guild.")
 
 # Subreddit URL
-set(Launcher_SUBREDDIT_URL "" CACHE STRING "URL for the subreddit.")
+set(Launcher_SUBREDDIT_URL "https://www.reddit.com/r/MultiMC/" CACHE STRING "URL for the subreddit.")
 
 # Patreon URL
-set(Launcher_PATREON_URL "" CACHE STRING "URL for the patreon.")
+set(Launcher_PATREON_URL "https://www.patreon.com/multimc" CACHE STRING "URL for the patreon.")
 
 # Use the secrets library or a public stub?
 option(Launcher_EMBED_SECRETS "Determines whether to embed secrets. Secrets are separate and non-public." OFF)
