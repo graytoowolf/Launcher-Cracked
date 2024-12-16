@@ -109,6 +109,9 @@ set(Launcher_DISCORD_URL "" CACHE STRING "URL for the Discord guild.")
 # Subreddit URL
 set(Launcher_SUBREDDIT_URL "" CACHE STRING "URL for the subreddit.")
 
+# Patreon URL
+set(Launcher_PATREON_URL "" CACHE STRING "URL for the patreon.")
+
 # Use the secrets library or a public stub?
 option(Launcher_EMBED_SECRETS "Determines whether to embed secrets. Secrets are separate and non-public." OFF)
 
