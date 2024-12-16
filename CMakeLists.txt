@@ -88,33 +88,6 @@ set(Launcher_UPDATER_BASE "" CACHE STRING "Base URL for the updater.")
 # Notification URL
 set(Launcher_NOTIFICATION_URL "" CACHE STRING "URL for checking for notifications.")
 
-# The metadata server
-set(Launcher_META_URL "https://meta.multimc.org/v1/" CACHE STRING "URL to fetch Launcher's meta files from.")
-
-# paste.ee API key
-set(Launcher_PASTE_EE_API_KEY "utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ" CACHE STRING "API key you can get from paste.ee when you register an account")
-
-# Imgur API Client ID
-set(Launcher_IMGUR_CLIENT_ID "5b97b0713fba4a3" CACHE STRING "Client ID you can get from Imgur when you register an application")
-
-# Google analytics ID
-set(Launcher_ANALYTICS_ID "UA-87731965-2" CACHE STRING "ID you can get from Google analytics")
-
-# Bug tracker URL
-set(Launcher_BUG_TRACKER_URL "https://github.com/MultiMC/Launcher/issues" CACHE STRING "URL for the bug tracker.")
-
-# Discord URL
-set(Launcher_DISCORD_URL "https://discord.gg/multimc" CACHE STRING "URL for the Discord guild.")
-
-# Subreddit URL
-set(Launcher_SUBREDDIT_URL "https://www.reddit.com/r/MultiMC/" CACHE STRING "URL for the subreddit.")
-
-# Patreon URL
-set(Launcher_PATREON_URL "https://www.patreon.com/multimc" CACHE STRING "URL for the patreon.")
-
-# Use the secrets library or a public stub?
-option(Launcher_EMBED_SECRETS "Determines whether to embed secrets. Secrets are separate and non-public." OFF)
-
 #### Check the current Git commit and branch
 include(GetGitRevisionDescription)
 get_git_head_revision(Launcher_GIT_REFSPEC Launcher_GIT_COMMIT)
@@ -151,13 +124,31 @@ if (Qt5_POSITION_INDEPENDENT_CODE)
     SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
-####################################### Secrets #######################################
+####################################### Branding #######################################
 
-if(Launcher_EMBED_SECRETS)
-    add_subdirectory(secrets)
-else()
-    add_subdirectory(notsecrets)
-endif()
+set(Launcher_CommonName "MultiMC")
+
+set(Launcher_Copyright "MultiMC Contributors")
+set(Launcher_Domain "multimc.org")
+set(Launcher_Name "${Launcher_CommonName}")
+set(Launcher_DisplayName "${Launcher_CommonName} 5")
+set(Launcher_UserAgent "${Launcher_CommonName}/5.0")
+set(Launcher_ConfigFile "multimc.cfg")
+set(Launcher_Git "https://github.com/MultiMC/Launcher")
+
+set(Launcher_Branding_ICNS "${PROJECT_SOURCE_DIR}/branding/${Launcher_CommonName}.icns")
+set(Launcher_Branding_WindowsRC "${PROJECT_SOURCE_DIR}/branding/multimc.rc")
+set(Launcher_Branding_LogoQRC "${PROJECT_SOURCE_DIR}/branding/logo.qrc")
+
+set(Launcher_META_URL "https://meta.multimc.org/v1/")
+set(Launcher_PASTE_EE_API_KEY "utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ")
+set(Launcher_MSA_CLIENT_ID "499546d9-bbfe-4b9b-a086-eb3d75afb78f")
+set(Launcher_IMGUR_CLIENT_ID "5b97b0713fba4a3")
+set(Launcher_ANALYTICS_ID "UA-87731965-2")
+set(Launcher_BUG_TRACKER_URL "https://github.com/MultiMC/Launcher/issues")
+set(Launcher_DISCORD_URL "https://discord.gg/multimc")
+set(Launcher_SUBREDDIT_URL "https://www.reddit.com/r/MultiMC/")
+set(Launcher_PATREON_URL "https://www.patreon.com/multimc")
 
 ####################################### Install layout #######################################
 
@@ -199,7 +190,7 @@ if(Launcher_LAYOUT_REAL STREQUAL "mac-bundle")
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.${Launcher_VERSION_HOTFIX}.${Launcher_VERSION_BUILD}")
     set(MACOSX_BUNDLE_LONG_VERSION_STRING "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.${Launcher_VERSION_HOTFIX}.${Launcher_VERSION_BUILD}")
     set(MACOSX_BUNDLE_ICON_FILE ${Launcher_Name}.icns)
-    set(MACOSX_BUNDLE_COPYRIGHT "Copyright 2015-2023 ${Launcher_Copyright}")
+    set(MACOSX_BUNDLE_COPYRIGHT "Copyright 2015-2024 ${Launcher_Copyright}")
 
     # directories to look for dependencies
     set(DIRS ${QT_LIBS_DIR} ${QT_LIBEXECS_DIR} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

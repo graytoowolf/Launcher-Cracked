@@ -82,6 +82,12 @@ public:
     QString PASTE_EE_KEY;
 
     /**
+     * API key from registering an application in Microsoft Azure
+     * See: https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade
+     */
+    QString MSA_CLIENT_ID;
+
+    /**
      * Client ID you can get from Imgur when you register an application
      */
     QString IMGUR_CLIENT_ID;

@@ -45,6 +45,7 @@ Config::Config()
     NEWS_URL = "@Launcher_NEWS_URL@";
     NEWS_RSS_URL = "@Launcher_NEWS_RSS_URL@";
     PASTE_EE_KEY = "@Launcher_PASTE_EE_API_KEY@";
+    MSA_CLIENT_ID = "@Launcher_MSA_CLIENT_ID@";
     IMGUR_CLIENT_ID = "@Launcher_IMGUR_CLIENT_ID@";
     META_URL = "@Launcher_META_URL@";
 

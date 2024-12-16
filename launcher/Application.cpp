@@ -76,9 +76,6 @@
 #include <ganalytics.h>
 #include <sys.h>
 
-#include <Secrets.h>
-
-
 #if defined Q_OS_WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -1648,7 +1645,7 @@ void Application::on_windowClose()
 }
 
 QString Application::msaClientId() const {
-    return Secrets::getMSAClientID('-');
+    return BuildConfig.MSA_CLIENT_ID;
 }
 
 void Application::updateProxySettings(QString proxyTypeStr, QString addr, int port, QString user, QString password)

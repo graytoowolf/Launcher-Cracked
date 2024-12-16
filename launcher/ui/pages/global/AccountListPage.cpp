@@ -37,8 +37,6 @@
 
 #include "BuildConfig.h"
 
-#include "Secrets.h"
-
 AccountListPage::AccountListPage(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::AccountListPage)
 {
@@ -74,7 +72,7 @@ AccountListPage::AccountListPage(QWidget *parent)
     updateButtonStates();
 
     // Xbox authentication won't work without a client identifier, so disable the button if it is missing
-    ui->actionAddMicrosoft->setVisible(Secrets::hasMSAClientID());
+    ui->actionAddMicrosoft->setVisible(!BuildConfig.MSA_CLIENT_ID.isEmpty());
 }
 
 AccountListPage::~AccountListPage()
@@ -109,22 +107,6 @@ QMenu * AccountListPage::createPopupMenu()
 void AccountListPage::listChanged()
 {
     updateButtonStates();
-}
-
-void AccountListPage::on_actionAddMojang_triggered()
-{
-    MinecraftAccountPtr account = LoginDialog::newAccount(
-        this,
-        tr("Please enter your Mojang account email and password to add your account.")
-    );
-
-    if (account)
-    {
-        m_accounts->addAccount(account);
-        if (m_accounts->count() == 1) {
-            m_accounts->setDefaultAccount(account);
-        }
-    }
 }
 
 void AccountListPage::on_actionAddMicrosoft_triggered()

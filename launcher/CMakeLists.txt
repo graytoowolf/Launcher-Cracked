@@ -598,7 +598,7 @@ SET(LAUNCHER_SOURCES
     resources/iOS/iOS.qrc
     resources/flat/flat.qrc
     resources/documents/documents.qrc
-    ../${Launcher_Branding_LogoQRC}
+    ${Launcher_Branding_LogoQRC}
 
     # Icons
     icons/MMCIcon.h
@@ -902,7 +902,7 @@ qt5_add_resources(LAUNCHER_RESOURCES
     resources/iOS/iOS.qrc
     resources/flat/flat.qrc
     resources/documents/documents.qrc
-    ../${Launcher_Branding_LogoQRC}
+    ${Launcher_Branding_LogoQRC}
 )
 
 ######## Windows resource files ########
@@ -938,8 +938,6 @@ target_link_libraries(Launcher_logic
     LocalPeer
     ganalytics
 )
-
-target_link_libraries(Launcher_logic secrets)
 
 add_executable(${Launcher_Name} MACOSX_BUNDLE WIN32 main.cpp ${LAUNCHER_RCS})
 target_link_libraries(${Launcher_Name} Launcher_logic)
