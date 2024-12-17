@@ -768,6 +768,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/NewInstanceDialog.h
     ui/dialogs/NotificationDialog.cpp
     ui/dialogs/NotificationDialog.h
+    ui/dialogs/OfflineNameDialog.cpp
+    ui/dialogs/OfflineNameDialog.h
     ui/pagedialog/PageDialog.cpp
     ui/pagedialog/PageDialog.h
     ui/dialogs/ProgressDialog.cpp

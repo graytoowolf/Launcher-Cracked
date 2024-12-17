@@ -400,7 +400,7 @@ bool AccountList::loadList()
 {
     if (m_listFilePath.isEmpty())
     {
-        qCritical() << "Can't load Mojang account list. No file path given and no default set.";
+        qCritical() << "Can't load account list. No file path given and no default set.";
         return false;
     }
 
@@ -492,7 +492,7 @@ bool AccountList::saveList()
 {
     if (m_listFilePath.isEmpty())
     {
-        qCritical() << "Can't save Mojang account list. No file path given and no default set.";
+        qCritical() << "Can't save account list. No file path given and no default set.";
         return false;
     }
 
