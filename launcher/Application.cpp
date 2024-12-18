@@ -849,7 +849,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
     {
 
         auto *authlib_netJob = new NetJob("authlib-injector", network());
-        authlib_netJob->addNetAction(Net::Download::makeByteArray(QUrl(BuildConfig.authlib_injector), &authlib_response));
+        authlib_netJob->addNetAction(Net::Download::makeByteArray(QUrl(BuildConfig.AUTHLIB_INJECTOR_URL), &authlib_response));
         authlib_filesNetJob = authlib_netJob;
         authlib_filesNetJob->start();
         QObject::connect(authlib_netJob, &NetJob::succeeded, this, &Application::requestFinished);
@@ -858,7 +858,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
     //获取下载源
     {
         auto *netJob = new NetJob("Acquire download source", network());
-        netJob->addNetAction(Net::Download::makeByteArray(QUrl("https://mmc.mcpeau.com/source.json"), &response));
+        netJob->addNetAction(Net::Download::makeByteArray(QUrl(BuildConfig.SOURCE_URL), &response));
         m_filesNetJob = netJob;
         m_filesNetJob->start();
         QObject::connect(netJob, &NetJob::succeeded, this, &Application::sourceFinished);
@@ -1677,7 +1677,7 @@ QString Application::msaClientId() const {
 }
 
 QString Application::curseAPIKey() const {
-    return Secrets::getCurseAPIKey();
+    return BuildConfig.CURSE_API_KEY;
 }
 
 void Application::updateProxySettings(QString proxyTypeStr, QString addr, int port, QString user, QString password)

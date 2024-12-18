@@ -85,6 +85,8 @@ public:
      */
     QString MSA_CLIENT_ID;
 
+    QString CURSE_API_KEY;
+
     /**
      * Client ID you can get from Imgur when you register an application
      */
@@ -110,7 +112,9 @@ public:
     QString FMLLIBS_BASE_URL = "https://files.multimc.org/fmllibs/";
     QString TRANSLATIONS_BASE_URL = "https://mmc.mcpeau.com/translations/";
 
-    QString authlib_injector = "https://authlib-injector.yushi.moe/artifact/latest.json";
+    QString AUTHLIB_INJECTOR_URL = "https://authlib-injector.yushi.moe/artifact/latest.json";
+
+    QString SOURCE_URL = "https://mmc.mcpeau.com/source.json"
 
     QString MODPACKSCH_API_BASE_URL = "https://api.modpacks.ch/";
 

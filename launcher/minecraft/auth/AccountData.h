@@ -63,6 +63,16 @@ struct AccountData {
     //! Yggdrasil access token, as passed to the game.
     QString accessToken() const;
 
+    //! Only valid for Mojang accounts. MSA does not preserve this information
+    QString userName() const;
+
+    //! Only valid for Mojang accounts.
+    QString clientToken() const;
+    void setClientToken(QString clientToken);
+    void invalidateClientToken();
+    void generateClientTokenIfMissing();
+
+
     QString yggurl() const;
 
     QString profileId() const;

@@ -241,13 +241,9 @@ void LaunchController::login() {
                     auto m_profiletype = m_accountToUse->typeString();
                     auto m_yggurl = m_accountToUse->yggurl();
                     accounts->removeAccount(accounts->index(accounts->findAccountByProfileId(m_accountToUse)));
-                    accounts->removeAccount(accounts->index(accounts->findAccountByProfileId(m_accountToUse->profileId())));
                     MinecraftAccountPtr newAccount = nullptr;
                     if (m_profiletype == "msa") {
-                        newAccount = MSALoginDialog::newAccount(
-                                m_parentWidget,
-                                tr("Please enter your Mojang account email and password to add your account.")
-                        );
+                        newAccount = MSALoginDialog::newAccount(m_parentWidget);
                     }
                     else if(m_profiletype == "bs"){
                         newAccount = BsLoginDialog::newAccount(

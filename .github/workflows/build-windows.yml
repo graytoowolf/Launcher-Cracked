@@ -105,9 +105,6 @@ jobs:
            -DCMAKE_INSTALL_PREFIX:PATH=D:/MiniSkins/install  ^
            -DLauncher_UPDATER_BASE=https://mmc.mcpeau.com/ ^
            -DLauncher_VERSION_BUILD=%GITHUB_RUN_NUMBER% ^
-           -DLauncher_PASTE_EE_API_KEY:STRING=ajtc1fWcjZqLl0jWJ9orxvAs0em2VyeTYr8eX2NrA ^
-           -DLauncher_IMGUR_CLIENT_ID:STRING=d7340b1158a28c6 ^
-           -DLauncher_ANALYTICS_ID:STRING=UA-179508337-1 ^
            -DLauncher_BUILD_PLATFORM=win32 ^
            -G "MinGW Makefiles" ^
            ..
@@ -216,9 +213,6 @@ jobs:
            -DCMAKE_BUILD_TYPE=Release \
            -DLauncher_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json \
            -DCMAKE_INSTALL_PREFIX:PATH=/home/runner/MiniSkins/MiniSkins \
-           -DLauncher_PASTE_EE_API_KEY:STRING=ajtc1fWcjZqLl0jWJ9orxvAs0em2VyeTYr8eX2NrA \
-           -DLauncher_IMGUR_CLIENT_ID:STRING=d7340b1158a28c6 \
-           -DLauncher_ANALYTICS_ID:STRING=UA-179508337-1 \
            -DLauncher_LAYOUT=lin-nodeps \
            -DLauncher_BUILD_PLATFORM=lin64 \
            $GITHUB_WORKSPACE
@@ -280,9 +274,6 @@ jobs:
           -DCMAKE_INSTALL_PREFIX:PATH=/Users/runner/work/MiniSkins/build/dist \
           -DCMAKE_PREFIX_PATH="$(brew --prefix qt@5);$(brew --prefix qt@5)/lib/cmake/Qt5Core;$(brew --prefix qt@5)/lib/cmake/Qt5Widgets;$(brew --prefix qt@5)/lib/cmake/Qt5Concurrent;$(brew --prefix qt@5)/lib/cmake/Qt5Network;$(brew --prefix qt@5)/lib/cmake/Qt5Test;$(brew --prefix qt@5)/lib/cmake/Qt5Xml" \
           -DQt5_DIR="$(brew --prefix qt@5)" \
-          -DLauncher_PASTE_EE_API_KEY:STRING=ajtc1fWcjZqLl0jWJ9orxvAs0em2VyeTYr8eX2NrA \
-          -DLauncher_IMGUR_CLIENT_ID:STRING=d7340b1158a28c6 \
-          -DLauncher_ANALYTICS_ID:STRING=UA-179508337-1 \
           -DLauncher_BUILD_PLATFORM=osx64-5.15.2 \
           -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
           $GITHUB_WORKSPACE

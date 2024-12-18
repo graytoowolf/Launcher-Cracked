@@ -126,29 +126,30 @@ endif()
 
 ####################################### Branding #######################################
 
-set(Launcher_CommonName "MultiMC")
+set(Launcher_CommonName "MiniSkins")
 
-set(Launcher_Copyright "MultiMC Contributors")
-set(Launcher_Domain "multimc.org")
+set(Launcher_Copyright "MiniSkins Contributors")
+set(Launcher_Domain "www.mcpeau.com")
 set(Launcher_Name "${Launcher_CommonName}")
 set(Launcher_DisplayName "${Launcher_CommonName} 5")
 set(Launcher_UserAgent "${Launcher_CommonName}/5.0")
-set(Launcher_ConfigFile "multimc.cfg")
-set(Launcher_Git "https://github.com/MultiMC/Launcher")
+set(Launcher_ConfigFile "MiniSkins.cfg")
+set(Launcher_Git "https://github.com/graytoowolf/MiniSkins")
 
 set(Launcher_Branding_ICNS "${PROJECT_SOURCE_DIR}/branding/${Launcher_CommonName}.icns")
-set(Launcher_Branding_WindowsRC "${PROJECT_SOURCE_DIR}/branding/multimc.rc")
+set(Launcher_Branding_WindowsRC "${PROJECT_SOURCE_DIR}/branding/${Launcher_CommonName}.rc")
 set(Launcher_Branding_LogoQRC "${PROJECT_SOURCE_DIR}/branding/logo.qrc")
 
 set(Launcher_META_URL "https://meta.multimc.org/v1/")
 set(Launcher_PASTE_EE_API_KEY "utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ")
-set(Launcher_MSA_CLIENT_ID "499546d9-bbfe-4b9b-a086-eb3d75afb78f")
-set(Launcher_IMGUR_CLIENT_ID "5b97b0713fba4a3")
-set(Launcher_ANALYTICS_ID "UA-87731965-2")
-set(Launcher_BUG_TRACKER_URL "https://github.com/MultiMC/Launcher/issues")
-set(Launcher_DISCORD_URL "https://discord.gg/multimc")
-set(Launcher_SUBREDDIT_URL "https://www.reddit.com/r/MultiMC/")
-set(Launcher_PATREON_URL "https://www.patreon.com/multimc")
+set(Launcher_MSA_CLIENT_ID "b1d72203-d142-4d7e-929a-aae9c27b2c7b")
+set(Launcher_CURSE_API_KEY "$2a$10$bL4bIL5pUWqfcO7KQtnMReakwtfHbNKh6v1uTpKlzhwoueEJQnPnm")
+set(Launcher_IMGUR_CLIENT_ID "d7340b1158a28c6")
+set(Launcher_ANALYTICS_ID "UA-179508337-1")
+set(Launcher_BUG_TRACKER_URL "https://github.com/graytoowolf/MiniSkins/issues")
+set(Launcher_DISCORD_URL "")
+set(Launcher_SUBREDDIT_URL "")
+set(Launcher_PATREON_URL "")
 
 ####################################### Install layout #######################################
 
