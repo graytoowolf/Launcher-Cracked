@@ -247,71 +247,6 @@ bool entitlementFromJSONV3(const QJsonObject &parent, MinecraftEntitlement & out
 
 }
 
-bool AccountData::resumeStateFromV2(QJsonObject data) {
-    // The JSON object must at least have a username for it to be valid.
-    if (!data.value("username").isString())
-    {
-        qCritical() << "Can't load Mojang account info from JSON object. Username field is missing or of the wrong type.";
-        return false;
-    }
-
-    QString userName = data.value("username").toString("");
-    QString clientToken = data.value("clientToken").toString("");
-    QString accessToken = data.value("accessToken").toString("");
-
-    QJsonArray profileArray = data.value("profiles").toArray();
-    if (profileArray.size() < 1)
-    {
-        qCritical() << "Can't load Mojang account with username \"" << userName << "\". No profiles found.";
-        return false;
-    }
-
-    struct AccountProfile
-    {
-        QString id;
-        QString name;
-        bool legacy;
-    };
-
-    QList<AccountProfile> profiles;
-    int currentProfileIndex = 0;
-    int index = -1;
-    QString currentProfile = data.value("activeProfile").toString("");
-    for (QJsonValue profileVal : profileArray)
-    {
-        index++;
-        QJsonObject profileObject = profileVal.toObject();
-        QString id = profileObject.value("id").toString("");
-        QString name = profileObject.value("name").toString("");
-        bool legacy = profileObject.value("legacy").toBool(false);
-        if (id.isEmpty() || name.isEmpty())
-        {
-            qWarning() << "Unable to load a profile" << name << "because it was missing an ID or a name.";
-            continue;
-        }
-        if(id == currentProfile) {
-            currentProfileIndex = index;
-        }
-        profiles.append({id, name, legacy});
-    }
-    auto & profile = profiles[currentProfileIndex];
-
-    type = AccountType::Mojang;
-    legacy = profile.legacy;
-
-    minecraftProfile.id = profile.id;
-    minecraftProfile.name = profile.name;
-    minecraftProfile.validity = Katabasis::Validity::Assumed;
-
-    yggdrasilToken.token = accessToken;
-    yggdrasilToken.extra["clientToken"] = clientToken;
-    yggdrasilToken.extra["userName"] = userName;
-    yggdrasilToken.validity = Katabasis::Validity::Assumed;
-
-    validity_ = minecraftProfile.validity;
-    return true;
-}
-
 bool AccountData::resumeStateFromV3(QJsonObject data) {
     auto typeV = data.value("type");
     if(!typeV.isString()) {
@@ -321,8 +256,6 @@ bool AccountData::resumeStateFromV3(QJsonObject data) {
     auto typeS = typeV.toString();
     if(typeS == "MSA") {
         type = AccountType::MSA;
-    } else if (typeS == "Mojang") {
-        type = AccountType::Mojang;
     } else if (typeS == "Bs") {
         type = AccountType::Bs;
     } else {
@@ -330,11 +263,6 @@ bool AccountData::resumeStateFromV3(QJsonObject data) {
         return false;
     }
 
-    if(type == AccountType::Mojang) {
-        legacy = data.value("legacy").toBool(false);
-        canMigrateToMSA = data.value("canMigrateToMSA").toBool(false);
-        mustMigrateToMSA = data.value("mustMigrateToMSA").toBool(false);
-    }
     if(type == AccountType::Bs) {
         legacy = data.value("legacy").toBool(false);
         canMigrateToMSA = data.value("canMigrateToMSA").toBool(false);
@@ -426,19 +354,7 @@ bool AccountData::resumeStateFromV4(QJsonObject data) {
 }
 QJsonObject AccountData::saveState() const {
     QJsonObject output;
-    if(type == AccountType::Mojang) {
-        output["type"] = "Mojang";
-        if(legacy) {
-            output["legacy"] = true;
-        }
-        if(canMigrateToMSA) {
-            output["canMigrateToMSA"] = true;
-        }
-        if(mustMigrateToMSA) {
-            output["mustMigrateToMSA"] = true;
-        }
-    }
-    else if (type == AccountType::MSA) {
+    if (type == AccountType::MSA) {
         output["type"] = "MSA";
         tokenToJSONV3(output, msaToken, "msa");
         tokenToJSONV3(output, userToken, "utoken");
@@ -518,9 +434,6 @@ QString AccountData::profileName() const {
 
 QString AccountData::accountDisplayString() const {
     switch(type) {
-        case AccountType::Mojang: {
-            return userName();
-        }
         case AccountType::Bs: {
         return userName();
         }

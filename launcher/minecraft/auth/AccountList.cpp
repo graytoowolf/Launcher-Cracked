@@ -324,18 +324,6 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
                 return account->profileName();
             }
 
-//            case MigrationColumn: {
-//                if(account->isMSA()) {
-//                    return tr("N/A", "Can Migrate?");
-//                }
-//                if (account->canMigrate()) {
-//                    return tr("Yes", "Can Migrate?");
-//                }
-//                else {
-//                    return tr("No", "Can Migrate?");
-//                }
-//            }
-
             default:
                 return QVariant();
             }
@@ -371,8 +359,6 @@ QVariant AccountList::headerData(int section, Qt::Orientation orientation, int r
             return tr("platform");
         case StatusColumn:
             return tr("Status");
-//        case MigrationColumn:
-//            return tr("Can Migrate?");
         case ProfileNameColumn:
             return tr("Profile");
         default:
@@ -388,8 +374,6 @@ QVariant AccountList::headerData(int section, Qt::Orientation orientation, int r
             return tr("The platform of the account.");
         case StatusColumn:
             return tr("Current status of the account.");
-        // case MigrationColumn:
-        //     return tr("Can this account migrate to Microsoft account?");
         case ProfileNameColumn:
             return tr("Name of the Minecraft profile associated with the account.");
         default:
@@ -446,7 +430,7 @@ bool AccountList::loadList()
 {
     if (m_listFilePath.isEmpty())
     {
-        qCritical() << "Can't load Mojang account list. No file path given and no default set.";
+        qCritical() << "Can't load account list. No file path given and no default set.";
         return false;
     }
 
@@ -488,10 +472,6 @@ bool AccountList::loadList()
     // Make sure the format version matches.
     auto listVersion = root.value("formatVersion").toVariant().toInt();
     switch(listVersion) {
-        case AccountListVersion::MojangOnly: {
-            return loadV2(root);
-        }
-        break;
         case AccountListVersion::MojangMSA: {
             return loadV3(root);
         }
@@ -510,38 +490,7 @@ bool AccountList::loadList()
     }
 }
 
-bool AccountList::loadV2(QJsonObject& root) {
-    beginResetModel();
-    auto defaultUserName = root.value("activeAccount").toString("");
-    QJsonArray accounts = root.value("accounts").toArray();
-    for (QJsonValue accountVal : accounts)
-    {
-        QJsonObject accountObj = accountVal.toObject();
-        MinecraftAccountPtr account = MinecraftAccount::loadFromJsonV2(accountObj);
-        if (account.get() != nullptr)
-        {
-            auto profileId = account->profileId();
-            if(!profileId.size()) {
-                continue;
-            }
-            if(findAccountByProfileId(account) != -1) {
-                continue;
-            }
-            connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
-            connect(account.get(), &MinecraftAccount::activityChanged, this, &AccountList::accountActivityChanged);
-            m_accounts.append(account);
-            if (defaultUserName.size() && account->mojangUserName() == defaultUserName) {
-                m_defaultAccount = account;
-            }
-        }
-        else
-        {
-            qWarning() << "Failed to load an account.";
-        }
-    }
-    endResetModel();
-    return true;
-}
+
 bool AccountList::loadV4(QJsonObject& root) {
     beginResetModel();
     auto defaultUserName = root.value("activeAccount").toString("");
@@ -610,7 +559,7 @@ bool AccountList::saveList()
 {
     if (m_listFilePath.isEmpty())
     {
-        qCritical() << "Can't save Mojang account list. No file path given and no default set.";
+        qCritical() << "Can't save account list. No file path given and no default set.";
         return false;
     }
 

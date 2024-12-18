@@ -4,6 +4,7 @@
 #include <QHttpMultiPart>
 
 #include "Application.h"
+#include "BuildConfig.h"
 
 SkinDelete::SkinDelete(QObject *parent, QString token)
     : Task(parent), m_token(token)
@@ -12,7 +13,7 @@ SkinDelete::SkinDelete(QObject *parent, QString token)
 
 void SkinDelete::executeTask()
 {
-    QNetworkRequest request(QUrl("https://api.minecraftservices.com/minecraft/profile/skins/active"));
+    QNetworkRequest request(QString("%1/minecraft/profile/skins/active").arg(BuildConfig.API_BASE));
     request.setRawHeader("Authorization", QString("Bearer %1").arg(m_token).toLocal8Bit());
     QNetworkReply *rep = APPLICATION->network()->deleteResource(request);
     m_reply = shared_qobject_ptr<QNetworkReply>(rep);

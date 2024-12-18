@@ -216,15 +216,11 @@ set(MINECRAFT_SOURCES
     minecraft/auth/MinecraftAccount.h
     minecraft/auth/Parsers.cpp
     minecraft/auth/Parsers.h
-    minecraft/auth/Yggdrasil.cpp
-    minecraft/auth/Yggdrasil.h
     minecraft/auth/BsYggdrasil.cpp
     minecraft/auth/BsYggdrasil.h
 
     minecraft/auth/flows/AuthFlow.cpp
     minecraft/auth/flows/AuthFlow.h
-    minecraft/auth/flows/Mojang.cpp
-    minecraft/auth/flows/Mojang.h
     minecraft/auth/flows/Bs.cpp
     minecraft/auth/flows/Bs.h
     minecraft/auth/flows/MSA.cpp
@@ -252,8 +248,6 @@ set(MINECRAFT_SOURCES
     minecraft/auth/steps/XboxProfileStep.h
     minecraft/auth/steps/XboxUserStep.cpp
     minecraft/auth/steps/XboxUserStep.h
-    minecraft/auth/steps/YggdrasilStep.cpp
-    minecraft/auth/steps/YggdrasilStep.h
     minecraft/auth/steps/BsYggdrasilStep.cpp
     minecraft/auth/steps/BsYggdrasilStep.h
 
@@ -630,7 +624,7 @@ SET(LAUNCHER_SOURCES
     resources/iOS/iOS.qrc
     resources/flat/flat.qrc
     resources/documents/documents.qrc
-    ../${Launcher_Branding_LogoQRC}
+    ${Launcher_Branding_LogoQRC}
 
     # Icons
     icons/MMCIcon.h
@@ -811,8 +805,6 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/ExportInstanceDialog.h
     ui/dialogs/IconPickerDialog.cpp
     ui/dialogs/IconPickerDialog.h
-    ui/dialogs/LoginDialog.cpp
-    ui/dialogs/LoginDialog.h
     ui/dialogs/BsLoginDialog.cpp
     ui/dialogs/BsLoginDialog.h
     ui/dialogs/MSALoginDialog.cpp
@@ -823,6 +815,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/NewInstanceDialog.h
     ui/dialogs/NotificationDialog.cpp
     ui/dialogs/NotificationDialog.h
+    ui/dialogs/OfflineNameDialog.cpp
+    ui/dialogs/OfflineNameDialog.h
     ui/pagedialog/PageDialog.cpp
     ui/pagedialog/PageDialog.h
     ui/dialogs/ProgressDialog.cpp
@@ -934,7 +928,6 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/dialogs/IconPickerDialog.ui
     ui/dialogs/MSALoginDialog.ui
     ui/dialogs/AboutDialog.ui
-    ui/dialogs/LoginDialog.ui
     ui/dialogs/BsLoginDialog.ui
     ui/dialogs/EditAccountDialog.ui
     ui/dialogs/CreateShortcutDialog.ui
@@ -952,12 +945,12 @@ qt5_add_resources(LAUNCHER_RESOURCES
     resources/iOS/iOS.qrc
     resources/flat/flat.qrc
     resources/documents/documents.qrc
-    ../${Launcher_Branding_LogoQRC}
+    ${Launcher_Branding_LogoQRC}
 )
 
 ######## Windows resource files ########
 if(WIN32)
-    set(LAUNCHER_RCS ../${Launcher_Branding_WindowsRC})
+    set(LAUNCHER_RCS ${Launcher_Branding_WindowsRC})
 endif()
 
 # Add executable
@@ -988,8 +981,6 @@ target_link_libraries(Launcher_logic
     LocalPeer
     ganalytics
 )
-
-target_link_libraries(Launcher_logic secrets)
 
 add_executable(${Launcher_Name} MACOSX_BUNDLE WIN32 main.cpp ${LAUNCHER_RCS})
 target_link_libraries(${Launcher_Name} Launcher_logic)

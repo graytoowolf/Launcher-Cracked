@@ -5,6 +5,8 @@
 #include "minecraft/auth/AuthRequest.h"
 #include "minecraft/auth/Parsers.h"
 
+#include "BuildConfig.h"
+
 ForcedMigrationStep::ForcedMigrationStep(AccountData* data) : AuthStep(data) {
 
 }
@@ -16,7 +18,7 @@ QString ForcedMigrationStep::describe() {
 }
 
 void ForcedMigrationStep::perform() {
-    auto url = QUrl("https://api.minecraftservices.com/rollout/v1/msamigrationforced");
+    auto url = QString("%1/rollout/v1/msamigrationforced").arg(BuildConfig.API_BASE);
     QNetworkRequest request = QNetworkRequest(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Authorization", QString("Bearer %1").arg(m_data->yggdrasilToken.token).toUtf8());

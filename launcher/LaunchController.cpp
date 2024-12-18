@@ -1,6 +1,7 @@
 #include "LaunchController.h"
 #include "minecraft/auth/AccountList.h"
 #include "Application.h"
+#include "BuildConfig.h"
 
 #include "ui/MainWindow.h"
 #include "ui/InstanceWindow.h"
@@ -9,9 +10,9 @@
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui/dialogs/EditAccountDialog.h"
 #include "ui/dialogs/ProfileSetupDialog.h"
-#include "ui/dialogs/LoginDialog.h"
 #include "ui/dialogs/MSALoginDialog.h"
 #include "ui/dialogs/BsLoginDialog.h"
+#include "ui/dialogs/OfflineNameDialog.h"
 
 #include <QLineEdit>
 #include <QInputDialog>
@@ -108,20 +109,14 @@ void LaunchController::login() {
         return;
     }
 
-    // we try empty password first :)
-    QString password;
     // we loop until the user succeeds in logging in or gives up
     bool tryagain = true;
-    // the failure. the default failure.
-    const QString needLoginAgain = tr("Your account is currently not logged in. Please enter your password to log in again. <br /> <br /> This could be caused by a password change.");
-    QString failReason = needLoginAgain;
 
     while (tryagain)
     {
         m_session = std::make_shared<AuthSession>();
-        m_session->wants_online = m_online;
+        m_session->wants_online = m_userWantsOnline;
         m_accountToUse->fillSession(m_session);
-
         switch(m_accountToUse->accountState()) {
             case AccountState::Offline: {
                 m_session->wants_online = false;
@@ -132,26 +127,32 @@ void LaunchController::login() {
                     QString usedname;
                     if(m_offlineName.isEmpty()) {
                         // we ask the user for a player name
-                        bool ok = false;
                         QString lastOfflinePlayerName = APPLICATION->settings()->get("LastOfflinePlayerName").toString();
                         usedname = lastOfflinePlayerName.isEmpty() ? m_session->player_name : lastOfflinePlayerName;
-                        QString name = QInputDialog::getText(
-                            m_parentWidget,
-                            tr("Player name"),
-                            tr("Choose your offline mode player name."),
-                            QLineEdit::Normal,
-                            usedname,
-                            &ok
-                        );
-                        if (!ok)
+                        OfflineNameDialog dialog(usedname, m_parentWidget);
+                        int result = dialog.exec();
+                        if(result == OfflineNameDialog::Accepted)
+                        {
+                            usedname = dialog.textValue();
+                            APPLICATION->settings()->set("LastOfflinePlayerName", usedname);
+                        }
+                        else if (result == OfflineNameDialog::Rejected)
                         {
                             tryagain = false;
                             break;
                         }
-                        if (name.length())
+                        else if(result == OfflineNameDialog::OnlineRequested)
                         {
-                            usedname = name;
-                            APPLICATION->settings()->set("LastOfflinePlayerName", usedname);
+                            m_userWantsOnline = true;
+                            if(m_accountToUse->accountState() == AccountState::Offline)
+                            {
+                                auto task = m_accountToUse->refresh();
+                                if(task)
+                                {
+                                    task->start();
+                                }
+                            }
+                            break;
                         }
                     }
                     else {
@@ -211,7 +212,7 @@ void LaunchController::login() {
             case AccountState::Working: {
                 // refresh is in progress, we need to wait for it to finish to proceed.
                 ProgressDialog progDialog(m_parentWidget);
-                if (m_online)
+                if (m_userWantsOnline)
                 {
                     progDialog.setSkipButton(true, tr("Play Offline"));
                 }
@@ -240,21 +241,9 @@ void LaunchController::login() {
                     auto m_profiletype = m_accountToUse->typeString();
                     auto m_yggurl = m_accountToUse->yggurl();
                     accounts->removeAccount(accounts->index(accounts->findAccountByProfileId(m_accountToUse)));
+                    accounts->removeAccount(accounts->index(accounts->findAccountByProfileId(m_accountToUse->profileId())));
                     MinecraftAccountPtr newAccount = nullptr;
                     if (m_profiletype == "msa") {
-                        if(BuildConfig.BUILD_PLATFORM == "osx64") {
-                            CustomMessageBox::selectable(
-                                    m_parentWidget,
-                                    tr("Microsoft Accounts not available"),
-                                    tr(
-                                            "Microsoft accounts are only usable on macOS 10.13 or newer, with fully updated MultiMC.\n\n"
-                                            "Please update both your operating system and MultiMC."
-                                    ),
-                                    QMessageBox::Warning
-                            )->exec();
-                            emitFailed(tr("Attempted to re-login to a Microsoft account on an unsupported platform"));
-                            return;
-                        }
                         newAccount = MSALoginDialog::newAccount(
                                 m_parentWidget,
                                 tr("Please enter your Mojang account email and password to add your account.")
@@ -266,14 +255,6 @@ void LaunchController::login() {
                                 tr("Please enter your Yggdrasil account email and password to add your account."),
                                 m_accountToUse->mojangUserName(),
                                 m_yggurl
-
-                        );
-
-                    }
-                    else if(m_profiletype == "mojang"){
-                        newAccount = LoginDialog::newAccount(
-                                m_parentWidget,
-                                tr("Please enter your Mojang account email and password to add your account.")
                         );
                     }
                     if (newAccount) {
@@ -358,7 +339,7 @@ void LaunchController::launchInstance()
         online_mode = "online";
 
         // Prepend Server Status
-        QStringList servers = {"authserver.mojang.com", "session.minecraft.net", "textures.minecraft.net", "api.mojang.com"};
+        QStringList servers = {QUrl(BuildConfig.AUTH_BASE).host(), QUrl(BuildConfig.SESSION_BASE).host(), QUrl(BuildConfig.TEXTURE_BASE).host(), QUrl(BuildConfig.API_BASE).host()};
         QString resolved_servers = "";
         QHostInfo host_info;
 

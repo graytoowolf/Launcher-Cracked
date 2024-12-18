@@ -76,9 +76,6 @@
 #include <ganalytics.h>
 #include <sys.h>
 
-#include <Secrets.h>
-
-
 #if defined Q_OS_WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -123,14 +120,7 @@ namespace {
         auto info = Sys::getKernelInfo();
         switch(info.kernelType) {
         case Sys::KernelType::Darwin: {
-            if(info.kernelMajor >= 17) {
-                // macOS 10.13 or newer
-                return "osx64-5.15.2";
-            }
-            else {
-                // macOS 10.12 or older
-                return "osx64";
-            }
+            return "osx64-5.15.2";
         }
         case Sys::KernelType::Windows: {
             // FIXME: 5.15.2 is not stable on Windows, due to a large number of completely unpredictable and hard to reproduce issues
@@ -1683,7 +1673,7 @@ void Application::on_windowClose()
 }
 
 QString Application::msaClientId() const {
-    return Secrets::getMSAClientID('-');
+    return BuildConfig.MSA_CLIENT_ID;
 }
 
 QString Application::curseAPIKey() const {

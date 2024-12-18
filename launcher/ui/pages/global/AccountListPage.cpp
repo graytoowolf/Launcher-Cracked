@@ -24,7 +24,6 @@
 #include "net/NetJob.h"
 
 #include "ui/dialogs/ProgressDialog.h"
-#include "ui/dialogs/LoginDialog.h"
 #include "ui/dialogs/BsLoginDialog.h"
 #include "ui/dialogs/MSALoginDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
@@ -37,8 +36,6 @@
 #include "Application.h"
 
 #include "BuildConfig.h"
-
-#include "Secrets.h"
 
 AccountListPage::AccountListPage(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::AccountListPage)
@@ -76,7 +73,7 @@ AccountListPage::AccountListPage(QWidget *parent)
     updateButtonStates();
 
     // Xbox authentication won't work without a client identifier, so disable the button if it is missing
-    ui->actionAddMicrosoft->setVisible(Secrets::hasMSAClientID());
+    ui->actionAddMicrosoft->setVisible(!BuildConfig.MSA_CLIENT_ID.isEmpty());
 }
 
 AccountListPage::~AccountListPage()
@@ -113,41 +110,9 @@ void AccountListPage::listChanged()
     updateButtonStates();
 }
 
-void AccountListPage::on_actionAddMojang_triggered()
-{
-    MinecraftAccountPtr account = LoginDialog::newAccount(
-        this,
-        tr("Please enter your Mojang account email and password to add your account.")
-    );
-
-    if (account)
-    {
-        m_accounts->addAccount(account);
-        if (m_accounts->count() == 1) {
-            m_accounts->setDefaultAccount(account);
-        }
-    }
-}
-
 void AccountListPage::on_actionAddMicrosoft_triggered()
 {
-    if(BuildConfig.BUILD_PLATFORM == "osx64") {
-        CustomMessageBox::selectable(
-            this,
-            tr("Microsoft Accounts not available"),
-            tr(
-                "Microsoft accounts are only usable on macOS 10.13 or newer, with fully updated MultiMC.\n\n"
-                "Please update both your operating system and MultiMC."
-            ),
-            QMessageBox::Warning
-        )->exec();
-        return;
-    }
-    MinecraftAccountPtr account = MSALoginDialog::newAccount(
-        this,
-        tr("Please enter your Mojang account email and password to add your account.")
-    );
-
+    MinecraftAccountPtr account = MSALoginDialog::newAccount(this);
     if (account)
     {
         m_accounts->addAccount(account);
