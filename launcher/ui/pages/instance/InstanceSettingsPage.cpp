@@ -32,8 +32,18 @@ InstanceSettingsPage::InstanceSettingsPage(BaseInstance *inst, QWidget *parent)
     connect(APPLICATION, &Application::globalSettingsAboutToOpen, this, &InstanceSettingsPage::applySettings);
     connect(APPLICATION, &Application::globalSettingsClosed, this, &InstanceSettingsPage::loadSettings);
 
+    bool supportsQuickPlay = false;
     auto *mcInst = dynamic_cast<MinecraftInstance *>(inst);
-    if (mcInst && mcInst->getPackProfile()->getComponent("net.minecraft")->getReleaseDateTime() >= g_VersionFilterData.quickPlayBeginsDate)
+    if (mcInst)
+    {
+        auto minecraftComponent = mcInst->getPackProfile()->getComponent("net.minecraft");
+        if(minecraftComponent && minecraftComponent->getReleaseDateTime() >= g_VersionFilterData.quickPlayBeginsDate)
+        {
+            supportsQuickPlay = true;
+        }
+    }
+
+    if(supportsQuickPlay)
     {
         mcInst->worldList()->update();
         for (const auto &world : mcInst->worldList()->allWorlds())
