@@ -205,21 +205,50 @@ void ProfileSetupDialog::setupProfile(const QString &profileName) {
 namespace {
 
 struct MojangError{
-    static MojangError fromJSON(QByteArray data) {
+    static MojangError fromJSON(QByteArray data, QNetworkReply::NetworkError networkError) {
         MojangError out;
-        out.error = QString::fromUtf8(data);
-        auto doc = QJsonDocument::fromJson(data, &out.parseError);
-        auto object = doc.object();
+        out.rawError = QString::fromUtf8(data);
+        out.networkError = networkError;
 
-        out.fullyParsed = true;
-        out.fullyParsed &= Parsers::getString(object.value("path"), out.path);
-        out.fullyParsed &= Parsers::getString(object.value("error"), out.error);
-        out.fullyParsed &= Parsers::getString(object.value("errorMessage"), out.errorMessage);
+        auto doc = QJsonDocument::fromJson(data, &out.parseError);
+        if(out.parseError.error != QJsonParseError::NoError)
+        {
+            out.fullyParsed = false;
+        }
+        else
+        {
+            out.fullyParsed = true;
+            auto object = doc.object();
+            out.fullyParsed &= Parsers::getString(object.value("path"), out.path);
+            out.fullyParsed &= Parsers::getString(object.value("error"), out.error);
+            out.fullyParsed &= Parsers::getString(object.value("errorMessage"), out.errorMessage);
+        }
+
 
         return out;
     }
+    QString toString() const
+    {
+        QString outString;
+        QTextStream out(&outString);
+        out << "Network error:" << networkError << "\n";
+        if(fullyParsed)
+        {
+            out << "path: " << path << "\n";
+            out << "error: " << error << "\n";
+            out << "errorMessage: " << errorMessage << "\n";
+        }
+        else
+        {
+            out << "Mojang error failed to parse with error: " << parseError.errorString() << "\n";
+            out << "Raw contents:\n" << rawError << "\n";
+        }
+        return outString;
+    }
 
+    QNetworkReply::NetworkError networkError;
     QString rawError;
+
     QJsonParseError parseError;
     bool fullyParsed;
 
@@ -247,10 +276,11 @@ void ProfileSetupDialog::setupProfileFinished(
         accept();
     }
     else {
-        auto parsedError = MojangError::fromJSON(data);
+        auto parsedError = MojangError::fromJSON(data, error);
         ui->errorLabel->setVisible(true);
-        ui->errorLabel->setText(tr("The server returned the following error:") + "\n\n" + parsedError.errorMessage);
-        qDebug() << parsedError.rawError;
+        QString errorString = parsedError.toString();
+        ui->errorLabel->setText(tr("The server returned the following error:") + "\n\n" + errorString);
+        qWarning() << "Failed to set up player profile: " << errorString;
         auto button = ui->buttonBox->button(QDialogButtonBox::Cancel);
         button->setEnabled(true);
     }
