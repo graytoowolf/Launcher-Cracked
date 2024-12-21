@@ -74,10 +74,10 @@ Sys::Architecture Sys::systemArchitecture() {
         return Sys::Architecture(ArchitectureType::AMD64);
     }
     else if (arch == "i386") {
-        return Sys::Architecture(ArchitectureType::I386);
+        return Sys::Architecture(ArchitectureType::X86);
     }
     else if (arch == "arm64") {
-        return Sys::Architecture(ArchitectureType::ARM64);
+        return Sys::Architecture(ArchitectureType::AARCH64);
     }
     else {
         return Sys::Architecture(arch);
