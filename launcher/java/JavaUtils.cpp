@@ -122,7 +122,7 @@ QProcessEnvironment CleanEnviroment()
     return env;
 }
 
-JavaInstallPtr JavaUtils::MakeJavaPtr(QString path, QString id, QString arch)
+JavaInstallPtr JavaUtils::MakeJavaPtr(QString path, QString id, Sys::Architecture arch)
 {
     JavaInstallPtr javaVersion(new JavaInstall());
 
@@ -138,7 +138,7 @@ JavaInstallPtr JavaUtils::GetDefaultJava()
     JavaInstallPtr javaVersion(new JavaInstall());
 
     javaVersion->id = "java";
-    javaVersion->arch = "unknown";
+    javaVersion->arch = Sys::Architecture();
 #if defined(Q_OS_WIN32)
     javaVersion->path = "javaw";
 #else

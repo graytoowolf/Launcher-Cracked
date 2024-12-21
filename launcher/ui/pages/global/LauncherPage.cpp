@@ -64,11 +64,6 @@ LauncherPage::LauncherPage(QWidget *parent) : QWidget(parent), ui(new Ui::Launch
         ui->updateSettingsBox->setHidden(true);
     }
 
-    // Analytics
-    if(BuildConfig.ANALYTICS_ID.isEmpty())
-    {
-        ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->analyticsTab));
-    }
     connect(ui->fontSizeBox, SIGNAL(valueChanged(int)), SLOT(refreshFontPreview()));
     connect(ui->consoleFont, SIGNAL(currentFontChanged(QFont)), SLOT(refreshFontPreview()));
 
@@ -263,12 +258,6 @@ void LauncherPage::applySettings()
         s->set("InstSortMode", "Name");
         break;
     }
-
-    // Analytics
-    if(!BuildConfig.ANALYTICS_ID.isEmpty())
-    {
-        s->set("Analytics", ui->analyticsCheck->isChecked());
-    }
 }
 void LauncherPage::loadSettings()
 {
@@ -398,12 +387,6 @@ void LauncherPage::loadSettings()
     else
     {
         ui->sortByNameBtn->setChecked(true);
-    }
-
-    // Analytics
-    if(!BuildConfig.ANALYTICS_ID.isEmpty())
-    {
-        ui->analyticsCheck->setChecked(s->get("Analytics").toBool());
     }
 }
 
