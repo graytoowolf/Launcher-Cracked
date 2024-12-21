@@ -144,7 +144,6 @@ set(Launcher_META_URL "https://meta.multimc.org/v1/")
 set(Launcher_PASTE_EE_API_KEY "utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ")
 set(Launcher_MSA_CLIENT_ID "499546d9-bbfe-4b9b-a086-eb3d75afb78f")
 set(Launcher_IMGUR_CLIENT_ID "5b97b0713fba4a3")
-set(Launcher_ANALYTICS_ID "UA-87731965-2")
 set(Launcher_BUG_TRACKER_URL "https://github.com/MultiMC/Launcher/issues")
 set(Launcher_DISCORD_URL "https://discord.gg/multimc")
 set(Launcher_SUBREDDIT_URL "https://www.reddit.com/r/MultiMC/")
@@ -251,7 +250,6 @@ set(NBT_NAME Launcher_nbt++)
 set(NBT_DEST_DIR ${LIBRARY_DEST_DIR})
 add_subdirectory(libraries/libnbtplusplus)
 
-add_subdirectory(libraries/ganalytics) # google analytics library
 add_subdirectory(libraries/systeminfo) # system information library
 add_subdirectory(libraries/hoedown) # markdown parser
 add_subdirectory(libraries/launcher) # java based launcher part for Minecraft
@@ -261,7 +259,7 @@ add_subdirectory(libraries/quazip) # zip manipulation library
 add_subdirectory(libraries/rainbow) # Qt extension for colors
 add_subdirectory(libraries/iconfix) # fork of Qt's QIcon loader
 add_subdirectory(libraries/LocalPeer) # fork of a library from Qt solutions
-add_subdirectory(libraries/classparser) # google analytics library
+add_subdirectory(libraries/classparser) # java class file parser
 add_subdirectory(libraries/optional-bare)
 add_subdirectory(libraries/tomlc99) # toml parser
 add_subdirectory(libraries/katabasis) # An OAuth2 library that tried to do too much

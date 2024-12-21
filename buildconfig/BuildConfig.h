@@ -46,9 +46,6 @@ public:
     QString USER_AGENT_UNCACHED;
 
 
-    /// Google analytics ID
-    QString ANALYTICS_ID;
-
     /// URL for notifications
     QString NOTIFICATION_URL;
 
