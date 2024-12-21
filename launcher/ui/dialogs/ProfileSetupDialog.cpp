@@ -184,7 +184,7 @@ void ProfileSetupDialog::setupProfile(const QString &profileName) {
 
     auto token = m_accountToSetup->accessToken();
 
-    auto url = QString("%1/minecraft/profile");
+    auto url = QString("%1/minecraft/profile").arg(BuildConfig.API_BASE);
     QNetworkRequest request = QNetworkRequest(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Accept", "application/json");
