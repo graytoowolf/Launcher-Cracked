@@ -481,7 +481,7 @@ public:
         // NOTE: not added to toolbar, but used for instance context menu (right click)
         actionChangeInstIcon = TranslatedAction(MainWindow);
         actionChangeInstIcon->setObjectName(QStringLiteral("actionChangeInstIcon"));
-        actionChangeInstIcon->setIcon(QIcon(":/icons/instances/grass"));
+        actionChangeInstIcon->setIcon(QIcon(":/logo.svg"));
         actionChangeInstIcon->setIconVisibleInMenu(true);
         actionChangeInstIcon.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Change Icon"));
         actionChangeInstIcon.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Change the selected instance's icon."));
@@ -1985,7 +1985,7 @@ void MainWindow::selectionBad()
     statusBar()->clearMessage();
     ui->instanceToolBar->setEnabled(false);
     ui->renameButton->setText(tr("Rename Instance"));
-    updateInstanceToolIcon("grass");
+    updateInstanceToolIcon("logo");
 
     // ...and then see if we can enable the previously selected instance
     setSelectedInstanceById(APPLICATION->settings()->get("SelectedInstance").toString());

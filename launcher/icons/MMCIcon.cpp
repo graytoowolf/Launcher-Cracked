@@ -58,7 +58,13 @@ bool MMCIcon::has(IconType _type) const
 QIcon MMCIcon::icon() const
 {
     if (m_current_type == IconType::ToBeDeleted)
+    {
         return QIcon();
+    }
+    if(m_current_type == IconType::Builtin && m_key == "logo")
+    {
+        return QIcon(":/logo.svg");
+    }
     auto & icon = m_images[m_current_type].icon;
     if(!icon.isNull())
         return icon;
