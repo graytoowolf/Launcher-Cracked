@@ -112,7 +112,7 @@ public:
 
     QString AUTHLIB_INJECTOR_URL = "https://authlib-injector.yushi.moe/artifact/latest.json";
 
-    QString SOURCE_URL = "https://mmc.mcpeau.com/source.json"
+    QString SOURCE_URL = "https://mmc.mcpeau.com/source.json";
 
     QString MODPACKSCH_API_BASE_URL = "https://api.modpacks.ch/";
 

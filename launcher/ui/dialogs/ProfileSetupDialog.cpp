@@ -184,7 +184,7 @@ void ProfileSetupDialog::setupProfile(const QString &profileName) {
 
     auto token = m_accountToSetup->accessToken();
 
-    auto url = QString("%1/minecraft/profile");
+    auto url = QString("%1/minecraft/profile").arg(BuildConfig.API_BASE);
     QNetworkRequest request = QNetworkRequest(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Accept", "application/json");
@@ -205,27 +205,76 @@ void ProfileSetupDialog::setupProfile(const QString &profileName) {
 namespace {
 
 struct MojangError{
-    static MojangError fromJSON(QByteArray data) {
+    static MojangError fromJSON(QByteArray data, QNetworkReply::NetworkError networkError) {
         MojangError out;
-        out.error = QString::fromUtf8(data);
-        auto doc = QJsonDocument::fromJson(data, &out.parseError);
-        auto object = doc.object();
+        out.rawError = QString::fromUtf8(data);
+        out.networkError = networkError;
 
-        out.fullyParsed = true;
-        out.fullyParsed &= Parsers::getString(object.value("path"), out.path);
-        out.fullyParsed &= Parsers::getString(object.value("error"), out.error);
-        out.fullyParsed &= Parsers::getString(object.value("errorMessage"), out.errorMessage);
+        auto doc = QJsonDocument::fromJson(data, &out.parseError);
+        if(out.parseError.error != QJsonParseError::NoError)
+        {
+            out.jsonParsed = false;
+        }
+        else
+        {
+            auto object = doc.object();
+            Parsers::getString(object.value("path"), out.path);
+            QJsonValue details = object.value("details");
+            if(details.isObject())
+            {
+                QJsonObject detailsObj = details.toObject();
+                Parsers::getString(detailsObj.value("status"), out.detailsStatus);
+            }
+            Parsers::getString(object.value("error"), out.error);
+            Parsers::getString(object.value("errorMessage"), out.errorMessage);
+            out.jsonParsed = true;
+        }
+
 
         return out;
     }
+    QString toString() const
+    {
+        QString outString;
+        QTextStream out(&outString);
+        out << "Network error:" << networkError << "\n";
+        if(jsonParsed)
+        {
+            if(!path.isNull())
+            {
+                out << "path: " << path << "\n";
+            }
+            if(!error.isNull())
+            {
+                out << "error: " << error << "\n";
+            }
+            if(!errorMessage.isNull())
+            {
+                out << "errorMessage: " << errorMessage << "\n";
+            }
+            if(!detailsStatus.isNull())
+            {
+                out << "details.status: " << detailsStatus << "\n";
+            }
+        }
+        else
+        {
+            out << "Mojang error failed to parse with error: " << parseError.errorString() << "\n";
+            out << "Raw contents:\n" << rawError << "\n";
+        }
+        return outString;
+    }
 
+    QNetworkReply::NetworkError networkError;
     QString rawError;
+
     QJsonParseError parseError;
-    bool fullyParsed;
+    bool jsonParsed = false;
 
     QString path;
     QString error;
     QString errorMessage;
+    QString detailsStatus;
 };
 
 }
@@ -245,12 +294,20 @@ void ProfileSetupDialog::setupProfileFinished(
          * ... we could parse it and update the account, but let's just return back to the normal login flow instead...
          */
         accept();
+        return;
     }
     else {
-        auto parsedError = MojangError::fromJSON(data);
+        auto parsedError = MojangError::fromJSON(data, error);
+        // Apparently, this is something that can happen...
+        if(parsedError.detailsStatus == "ALREADY_REGISTERED")
+        {
+            accept();
+            return;
+        }
         ui->errorLabel->setVisible(true);
-        ui->errorLabel->setText(tr("The server returned the following error:") + "\n\n" + parsedError.errorMessage);
-        qDebug() << parsedError.rawError;
+        QString errorString = parsedError.toString();
+        ui->errorLabel->setText(tr("The server returned the following error:") + "\n\n" + errorString);
+        qWarning() << "Failed to set up player profile: " << errorString;
         auto button = ui->buttonBox->button(QDialogButtonBox::Cancel);
         button->setEnabled(true);
     }

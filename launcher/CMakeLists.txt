@@ -798,8 +798,6 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/CopyInstanceDialog.h
     ui/dialogs/CustomMessageBox.cpp
     ui/dialogs/CustomMessageBox.h
-    ui/dialogs/EditAccountDialog.cpp
-    ui/dialogs/EditAccountDialog.h
     ui/dialogs/ExportInstanceDialog.cpp
     ui/dialogs/ExportInstanceDialog.h
     ui/dialogs/IconPickerDialog.cpp
@@ -931,7 +929,6 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/dialogs/AboutDialog.ui
     ui/dialogs/BsLoginDialog.ui
     ui/dialogs/customyggdrasil.ui
-    ui/dialogs/EditAccountDialog.ui
     ui/dialogs/CreateShortcutDialog.ui
     ui/dialogs/ModrinthExportDialog.ui
 )
