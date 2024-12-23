@@ -68,7 +68,7 @@ public: /* construction */
     //! Default constructor
     explicit MinecraftAccount(QObject *parent = 0);
 
-    static MinecraftAccountPtr createBlessings(const QString &username, const QString &yggurl);
+    static MinecraftAccountPtr createBlessings(const QString &username, const QString &yggurl, const QString &yggname);
 
     static MinecraftAccountPtr createBlankMSA();
 
@@ -121,6 +121,11 @@ public: /* queries */
     QString yggurl() const
     {
         return data.yggurl();
+    }
+
+    QString yggname() const
+    {
+        return data.yggname();
     }
 
     bool isActive() const;

@@ -29,6 +29,7 @@ struct Token {
     QString token;
     QString refresh_token;
     QVariantMap extra;
+    QString yggname;
     QString yggurl;
 
     Validity validity = Validity::None;

@@ -17,6 +17,7 @@
 
 #include <QtWidgets/QDialog>
 #include <QtCore/QEventLoop>
+#include <Application.h>
 
 #include "minecraft/auth/MinecraftAccount.h"
 #include "tasks/Task.h"
@@ -54,11 +55,14 @@ protected slots:
 private slots:
     void on_regpushButton_clicked();
 
-    void onLineEditReturnPressed();
+    void updateYggSources();
+
     void onComboBoxCurrentTextChanged(const QString &text);
 
 private:
     Ui::BsLoginDialog *ui;
     MinecraftAccountPtr m_account;
     Task::Ptr m_loginTask;
+    QList<YggSource> yggSources;
+    bool isDialogOpen;
 };

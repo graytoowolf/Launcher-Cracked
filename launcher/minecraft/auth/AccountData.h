@@ -74,6 +74,7 @@ struct AccountData {
 
 
     QString yggurl() const;
+    QString yggname() const;
 
     QString profileId() const;
     QString profileName() const;

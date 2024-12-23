@@ -16,58 +16,64 @@
 #include "BsLoginDialog.h"
 #include "ui_BsLoginDialog.h"
 #include "Application.h"
+#include "ui/dialogs/customyggdrasil.h"
 
 #include "minecraft/auth/AccountTask.h"
 
 #include <QtWidgets/QPushButton>
 #include <DesktopServices.h>
 
-BsLoginDialog::BsLoginDialog(QWidget *parent) : QDialog(parent), ui(new Ui::BsLoginDialog)
+BsLoginDialog::BsLoginDialog(QWidget *parent) : QDialog(parent), ui(new Ui::BsLoginDialog), isDialogOpen(false)
 {
     ui->setupUi(this);
     ui->progressBar->setVisible(false);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    ui->yggurlcomboBox->addItem("MiniSkins", "https://www.mcpeau.com/api/yggdrasil");
-    ui->yggurlcomboBox->addItem("LittleSkin", "https://littleskin.cn/api/yggdrasil");
-    ui->yggurlcomboBox->setEditable(true);
-    ui->yggurlcomboBox->addItem(tr("Custom Yggdrasil API"));
+    updateYggSources();
 
-    QLineEdit *lineEdit = ui->yggurlcomboBox->lineEdit();
-    lineEdit->setPlaceholderText(tr("For example: https://www.mcpeau.com/api/yggdrasil"));
-
-    // 阻止comboBox默认行为
-    ui->yggurlcomboBox->setInsertPolicy(QComboBox::NoInsert);
-
-    connect(lineEdit, &QLineEdit::textChanged, this, &BsLoginDialog::onLineEditReturnPressed);
     connect(ui->yggurlcomboBox, &QComboBox::currentTextChanged, this, &BsLoginDialog::onComboBoxCurrentTextChanged);
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
 }
-void BsLoginDialog::onLineEditReturnPressed()
-{
-    QString url = ui->yggurlcomboBox->lineEdit()->text();
-    QUrl urlObj(url);
-    if (urlObj.isValid() && !urlObj.scheme().isEmpty())
-    {
-        int index = ui->yggurlcomboBox->currentIndex();
-        ui->yggurlcomboBox->setItemText(index, url);
-        ui->yggurlcomboBox->setItemData(index, url);
-    }
-}
+
 
 void BsLoginDialog::onComboBoxCurrentTextChanged(const QString &text)
 {
-    if (ui->yggurlcomboBox->currentIndex() == ui->yggurlcomboBox->count() - 1) {
-        int index = ui->yggurlcomboBox->count() - 1;
-        ui->yggurlcomboBox->insertItem(index,"");
-        ui->yggurlcomboBox->setCurrentIndex(index);
+    if (ui->yggurlcomboBox->currentIndex() == ui->yggurlcomboBox->count() - 1 && !isDialogOpen) {
+        isDialogOpen = true;
+        customyggdrasil *customDialog = new customyggdrasil(this);
+        customDialog->exec(); // 显示对话框（模态）
+        updateYggSources();
+        // 使用 QTimer 延迟设置索引
+        int index = ui->yggurlcomboBox->count() - 2;
+        ui->yggurlcomboBox->setCurrentIndex(index);  // 设置索引
+        isDialogOpen = false;
 
-        ui->yggurlcomboBox->clearEditText();
-        ui->yggurlcomboBox->setFocus();
     }
 }
+
+void BsLoginDialog::updateYggSources()
+{
+    // 获取 YggSources
+    const auto &yggSources = APPLICATION->getYggSources();
+
+    // 清空之前的项目
+    ui->yggurlcomboBox->clear();
+
+    // 遍历 yggSources，动态添加到 comboBox 中
+    QSet<QString> addedUrls;
+    for (const YggSource &source : yggSources) {
+        const QString &url = source.getUrl();
+        if (!addedUrls.contains(url)) {
+            ui->yggurlcomboBox->addItem(source.getName(), url);
+            addedUrls.insert(url);
+        }
+    }
+
+    ui->yggurlcomboBox->addItem(tr("Custom Yggdrasil API"));
+}
+
 
 BsLoginDialog::~BsLoginDialog()
 {
@@ -82,7 +88,7 @@ void BsLoginDialog::accept()
 
     // Setup the login task and start it
     m_account = MinecraftAccount::createBlessings(
-                ui->userTextBox->text(), ui->yggurlcomboBox->currentData().toString());
+                ui->userTextBox->text(), ui->yggurlcomboBox->currentData().toString(),ui->yggurlcomboBox->currentText());
     m_loginTask = m_account->bslogin(ui->passTextBox->text());
     connect(m_loginTask.get(), &Task::failed, this, &BsLoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this, &BsLoginDialog::onTaskSucceeded);

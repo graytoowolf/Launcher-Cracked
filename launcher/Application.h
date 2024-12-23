@@ -9,6 +9,7 @@
 #include <QUrl>
 #include <updater/GoUpdate.h>
 
+#include "DownloadSource.h"
 #include "net/NetJob.h"
 #include <BaseInstance.h>
 
@@ -36,22 +37,13 @@ class ITheme;
 class MCEditTool;
 
 namespace Meta {
-    class Index;
+class Index;
 }
 
 #if defined(APPLICATION)
 #undef APPLICATION
 #endif
 #define APPLICATION (static_cast<Application *>(QCoreApplication::instance()))
-class DownloadSource
-{
-public:
-    QString name;
-    QString url;
-    QString type;
-    bool proxy;
-};
-
 class Application : public QApplication
 {
     // friends for the purpose of limiting access to deprecated stuff
@@ -142,7 +134,19 @@ public:
 
     bool getconfigfile();
 
-    QList<DownloadSource> getDownloadSources() const;
+    // Getter methods
+    const QList<DownloadSource>& getDownloadSources() const;
+    const QList<YggSource>& getYggSources() const;
+
+    // Add methods
+    void addDownloadSource(const DownloadSource &source);
+    void addYggSource(const YggSource &source, int position = -1);
+
+    // Clear methods
+    void clearDownloadSources();
+    void clearYggSources();
+
+
 
     /// this is the root of the 'installation'. Used for automatic updates
     const QString &root() {
@@ -176,7 +180,7 @@ public slots:
             QuickPlayTargetPtr quickPlayTarget = nullptr,
             MinecraftAccountPtr accountToUse = nullptr,
             const QString &offlineName = QString()
-    );
+            );
     bool kill(InstancePtr instance);
 
 private slots:
@@ -234,6 +238,8 @@ private:
     Status m_status = Application::StartingUp;
 
     QList<DownloadSource> downloadSources;
+    QList<YggSource> yggSources;
+    QSet<QString> yggSourceUrls;
 
 #if defined Q_OS_WIN32
     // used on Windows to attach the standard IO streams

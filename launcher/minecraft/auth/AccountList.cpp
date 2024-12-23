@@ -16,6 +16,7 @@
 #include "AccountList.h"
 #include "AccountData.h"
 #include "AccountTask.h"
+#include "Application.h"
 
 #include <QIODevice>
 #include <QFile>
@@ -284,8 +285,7 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
                 typeStr[0] = typeStr[0].toUpper();
 
                 if (typeStr == "Bs") {
-                    QUrl yggurl = account->yggurl();
-                    typeStr = yggurl.host();
+                    typeStr = account->yggname();
                 }
 
                 return typeStr;
@@ -544,6 +544,8 @@ bool AccountList::loadV3(QJsonObject& root) {
             if(accountObj.value("active").toBool(false)) {
                 m_defaultAccount = account;
             }
+
+            APPLICATION->addYggSource(YggSource(account->yggname(), account->yggurl()));
         }
         else
         {

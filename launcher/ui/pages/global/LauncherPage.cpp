@@ -194,9 +194,9 @@ void LauncherPage::applySettings()
         break;
     }
     const DownloadSource &secondSource = sources[ui->downloadcomboBox->currentIndex()];
-    s->set("Downloadsource", secondSource.type);
-    s->set("Downloadsourceurl", secondSource.url);
-    s->set("Downloadsourceproxy",secondSource.proxy);
+    s->set("Downloadsource", secondSource.getType());
+    s->set("Downloadsourceurl", secondSource.getUrl());
+    s->set("Downloadsourceproxy",secondSource.isProxy());
 
     switch (ui->threadcomboBox->currentIndex())
     {
@@ -306,14 +306,20 @@ void LauncherPage::loadSettings()
 
     int i =0;
     auto download = s->get("Downloadsource").toString();
+    int selectedIndex = -1;
     for (const DownloadSource &source : sources)
     {
-        ui->downloadcomboBox->addItem(source.name);
-        if (source.type == download)
+        ui->downloadcomboBox->addItem(source.getName());
+        if (source.getType() == download)
         {
-            ui->downloadcomboBox->setCurrentIndex(i);
+            selectedIndex = i;
         }
         i++;
+    }
+
+    if (selectedIndex != -1)
+    {
+        ui->downloadcomboBox->setCurrentIndex(selectedIndex); // 在循环结束后一次性设置
     }
 
 

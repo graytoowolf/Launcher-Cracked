@@ -54,11 +54,12 @@ MinecraftAccountPtr MinecraftAccount::loadFromJsonV3(const QJsonObject& json) {
 }
 
 
-MinecraftAccountPtr MinecraftAccount::createBlessings(const QString &username, const QString &yggurl)
+MinecraftAccountPtr MinecraftAccount::createBlessings(const QString &username, const QString &yggurl, const QString &yggname)
 {
     MinecraftAccountPtr account = new MinecraftAccount();
     account->data.type = AccountType::Bs;
     account->data.yggdrasilToken.extra["userName"] = username;
+    account->data.yggdrasilToken.yggname = yggname;
     account->data.yggdrasilToken.yggurl = yggurl.endsWith('/') ? yggurl : yggurl + '/';
     account->data.yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegExp("[{}-]"));
     return account;

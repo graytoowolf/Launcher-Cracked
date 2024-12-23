@@ -597,6 +597,7 @@ SET(LAUNCHER_SOURCES
     # Application base
     Application.h
     Application.cpp
+    DownloadSource.cpp
     UpdateController.cpp
     UpdateController.h
     ApplicationMessage.h
@@ -805,6 +806,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/IconPickerDialog.h
     ui/dialogs/BsLoginDialog.cpp
     ui/dialogs/BsLoginDialog.h
+    ui/dialogs/customyggdrasil.cpp
+    ui/dialogs/customyggdrasil.h
     ui/dialogs/MSALoginDialog.cpp
     ui/dialogs/MSALoginDialog.h
     ui/dialogs/NewComponentDialog.cpp
@@ -927,6 +930,7 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/dialogs/MSALoginDialog.ui
     ui/dialogs/AboutDialog.ui
     ui/dialogs/BsLoginDialog.ui
+    ui/dialogs/customyggdrasil.ui
     ui/dialogs/EditAccountDialog.ui
     ui/dialogs/CreateShortcutDialog.ui
     ui/dialogs/ModrinthExportDialog.ui

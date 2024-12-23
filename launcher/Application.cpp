@@ -842,7 +842,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         QObject::connect(authlib_netJob, &NetJob::succeeded, this, &Application::requestFinished);
     }
 
-    //获取下载源
+    //获取源
     {
         auto *netJob = new NetJob("Acquire download source", network());
         netJob->addNetAction(Net::Download::makeByteArray(QUrl(BuildConfig.SOURCE_URL), &response));
@@ -1676,47 +1676,110 @@ void Application::authlibFinished()
     authlib_filesNetJob.reset();
 
 }
+// Getter methods
+const QList<DownloadSource>& Application::getDownloadSources() const { return downloadSources; }
+const QList<YggSource>& Application::getYggSources() const { return yggSources; }
+
+// Add methods
+void Application::addDownloadSource(const DownloadSource &source) { downloadSources.append(source); }
+void Application::addYggSource(const YggSource &source, int position) {
+    QString normalizedUrl = source.getUrl().trimmed(); // 去掉多余空格
+    if (normalizedUrl.endsWith('/')) {
+        normalizedUrl.chop(1); // 如果末尾有 "/"，移除它
+    }
+    // 检查 URL 是否已存在
+    if (yggSourceUrls.contains(normalizedUrl)) {
+        return; // 如果已存在，则直接返回
+    }
+    // 如果未指定插入位置，添加到末尾
+    if (position < 0 || position > yggSources.size()) {
+        yggSources.append(source);
+    } else {
+        yggSources.insert(position, source); // 指定位置插入
+    }
+
+    // 添加到列表并记录 URL
+    yggSources.append(source);
+    yggSourceUrls.insert(normalizedUrl);
+}
+
+// Clear methods
+void Application::clearDownloadSources() { downloadSources.clear(); }
+void Application::clearYggSources() { yggSources.clear(); }
+
 void Application::sourceFinished()
 {
     m_filesNetJob.reset();
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
-    if (!jsonDoc.isArray())
+    if (!jsonDoc.isObject())
     {
-        qDebug() << "JSON document is not an array";
+        qDebug() << "JSON document is not an object";
         return;
     }
 
-    QJsonArray jsonArray = jsonDoc.array();
-    for (const QJsonValue &value : jsonArray)
+    QJsonObject jsonObject = jsonDoc.object();
+
+    // Parse the "sources" array
+    if (jsonObject.contains("sources") && jsonObject["sources"].isArray())
     {
-        if (!value.isObject())
+        QJsonArray sourcesArray = jsonObject["sources"].toArray();
+        for (const QJsonValue &value : sourcesArray)
         {
-            qDebug() << "JSON value is not an object";
-            continue;
+            if (!value.isObject())
+            {
+                qDebug() << "Source entry is not an object";
+                continue;
+            }
+
+            QJsonObject obj = value.toObject();
+            DownloadSource source;
+            source.name = obj["name"].toString();
+            source.url = obj["url"].toString();
+            source.type = obj["type"].toString();
+            source.proxy = obj["proxy"].toBool();
+
+            addDownloadSource(source);
         }
-
-        QJsonObject obj = value.toObject();
-        DownloadSource source;
-        source.name = obj["name"].toString();
-        source.url = obj["url"].toString();
-        source.type = obj["type"].toString();
-        source.proxy = obj["proxy"].toBool();
-
-        downloadSources.append(source);
+    }
+    else
+    {
+        qDebug() << "No valid 'sources' array found in JSON";
     }
 
+    // Parse the "ygg" array
+    if (jsonObject.contains("ygg") && jsonObject["ygg"].isArray())
+    {
+        QJsonArray yggArray = jsonObject["ygg"].toArray();
+        int position = 0;
+        for (const QJsonValue &value : yggArray)
+        {
+            if (!value.isObject())
+            {
+                qDebug() << "Ygg entry is not an object";
+                continue;
+            }
+
+            QJsonObject obj = value.toObject();
+            YggSource ygg;
+            ygg.name = obj["name"].toString();
+            ygg.url = obj["url"].toString();
+
+            addYggSource(ygg, position);
+            position++;
+        }
+    }
+    else
+    {
+        qDebug() << "No valid 'ygg' array found in JSON";
+    }
 }
+
 
 bool Application::getconfigfile()
 {
     QFileInfo file(BuildConfig.LAUNCHER_CONFIGFILE);
     return file.isFile();
 
-}
-
-QList<DownloadSource> Application::getDownloadSources() const
-{
-    return downloadSources;
 }
 
 QString Application::getAddonId() const {

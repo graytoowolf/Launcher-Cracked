@@ -36,6 +36,10 @@ void tokenToJSONV3(QJsonObject &parent, Katabasis::Token t, const char * tokenNa
         out["yggurl"] = QJsonValue(t.yggurl);
         save = true;
     }
+    if(!t.yggname.isEmpty()) {
+        out["yggname"] = QJsonValue(t.yggname);
+        save = true;
+    }
     if(save) {
         parent[tokenName] = out;
     }
@@ -76,6 +80,10 @@ Katabasis::Token tokenFromJSONV3(const QJsonObject &parent, const char * tokenNa
     auto yggurl = tokenObject.value("yggurl");
     if(yggurl.isString()) {
         out.yggurl = yggurl.toString();
+    }
+    auto yggname = tokenObject.value("yggname");
+    if(yggname.isString()) {
+        out.yggname = yggname.toString();
     }
     return out;
 }
@@ -421,6 +429,10 @@ QString AccountData::profileId() const {
 
 QString AccountData::yggurl() const {
     return yggdrasilToken.yggurl;
+}
+
+QString AccountData::yggname() const {
+    return yggdrasilToken.yggname;
 }
 
 QString AccountData::profileName() const {
