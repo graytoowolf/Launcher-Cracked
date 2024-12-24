@@ -22,25 +22,22 @@
 #include <QUrl>
 #include <QUrlQuery>
 #include <QClipboard>
+#include <qrcode/QrCodeGenerator.h>
+#include <QDesktopServices>
 
 MSALoginDialog::MSALoginDialog(QWidget *parent) : QDialog(parent), ui(new Ui::MSALoginDialog)
 {
     ui->setupUi(this);
     ui->progressBar->setVisible(false);
-    // ui->buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
-
-    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 int MSALoginDialog::exec() {
-    setUserInputsEnabled(false);
-    ui->progressBar->setVisible(true);
-    ui->copyCodeButton->setVisible(false);
+    ui->linkButton->setVisible(false);
 
     // Setup the login task and start it
     m_account = MinecraftAccount::createBlankMSA();
     m_loginTask = m_account->loginMSA();
+    connect(ui->linkButton, &QToolButton::clicked, this, &MSALoginDialog::onButtonClicked);
     connect(m_loginTask.get(), &Task::failed, this, &MSALoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this, &MSALoginDialog::onTaskSucceeded);
     connect(m_loginTask.get(), &Task::status, this, &MSALoginDialog::onTaskStatus);
@@ -59,20 +56,25 @@ MSALoginDialog::~MSALoginDialog()
     delete ui;
 }
 
+void MSALoginDialog::onButtonClicked(bool)
+{
+    QDesktopServices::openUrl(m_codeUrl);
+}
+
+
 void MSALoginDialog::externalLoginTick() {
     m_externalLoginElapsed++;
-    ui->progressBar->setValue(m_externalLoginElapsed);
+    ui->progressBar->setValue(m_externalLoginTimeout - m_externalLoginElapsed);
     ui->progressBar->repaint();
 
     if(m_externalLoginElapsed >= m_externalLoginTimeout) {
         m_externalLoginTimer.stop();
+        close();
     }
 }
 
 
 void MSALoginDialog::showVerificationUriAndCode(const QUrl& uri, const QString& code, int expiresIn) {
-    ui->copyCodeButton->setVisible(true);
-
     m_externalLoginElapsed = 0;
     m_externalLoginTimeout = expiresIn;
 
@@ -81,29 +83,26 @@ void MSALoginDialog::showVerificationUriAndCode(const QUrl& uri, const QString& 
     m_externalLoginTimer.start();
 
     ui->progressBar->setMaximum(expiresIn);
-    ui->progressBar->setValue(m_externalLoginElapsed);
+    ui->progressBar->setValue(m_externalLoginTimeout - m_externalLoginElapsed);
+    ui->progressBar->setVisible(true);
 
-    QUrl codeUrl = QUrl(uri);
-    QUrlQuery otcQuery = QUrlQuery(codeUrl);
-    otcQuery.addQueryItem(QString("otc"), code);
-    codeUrl.setQuery(otcQuery);
+    m_codeUrl = uri;
+    m_codeUrl.setQuery(QUrlQuery({{"otc", code}}));
+    QString codeUrlString = m_codeUrl.toString();
 
-    QString urlString = uri.toString();
-    QString codeUrlString = codeUrl.toString();
+    QImage qrcode = qrcode::generateQr(codeUrlString, 300);
+    ui->linkButton->setIcon(QPixmap::fromImage(qrcode));
+    ui->linkButton->setText(codeUrlString);
+    ui->linkButton->setVisible(true);
 
-    QString linkString = QString("<a href=\"%1\">%2 in a browser and put in the code <b>%3</b></a>").arg(codeUrlString, urlString, code);
-    ui->label->setText(tr("<p>Please open up %1 to proceed with login.</p>").arg(linkString));
+    ui->label->setText(tr("You can scan the QR code and complete the login process on a separate device, or you can open the link and login on this machine."));
     m_code = code;
 }
 
 void MSALoginDialog::hideVerificationUriAndCode() {
-    ui->copyCodeButton->setVisible(false);
+    ui->linkButton->setVisible(false);
+    ui->progressBar->setVisible(false);
     m_externalLoginTimer.stop();
-}
-
-void MSALoginDialog::setUserInputsEnabled(bool enable)
-{
-    ui->buttonBox->setEnabled(enable);
 }
 
 void MSALoginDialog::onTaskFailed(const QString &reason)
@@ -121,8 +120,6 @@ void MSALoginDialog::onTaskFailed(const QString &reason)
     }
     ui->label->setText(processed);
 
-    // Re-enable user-interaction
-    setUserInputsEnabled(true);
     ui->progressBar->setVisible(false);
 }
 
@@ -151,9 +148,4 @@ MinecraftAccountPtr MSALoginDialog::newAccount(QWidget *parent)
         return dlg.m_account;
     }
     return 0;
-}
-
-void MSALoginDialog::on_copyCodeButton_clicked()
-{
-    QApplication::clipboard()->setText(m_code);
 }
