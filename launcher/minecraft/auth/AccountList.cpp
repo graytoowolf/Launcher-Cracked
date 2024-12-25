@@ -545,7 +545,11 @@ bool AccountList::loadV3(QJsonObject& root) {
                 m_defaultAccount = account;
             }
 
-            APPLICATION->addYggSource(YggSource(account->yggname(), account->yggurl()));
+            const QString yggname = account->yggname();
+            const QString yggurl = account->yggurl();
+            if (!yggname.isEmpty() && !yggurl.isEmpty()) {
+                APPLICATION->addYggSource(YggSource(yggname, yggurl));
+            }
         }
         else
         {
