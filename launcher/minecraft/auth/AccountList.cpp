@@ -26,13 +26,16 @@
 #include <QJsonParseError>
 #include <QDir>
 #include <QTimer>
+#include <QIcon>
 
 #include <QDebug>
 
+#include <Application.h>
 #include <FileSystem.h>
 #include <QSaveFile>
 
 #include <chrono>
+
 
 enum AccountListVersion {
     MojangOnly = 2,
@@ -314,6 +317,23 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
                 case NameColumn:
                     return account == m_defaultAccount ? Qt::Checked : Qt::Unchecked;
             }
+
+        case Qt::DecorationRole:
+        {
+            switch (index.column())
+            {
+                case NameColumn:
+                {
+                    QPixmap face = account->getFace();
+                    if(face.isNull())
+                    {
+                        return APPLICATION->getThemedIcon("noaccount");
+                    }
+                    return QIcon(face);
+                }
+            }
+
+        }
 
         default:
             return QVariant();
