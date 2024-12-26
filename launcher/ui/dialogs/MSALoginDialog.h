@@ -18,6 +18,7 @@
 #include <QtWidgets/QDialog>
 #include <QtCore/QEventLoop>
 #include <QTimer>
+#include <QUrl>
 
 #include "minecraft/auth/MinecraftAccount.h"
 
