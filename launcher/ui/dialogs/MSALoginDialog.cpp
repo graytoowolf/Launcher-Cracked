@@ -87,7 +87,9 @@ void MSALoginDialog::showVerificationUriAndCode(const QUrl& uri, const QString& 
     ui->progressBar->setVisible(true);
 
     m_codeUrl = uri;
-    m_codeUrl.setQuery(QUrlQuery({{"otc", code}}));
+    QUrlQuery query;
+    query.addQueryItem("otc", code);
+    m_codeUrl.setQuery(query);
     QString codeUrlString = m_codeUrl.toString();
 
     QImage qrcode = qrcode::generateQr(codeUrlString, 300);
