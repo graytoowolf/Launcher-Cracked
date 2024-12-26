@@ -2,9 +2,9 @@ name: build-windows
 
 on:
   push:
-    branches: [Bs]
+    branches: [ Bs ]
   pull_request:
-    branches: [Bs]
+    branches: [ Bs ]
   workflow_dispatch:
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
         with:
-          submodules: "recursive"
+          submodules: 'recursive'
 
       - name: Cache Qt
         uses: actions/cache@main
@@ -66,8 +66,8 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
-          distribution: "zulu"
-          java-version: "8"
+          distribution: 'zulu'
+          java-version: '8'
           architecture: x86
 
       - name: Setup zlib
@@ -162,21 +162,13 @@ jobs:
           Compress-Archive -Path D:/MiniSkins/install/* -DestinationPath D:/MiniSkins/qiniu/MiniSkins.zip
           .\mc $env:GITHUB_RUN_NUMBER
 
-      # 设置 AWS 凭证
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-          # 设置 AWS 凭证过期时间，默认为 1 小时
-          expires-in: 3600
-
-      # 将目录上传到 S3
-      - name: Sync to S3
+      - name: Upload qiniu
         run: |
           cd D:/MiniSkins/
-          aws s3 cp ./qiniu s3://${{ secrets.AWS_S3_Name }} --recursive
+          curl -L https://devtools.qiniu.com/qshell-v2.6.2-windows-386.zip -o qshell.zip
+          unzip qshell.zip
+          .\qshell account ${{ secrets.AK }} ${{ secrets.SK }} bs
+          .\qshell qupload2 --src-dir=./qiniu --bucket=${{ secrets.QINIU_Name }} --up-host=http://upload-z2.qiniu.com --overwrite=true --rescan-local=true
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@main
@@ -191,7 +183,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
         with:
-          submodules: "recursive"
+          submodules: 'recursive'
 
       - name: Install Dependencies
         run: |
@@ -249,7 +241,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
         with:
-          submodules: "recursive"
+          submodules: 'recursive'
 
       - name: Cache Dependencies
         uses: actions/cache@main
