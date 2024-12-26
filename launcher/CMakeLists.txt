@@ -790,6 +790,8 @@ SET(LAUNCHER_SOURCES
     # GUI - dialogs
     ui/dialogs/AboutDialog.cpp
     ui/dialogs/AboutDialog.h
+    ui/dialogs/AccountsDialog.cpp
+    ui/dialogs/AccountsDialog.h
     ui/dialogs/ProfileSelectDialog.cpp
     ui/dialogs/ProfileSelectDialog.h
     ui/dialogs/ProfileSetupDialog.cpp
@@ -867,6 +869,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/ProgressWidget.cpp
     ui/widgets/WideBar.h
     ui/widgets/WideBar.cpp
+    ui/widgets/WrapLabel.h
+    ui/widgets/WrapLabel.cpp
 
     # GUI - instance group view
     ui/instanceview/InstanceProxyModel.cpp
@@ -883,36 +887,57 @@ SET(LAUNCHER_SOURCES
 )
 
 qt5_wrap_ui(LAUNCHER_UI
+    ui/dialogs/AboutDialog.ui
+    ui/dialogs/AccountsDialog.ui
+    ui/dialogs/CopyInstanceDialog.ui
+    ui/dialogs/CreateShortcutDialog.ui
+    ui/dialogs/ExportInstanceDialog.ui
+    ui/dialogs/IconPickerDialog.ui
+    ui/dialogs/MSALoginDialog.ui
+    ui/dialogs/ModrinthExportDialog.ui
+    ui/dialogs/NewComponentDialog.ui
+    ui/dialogs/NewInstanceDialog.ui
+    ui/dialogs/NotificationDialog.ui
+    ui/dialogs/ProfileSelectDialog.ui
+    ui/dialogs/ProfileSetupDialog.ui
+    ui/dialogs/ProgressDialog.ui
+    ui/dialogs/SkinUploadDialog.ui
+    ui/dialogs/UpdateDialog.ui
     ui/pages/global/AccountListPage.ui
+    ui/pages/global/ExternalToolsPage.ui
     ui/pages/global/JavaPage.ui
     ui/pages/global/LauncherPage.ui
+    ui/pages/global/MinecraftPage.ui
     ui/pages/global/PasteEEPage.ui
     ui/pages/global/ProxyPage.ui
-    ui/pages/global/MinecraftPage.ui
-    ui/pages/global/ExternalToolsPage.ui
+    ui/pages/instance/GameOptionsPage.ui
+    ui/pages/instance/InstanceSettingsPage.ui
+    ui/pages/instance/LegacyUpgradePage.ui
+    ui/pages/instance/LogPage.ui
     ui/pages/instance/ModFolderPage.ui
     ui/pages/instance/NotesPage.ui
-    ui/pages/instance/LogPage.ui
-    ui/pages/instance/ServersPage.ui
-    ui/pages/instance/GameOptionsPage.ui
     ui/pages/instance/OtherLogsPage.ui
-    ui/pages/instance/InstanceSettingsPage.ui
+    ui/pages/instance/ScreenshotsPage.ui
+    ui/pages/instance/ServersPage.ui
     ui/pages/instance/VersionPage.ui
     ui/pages/instance/WorldListPage.ui
-    ui/pages/instance/LegacyUpgradePage.ui
-    ui/pages/instance/ScreenshotsPage.ui
+    ui/pages/modplatform/ImportPage.ui
+    ui/pages/modplatform/VanillaPage.ui
     ui/pages/modplatform/atlauncher/AtlOptionalModDialog.ui
     ui/pages/modplatform/atlauncher/AtlPage.ui
     ui/pages/modplatform/VanillaPage.ui
     ui/pages/modplatform/curseforge/CFPage.ui
+    ui/pages/modplatform/import_ftb/FTBAPage.ui
     ui/pages/modplatform/legacy_ftb/Page.ui
     ui/pages/modplatform/import_ftb/FTBAPage.ui
     ui/pages/modplatform/ImportPage.ui
     ui/pages/modplatform/modpacksch/FtbPage.ui
     ui/pages/modplatform/modrinth/ModrinthPage.ui
     ui/pages/modplatform/technic/TechnicPage.ui
-    ui/widgets/InstanceCardWidget.ui
     ui/widgets/CustomCommands.ui
+    ui/widgets/CustomCommands.ui
+    ui/widgets/InstanceCardWidget.ui
+    ui/widgets/InstanceCardWidget.ui
     ui/widgets/MCModInfoFrame.ui
     ui/dialogs/CopyInstanceDialog.ui
     ui/dialogs/ProfileSetupDialog.ui
@@ -931,6 +956,7 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/dialogs/customyggdrasil.ui
     ui/dialogs/CreateShortcutDialog.ui
     ui/dialogs/ModrinthExportDialog.ui
+    ui/widgets/MCModInfoFrame.ui
 )
 
 qt5_add_resources(LAUNCHER_RESOURCES
@@ -964,6 +990,7 @@ target_link_libraries(Launcher_logic
     tomlc99
     BuildConfig
     Katabasis
+    qrcode
 )
 target_link_libraries(Launcher_logic
     Qt5::Core
