@@ -87,9 +87,9 @@ void MSALoginDialog::showVerificationUriAndCode(const QUrl& uri, const QString& 
     ui->progressBar->setVisible(true);
 
     m_codeUrl = uri;
-    QUrlQuery query;
-    query.addQueryItem("otc", code);
-    m_codeUrl.setQuery(query);
+//    QUrlQuery query;
+//    query.addQueryItem("otc", code);
+//    m_codeUrl.setQuery(query);
     QString codeUrlString = m_codeUrl.toString();
 
     QImage qrcode = qrcode::generateQr(codeUrlString, 300);
@@ -97,7 +97,11 @@ void MSALoginDialog::showVerificationUriAndCode(const QUrl& uri, const QString& 
     ui->linkButton->setText(codeUrlString);
     ui->linkButton->setVisible(true);
 
-    ui->label->setText(tr("You can scan the QR code and complete the login process on a separate device, or you can open the link and login on this machine."));
+    ui->label->setText(tr("You can scan the QR code on a separate device to complete the login process, or you can open the link on this machine and log in. Authorization code:<b><font color='red' size='6'>%1</font></b>").arg(code));
+
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    clipboard->setText(code);
+
     m_code = code;
 }
 
