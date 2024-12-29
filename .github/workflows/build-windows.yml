@@ -2,9 +2,9 @@ name: build-windows
 
 on:
   push:
-    branches: [ Bs ]
+    branches: [Bs]
   pull_request:
-    branches: [ Bs ]
+    branches: [Bs]
   workflow_dispatch:
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
         with:
-          submodules: 'recursive'
+          submodules: "recursive"
 
       - name: Cache Qt
         uses: actions/cache@main
@@ -66,8 +66,8 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'zulu'
-          java-version: '8'
+          distribution: "zulu"
+          java-version: "8"
           architecture: x86
 
       - name: Setup zlib
@@ -168,7 +168,7 @@ jobs:
           curl -L https://devtools.qiniu.com/qshell-v2.6.2-windows-386.zip -o qshell.zip
           unzip qshell.zip
           .\qshell account ${{ secrets.AK }} ${{ secrets.SK }} bs
-          .\qshell qupload2 --src-dir=./qiniu --bucket=${{ secrets.QINIU_Name }} --up-host=http://upload-z2.qiniu.com --overwrite=true --rescan-local=true
+          .\qshell qupload2 --src-dir=./qiniu --bucket=${{ secrets.QINIU_Name }} --overwrite=true --rescan-local=true
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@main
@@ -183,7 +183,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
         with:
-          submodules: 'recursive'
+          submodules: "recursive"
 
       - name: Install Dependencies
         run: |
@@ -193,7 +193,7 @@ jobs:
           sudo add-apt-repository 'deb http://dk.archive.ubuntu.com/ubuntu/ xenial main'
           sudo add-apt-repository 'deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe'
           sudo apt update
-          sudo apt install libgl1-mesa-dev qttools5-dev g++-5 gcc-5
+          sudo apt install libgl1-mesa-dev qttools5-dev g++-5 gcc-5 libqt5svg5 libqt5svg5-dev
 
       - name: Build
         run: |
@@ -241,7 +241,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
         with:
-          submodules: 'recursive'
+          submodules: "recursive"
 
       - name: Cache Dependencies
         uses: actions/cache@main
