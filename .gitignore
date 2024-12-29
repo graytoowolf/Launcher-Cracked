@@ -25,6 +25,7 @@ build
 # Install dirs
 install
 /install-*
+/branding/logo*.svg
 
 # Ctags File
 tags
