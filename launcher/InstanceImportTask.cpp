@@ -327,6 +327,7 @@ void InstanceImportTask::processCurseForge()
     {
         components->setComponentVersion("net.neoforged",neoforgecVersion);
     }
+    components->saveNow();
     if (m_instIcon != "default")
     {
         instance.setIconKey(m_instIcon);

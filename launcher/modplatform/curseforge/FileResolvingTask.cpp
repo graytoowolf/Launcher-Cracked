@@ -14,6 +14,11 @@ CurseForge::FileResolvingTask::FileResolvingTask(shared_qobject_ptr<QNetworkAcce
 
 void CurseForge::FileResolvingTask::executeTask()
 {
+    if (m_toProcess.files.isEmpty())
+    {
+        emitSucceeded();
+        return;
+    }
     setStatus(tr("Parsing directory"));
     QJsonObject requestObject;
     QJsonArray modIdsArray;
